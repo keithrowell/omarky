@@ -54,6 +54,8 @@ Singleton {
   }
 
   function start() {
+    // OMAREAD_NO_KSH=1 behaves as if the package were missing (for checks).
+    if (Quickshell.env("OMAREAD_NO_KSH") === "1") { ready = true; return }
     probe.running = true
   }
 

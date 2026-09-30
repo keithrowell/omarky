@@ -18,7 +18,11 @@ pid() { cat "$LOCK"; }
 call() { qs ipc --pid "$(pid)" call omaread "$@"; }
 
 case "${1:-}" in
-  start) shift; "$ROOT/bin/omaread" "$@"; for _ in $(seq 50); do [ -s "$LOCK" ] && call count >/dev/null 2>&1 && break; sleep 0.1; done ;;
+  # Wait on the log, not IPC: an IPC call during startup races Qt's portal
+  # registration and logs a harmless warning.
+  start) shift; "$ROOT/bin/omaread" "$@"
+    for _ in $(seq 50); do grep -q "Configuration Loaded" "$XDG_STATE_HOME/omaread/qs.log" 2>/dev/null && break; sleep 0.1; done
+    sleep 0.3 ;;
   open) shift; "$ROOT/bin/omaread" "$@" ;;
   state) call state "${2:--1}" ;;
   key) call key "${3:--1}" "$2" ;;

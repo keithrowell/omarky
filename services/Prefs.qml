@@ -10,7 +10,9 @@ import Quickshell.Io
 Singleton {
   id: root
 
+  // Screenshot runs never write, and only read a state dir named for them.
   readonly property bool ephemeral: (Quickshell.env("OMAREAD_SHOT") || "") !== ""
+  readonly property bool readable: !ephemeral || (Quickshell.env("OMAREAD_STATE_DIR") || "") !== ""
   readonly property string dir: (Quickshell.env("OMAREAD_STATE_DIR")
     || (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/omaread")
   property real zoom: 1.0
@@ -51,7 +53,7 @@ Singleton {
 
   FileView {
     id: settingsFile
-    path: root.ephemeral ? "" : root.dir + "/settings.json"
+    path: root.readable ? root.dir + "/settings.json" : ""
     printErrors: false
     blockWrites: true
     onLoaded: {
@@ -66,7 +68,7 @@ Singleton {
 
   FileView {
     id: recentFile
-    path: root.ephemeral ? "" : root.dir + "/recent.json"
+    path: root.readable ? root.dir + "/recent.json" : ""
     printErrors: false
     blockWrites: true
     onLoaded: {

@@ -13,6 +13,7 @@ Rectangle {
   property bool outlineAvailable: true
   property bool wide: false
   property bool findShown: false
+  property bool hasDocument: true
   signal toggleOutline()
   signal toggleWide()
   signal toggleFind()
@@ -93,8 +94,8 @@ Rectangle {
 
     ChipButton { icon: ""; size: Style.font.body; active: root.findShown; onClicked: root.toggleFind(); tip: "Find  Ctrl+F" }
     ChipButton { icon: ""; size: Style.font.body; onClicked: root.copyAll(); tip: "Copy all  Ctrl+Shift+A" }
-    ChipButton { icon: root.wide ? "" : ""; size: Style.font.body; active: root.wide; onClicked: root.toggleWide(); tip: root.wide ? "Reading width  W" : "Wide width  W" }
-    ChipButton { visible: root.outlineAvailable; icon: ""; size: Style.font.body; active: root.outlineShown; onClicked: root.toggleOutline(); tip: "Outline  Ctrl+\\" }
+    ChipButton { visible: root.hasDocument; icon: root.wide ? "" : ""; size: Style.font.body; active: root.wide; onClicked: root.toggleWide(); tip: root.wide ? "Reading width  W" : "Wide width  W" }
+    ChipButton { visible: root.hasDocument && root.outlineAvailable; icon: ""; size: Style.font.body; active: root.outlineShown; onClicked: root.toggleOutline(); tip: "Outline  Ctrl+\\" }
     ChipButton { icon: ""; size: Style.font.body; onClicked: root.showHelp(); tip: "Shortcuts  ?" }
   }
 }

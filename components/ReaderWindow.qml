@@ -63,6 +63,30 @@ FloatingWindow {
     }
   }
 
+  function debugLink(href) { ctx.openLink(href) }
+
+  // Scroll the whole document in 120 px steps, building delegates
+  // synchronously; reports the slowest step (the delegate-creation cost a
+  // real frame would pay).
+  function debugBench() {
+    view.positionViewAtBeginning()
+    var worst = 0, total = 0, steps = 0, t0 = Date.now(), slow = []
+    while (!view.atYEnd && steps < 5000) {
+      var s = Date.now()
+      view.contentY += 120
+      view.forceLayout()
+      var d = Date.now() - s
+      if (d > 16) {
+        var bottom = view.topIndex
+        slow.push(d + "ms@" + bottom + ":" + (doc.blocks[bottom] ? doc.blocks[bottom].type + "/" + (doc.blocks[bottom].lang || doc.blocks[bottom].lineCount || "") : "?"))
+      }
+      worst = Math.max(worst, d); total += d; steps++
+    }
+    return { steps: steps, worstMs: worst, meanMs: Math.round(total / Math.max(1, steps) * 10) / 10,
+             over16: slow.length, slow: slow.slice(0, 12), totalMs: Date.now() - t0 }
+  }
+  function debugHover(index) { view.hoveredIndex = index }
+
   // "j", "G", "ctrl+f", "shift+space", "escape", "enter", "type:hello"
   function sendKey(spec) {
     if (spec.indexOf("type:") === 0) { findBar.query = spec.slice(5); return }
@@ -309,6 +333,7 @@ FloatingWindow {
       outlineAvailable: doc.headings.length > 1
       wide: win.wide
       findShown: win.findShown
+      hasDocument: !!win.path && doc.loaded
       onToggleOutline: win.outlineWanted = !win.outlineWanted
       onToggleWide: win.wide = !win.wide
       onToggleFind: { if (win.findShown) win.closeFind(); else { win.findShown = true; findBar.focusField() } }
@@ -413,6 +438,22 @@ FloatingWindow {
     }
 
     Toast { id: toast; z: 7 }
+
+    HighlightWarmup {
+      langs: {
+        var seen = {}, out = []
+        function walk(list) {
+          for (var i = 0; i < list.length; i++) {
+            var b = list[i]
+            if (b.type === "code" && b.lang && !seen[b.lang]) { seen[b.lang] = true; out.push(b.lang) }
+            if (b.blocks) walk(b.blocks)
+            if (b.items) b.items.forEach(function(it) { if (it.blocks) walk(it.blocks) })
+          }
+        }
+        walk(doc.blocks)
+        return out
+      }
+    }
 
     // Drop a Markdown file anywhere on the window.
     DropArea {

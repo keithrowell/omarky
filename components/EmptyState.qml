@@ -50,6 +50,7 @@ Item {
 
     Text {
       visible: root.recent.length > 0
+      leftPadding: Style.space(10)
       text: "Recent"
       color: Theme.faint
       font.family: Style.font.family
