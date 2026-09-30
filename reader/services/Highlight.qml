@@ -98,7 +98,10 @@ Singleton {
         }
         root.pending = made
         write.command = ["sh", "-c",
-          'd=$1; shift; mkdir -p "$d" || exit 1; while [ $# -gt 1 ]; do printf "%s\\n" "$2" > "$d/$1"; shift 2; done',
+          // Atomic (temp + rename) and only when changed: another OmaRead
+          // starting at the same moment may be reading these files.
+          'd=$1; shift; mkdir -p "$d" || exit 1; while [ $# -gt 1 ]; do t="$d/.$1.$$"; printf "%s\\n" "$2" > "$t" && ' +
+          '{ if cmp -s "$t" "$d/$1"; then rm -f "$t"; else mv -f "$t" "$d/$1"; fi; }; shift 2; done',
           "sh"].concat(args)
         write.running = true
       }

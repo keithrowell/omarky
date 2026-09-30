@@ -9,12 +9,23 @@ apps="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
 icons="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/scalable/apps"
 mkdir -p "$bin" "$apps" "$icons"
 
+# Installing a text/markdown handler can silently change which app opens
+# Markdown when no default is set. Keep whatever opened it before; making
+# OmaRead the default stays a deliberate step (see the README).
+before="$(xdg-mime query default text/markdown 2>/dev/null || true)"
+
 ln -sfn "$root/bin/omaread" "$bin/omaread"
 sed -e "s|^Exec=.*|Exec=$root/bin/omaread %f|" -e "s|^Icon=.*|Icon=omaread|" \
   "$root/ops/omaread.desktop" >"$apps/omaread.desktop"
 cp "$root/ops/omaread.svg" "$icons/omaread.svg"
 command -v update-desktop-database >/dev/null && update-desktop-database -q "$apps" || true
 command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -qtf "${icons%/scalable/apps}" 2>/dev/null || true
+
+after="$(xdg-mime query default text/markdown 2>/dev/null || true)"
+if [ -n "$before" ] && [ "$before" != "omaread.desktop" ] && [ "$after" != "$before" ]; then
+  xdg-mime default "$before" text/markdown
+  echo "Kept $before as the default for text/markdown."
+fi
 
 echo "Installed: $bin/omaread -> $root/bin/omaread"
 echo "           $apps/omaread.desktop"
