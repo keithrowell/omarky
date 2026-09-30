@@ -80,6 +80,7 @@ for theme in ${THEMES//,/ }; do
       timeout 300 qs --log-rules "qt.qml.usedbeforedeclared=false" -p "$ROOT/shell.qml" >"$out/qs.log" 2>&1 || echo "qs exited $? for $theme" >&2
   ) &
   pids+=($!)
+  sleep 0.4   # simultaneous qs starts race on Quickshell's runtime symlinks
 done
 for p in "${pids[@]}"; do wait "$p"; done
 

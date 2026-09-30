@@ -4,6 +4,7 @@
 #   omaread [FILE.md[#anchor] …]   open files (each in its own window)
 #   omaread                        an empty window with recent files
 #   omaread --foreground …         run qs in this terminal (development)
+#   omaread --version
 #
 # A running OmaRead gets the files over IPC and opens new windows; this
 # script exits at once. Otherwise it starts one detached qs process, logging
@@ -19,8 +20,9 @@ targets=()
 
 for arg in "$@"; do
   case "$arg" in
-    -h|--help) sed -n '2,10p' "$self" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,11p' "$self" | sed 's/^# \{0,1\}//'; exit 0 ;;
     --foreground) foreground=1; continue ;;
+    -V|--version) echo "omaread $(cat "$root/VERSION")"; exit 0 ;;
   esac
   path="$arg"; anchor=""
   # file.md#section, unless a file really has that name.
