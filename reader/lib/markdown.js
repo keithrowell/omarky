@@ -1,5 +1,7 @@
 .pragma library
 .import "../vendor/markdown-it.js" as MDI
+.import "footnote.js" as Footnote
+.import "linkify.js" as Linkify
 
 // The markdown-it instance OmaRead parses with. Raw HTML is recognised
 // (html: true) only so comments can be hidden and the rest shown as
@@ -10,6 +12,8 @@ var _md = null
 function parser() {
   if (_md) return _md
   _md = MDI.get()({ html: true, linkify: true, typographer: true })
+  _md.linkify = Linkify.linkify
+  Footnote.plugin(_md)
   return _md
 }
 

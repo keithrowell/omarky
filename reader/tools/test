@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Run the JS unit tests (test/tst_*.qml) headless under Qt's V4 engine.
+#   tools/test [-functions name…]
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+export QT_QPA_PLATFORM=offscreen
+export QML_XHR_ALLOW_FILE_READ=1
+# The minified vendor/markdown-it.js trips a declaration-order lint; it is valid JS.
+export QT_LOGGING_RULES="qt.qml.usedbeforedeclared=false"
+# /usr/bin/qmltestrunner is the Qt 5 one; use Qt 6.
+exec /usr/lib/qt6/bin/qmltestrunner -input test "$@"
