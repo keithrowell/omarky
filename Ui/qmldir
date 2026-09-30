@@ -1,0 +1,4 @@
+module qs.Ui
+
+BorderSurface 1.0 BorderSurface.qml
+PanelToolTip 1.0 PanelToolTip.qml
