@@ -66,6 +66,9 @@ print(json.dumps({"out": out, "jobs": jobs}))
 PY
 }
 
+# Where services/Highlight.qml writes the generated KSH themes (bin/omaread does the same).
+export XDG_DATA_DIRS="$HOME/.local/share/omaread/ksh:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+
 pids=()
 for theme in ${THEMES//,/ }; do
   dir="$(theme_dir "$theme")"

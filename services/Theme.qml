@@ -45,6 +45,9 @@ Singleton {
   // every theme gets the same relative depth.
   readonly property color raised: Util.alpha(Color.foreground, light ? 0.045 : 0.04)
   readonly property color sunken: Util.alpha(light ? Color.foreground : "#000000", light ? 0.035 : 0.22)
+  // Code panels sit one step below the page: the theme's own darker
+  // background when it names one.
+  readonly property color panel: named.dark_background ? named.dark_background : Qt.darker(Color.background, light ? 1.04 : 1.2)
   readonly property color card: Util.alpha(Color.foreground, 0.035)
   readonly property color hairline: Util.alpha(Color.foreground, light ? 0.14 : 0.12)
   readonly property color hairlineSoft: Util.alpha(Color.foreground, light ? 0.09 : 0.075)

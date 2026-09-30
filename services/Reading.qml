@@ -21,6 +21,17 @@ Singleton {
   // Body size: the shell's rem root scaled up for long-form reading.
   readonly property real body: Math.round(Style.font.body * 1.2 * zoom)
   readonly property real lineHeight: 1.6
+  // Chrome inside the page (badges, buttons) stays at UI size; zoom only
+  // scales reading text.
+  readonly property real chrome: Style.font.body
+  readonly property real chromeSmall: Style.font.caption
+  // Code: a touch smaller than prose, a little tighter leading.
+  readonly property real codeSize: Math.round(body * 0.84)
+  readonly property real codeLeading: 1.5
+
+  // Motion: durations collapse to zero under reduced motion.
+  property bool reducedMotion: Quickshell.env("OMAREAD_REDUCED_MOTION") === "1"
+  function motion(ms) { return reducedMotion ? 0 : ms }
   readonly property real ratio: 1.25
 
   // Colours and families lib/inline.js bakes into rich text. Rich text

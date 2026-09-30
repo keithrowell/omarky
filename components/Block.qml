@@ -19,7 +19,7 @@ Loader {
   })
 
   // Block types built so far (step 3 builds them one at a time).
-  readonly property var ready: ["paragraph", "heading", "list", "quote", "alert"]
+  readonly property var ready: ["paragraph", "heading", "list", "quote", "alert", "code", "diff"]
 
   Component.onCompleted: {
     var src = sources[block.type] || "blocks/HtmlBlock.qml"
