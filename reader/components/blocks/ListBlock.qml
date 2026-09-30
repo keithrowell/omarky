@@ -23,8 +23,9 @@ Column {
     return Math.ceil(w)
   }
   // Top-level markers hang left of the column; nested lists step in.
-  // Inside a card or quote there is no margin to hang in.
-  readonly property real indent: block.depth > 0 || look.contained ? Math.max(markerWidth + markerGap, Math.round(textSize * 1.5)) : 0
+  // Inside a card or quote there is no margin to hang in. Past ten levels
+  // nesting stops stepping in, so deep input cannot squeeze the column away.
+  readonly property real indent: (block.depth > 0 && block.depth <= 10) || (look.contained && block.depth === 0) ? Math.max(markerWidth + markerGap, Math.round(textSize * 1.5)) : 0
   readonly property real box: Math.round(textSize * 0.9)
 
   spacing: block.tight ? Math.round(textSize * 0.3) : Math.round(textSize * 0.75)
