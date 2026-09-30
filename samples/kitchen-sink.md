@@ -42,9 +42,13 @@ joins lines like this one into a single flowing paragraph.
 2. The numbers use tabular figures, so they line up.
 3. Even when they reach double digits.
 
+A paragraph between lists keeps them apart.
+
 8. A list can start at any number.
 9. Like this one, which starts at eight.
 10. And crosses into ten.
+
+Loose lists come next.
 
 - A loose list puts air between items.
 

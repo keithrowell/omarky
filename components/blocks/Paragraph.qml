@@ -1,10 +1,12 @@
 import QtQuick
-import qs.Commons
 import qs.services
 import qs.components
-import "../../lib/inline.js" as Inline
 
 RichText {
   required property var block
-  html: Inline.toHtml(block.runs, Reading.tones)
+  property var ctx: null
+  property var look: ({})
+  runs: block.runs
+  size: look.size || Reading.body
+  baseColor: look.tier === "dim" ? Theme.dim : Theme.text
 }
