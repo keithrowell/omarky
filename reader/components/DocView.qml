@@ -8,6 +8,7 @@ ListView {
   id: root
   property var blocks: []
   property bool wide: false
+  property var ctx: null
 
   readonly property real measure: Math.round(bodyMetrics.averageCharacterWidth * (wide ? 100 : 68))
   readonly property real column: Math.min(measure, width - Style.space(48) * 2)
@@ -34,15 +35,16 @@ ListView {
     required property var modelData
     required property int index
     width: root.width
-    height: loader.height + gap
-    readonly property real gap: index === 0 ? 0 : Math.round(Reading.body * 0.9)
+    height: block.height + gap
+    readonly property real gap: Reading.gapBefore(index > 0 ? root.blocks[index - 1] : null, modelData)
 
-    Loader {
-      id: loader
+    Block {
+      id: block
       x: root.gutter
       y: row.gap
       width: root.column
-      Component.onCompleted: setSource(Qt.resolvedUrl("blocks/Paragraph.qml"), { block: row.modelData, width: root.column })
+      block: row.modelData
+      ctx: root.ctx
     }
   }
 }

@@ -11,7 +11,12 @@ Singleton {
   property real zoom: 1.0
 
   readonly property string prose: "iA Writer Quattro S"
-  readonly property string mono: "iA Writer Mono S"
+  readonly property string mono: Quickshell.env("OMAREAD_CODE_FONT") || "iA Writer Mono S"
+  // Headings: OMAREAD_HEADING_FONT="Family/Style" is a dev switch for
+  // comparing candidates in screenshots (docs/decisions/0005).
+  readonly property var headingFont: (Quickshell.env("OMAREAD_HEADING_FONT") || "iA Writer Quattro S/Bold").split("/")
+  readonly property string heading: headingFont[0]
+  readonly property string headingStyle: headingFont[1] || "Bold"
 
   // Body size: the shell's rem root scaled up for long-form reading.
   readonly property real body: Math.round(Style.font.body * 1.2 * zoom)
@@ -24,10 +29,32 @@ Singleton {
     rev: Theme.revision,
     mono: mono,
     text: Theme.hex(Theme.text),
+    strong: Theme.hex(Theme.strong),
+    dim: Theme.hex(Theme.dim),
     link: Theme.hex(Theme.accent),
     codeText: Theme.hex(Theme.mix(Theme.text, Theme.accent, 0.12)),
-    codeBg: Theme.hex(Theme.flat(Theme.fg, Theme.light ? 0.07 : 0.085))
+    codeBg: Theme.hex(Theme.flat(Theme.fg, Theme.light ? 0.07 : 0.085)),
+    codeSize: Math.round(body * 0.86),
+    rawText: Theme.hex(Theme.faint)
   })
+
+  // Vertical rhythm: the gap above a block, in pixels, given the block
+  // before it. Headings bind to what follows them, not what precedes.
+  function gapBefore(prev, cur) {
+    if (!prev) return 0
+    var em = body
+    if (cur.type === "heading") {
+      if (prev.type === "heading" && cur.level > prev.level) return Math.round(em * 0.7)
+      return Math.round(em * [0, 2.6, 2.2, 1.7, 1.4, 1.3, 1.3][cur.level])
+    }
+    if (prev.type === "heading") return Math.round(em * (prev.level <= 2 ? 0.75 : 0.5))
+    if (prev.type === "frontmatter") return Math.round(em * 2.2)
+    if (cur.type === "hr" || prev.type === "hr") return Math.round(em * 1.9)
+    if (cur.type === "footnotes") return Math.round(em * 2.6)
+    var framed = { code: 1, diff: 1, table: 1, alert: 1, image: 1, quote: 1, frontmatter: 1 }
+    if (framed[cur.type] || framed[prev.type]) return Math.round(em * 1.25)
+    return Math.round(em * 0.9)
+  }
 
   function size(step) { return Math.round(body * Math.pow(ratio, step)) }
 }
