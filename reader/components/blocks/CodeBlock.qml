@@ -24,6 +24,26 @@ Rectangle {
   readonly property real gutterW: numbered ? Math.ceil(metrics.advanceWidth(String(block.lineCount))) + Math.round(size * 1.4) : 0
   property bool copied: false
 
+  // Find (see RichText.qml): this block is one searchable piece.
+  readonly property var finder: ctx ? ctx.finder : null
+  readonly property string findQuery: finder && block.pid !== undefined ? finder.query : ""
+  readonly property int currentK: finder && finder.currentPid === block.pid ? finder.currentK : -1
+  readonly property var findOpts: findQuery ? { find: findQuery, findBg: Reading.tones.findBg, current: currentK,
+                                                currentBg: Reading.tones.currentBg, currentText: Reading.tones.currentText } : null
+
+  function revealCurrent() {
+    if (currentK < 0 || !ctx) return
+    var line = Code.lineOfMatch(block.text, findQuery, currentK)
+    if (line < 0) return
+    ctx.revealMatch(root, padTop + line * lineH + lineH / 2)
+    // Scroll sideways to a match past the right edge of a long line.
+    var r = code.positionToRectangle(Code.docPosOfMatch(block.text, findQuery, currentK))
+    if (r.x < flick.contentX || r.x > flick.contentX + flick.width - Reading.body * 3)
+      flick.contentX = Math.max(0, Math.min(flick.contentWidth - flick.width, r.x - flick.width / 3))
+  }
+  onCurrentKChanged: if (currentK >= 0) Qt.callLater(revealCurrent)
+  Component.onCompleted: if (currentK >= 0) Qt.callLater(revealCurrent)
+
   implicitHeight: Math.max(code.implicitHeight, lineH) + padTop + padY
   radius: Math.max(4, Style.cornerRadius)
   color: Theme.panel
@@ -79,7 +99,8 @@ Rectangle {
       font.family: Reading.mono
       font.pixelSize: root.size
       tabStopDistance: metrics.averageCharacterWidth * 4
-      text: Code.toHtml(root.block.text, root.lineH)
+      text: Code.toHtml(root.block.text, root.lineH, root.findOpts)
+      onSelectedTextChanged: if (selectedText && root.ctx) root.ctx.claimSelection(code)
     }
   }
 

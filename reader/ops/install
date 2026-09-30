@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Install OmaRead for this user: the launcher on PATH, the desktop entry and
+# the icon. Re-run after moving the repository. Does not change the default
+# Markdown app; see the README for the xdg-mime command.
+set -euo pipefail
+root="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+bin="$HOME/.local/bin"
+apps="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+icons="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/scalable/apps"
+mkdir -p "$bin" "$apps" "$icons"
+
+ln -sfn "$root/bin/omaread" "$bin/omaread"
+sed -e "s|^Exec=.*|Exec=$root/bin/omaread %f|" -e "s|^Icon=.*|Icon=omaread|" \
+  "$root/ops/omaread.desktop" >"$apps/omaread.desktop"
+cp "$root/ops/omaread.svg" "$icons/omaread.svg"
+command -v update-desktop-database >/dev/null && update-desktop-database -q "$apps" || true
+command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -qtf "${icons%/scalable/apps}" 2>/dev/null || true
+
+echo "Installed: $bin/omaread -> $root/bin/omaread"
+echo "           $apps/omaread.desktop"
+command -v syntax-highlighting >/dev/null 2>&1 || [ -f /usr/lib/qt6/qml/org/kde/syntaxhighlighting/qmldir ] \
+  || echo "Optional:  sudo pacman -S --needed syntax-highlighting   (code colours)"

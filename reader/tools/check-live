@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Manual check for live reload (spec §5), against the tools/dev instance:
+# in-place edits, an insert above the reading position, an editor-style
+# atomic rename, a burst of writes, delete and restore. Prints the view's
+# state after each step: the top block should stay the same block.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+T="${TMPDIR:-/tmp}/omaread-live"
+mkdir -p "$T"
+cp "$ROOT/samples/prose.md" "$T/live.md"
+"$ROOT/tools/dev" stop; sleep 1
+"$ROOT/tools/dev" start "$T/live.md"; sleep 1
+
+st() {
+  "$ROOT/tools/dev" state | python3 -c "
+import json,sys; d=json.load(sys.stdin)
+print(sys.argv[1].ljust(22), 'reloads=%-2d blocks=%-3d top=%-3d topLine=%-4d offsetY=%-6d missing=%s' % (d['reloads'], d['blocks'], d['topIndex'], d['topLine'], d['contentY'], d['missing']))" "$@"
+}
+
+for _ in 1 2 3; do "$ROOT/tools/dev" key space; done; sleep 0.6; st "scrolled"
+printf '\nA closing paragraph appended by an editor.\n' >>"$T/live.md"; sleep 0.6; st "append at end"
+python3 - "$T/live.md" <<'PY'
+import sys; p = sys.argv[1]; s = open(p).read()
+open(p, "w").write(s.replace("\n\nMost of what", "\n\nInserted one.\n\nInserted two.\n\nInserted three.\n\nMost of what", 1))
+PY
+sleep 0.6; st "insert 3 above"
+cp "$T/live.md" "$T/.live.tmp"; sed -i 's/Inserted two\./Inserted TWO./' "$T/.live.tmp"; command mv -f "$T/.live.tmp" "$T/live.md"
+sleep 0.6; st "atomic rename"
+for i in $(seq 10); do echo "burst $i" >>"$T/live.md"; sleep 0.02; done; sleep 0.6; st "burst of 10 writes"
+command mv -f "$T/live.md" "$T/live.bak"; sleep 0.8; st "deleted"
+"$ROOT/tools/dev" shot live-deleted >/dev/null
+command mv -f "$T/live.bak" "$T/live.md"; sleep 1.6; st "restored"
+echo "after restore" >>"$T/live.md"; sleep 0.6; st "edit after restore"

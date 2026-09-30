@@ -218,11 +218,23 @@ TestCase {
     compare(doc.anchors["fn-2"], 4)
   }
 
-  function test_pieces_are_the_searchable_text() {
-    var doc = Blocks.build("Para **one**.\n\n- a\n- b\n\n```\nx = 1\n```\n")
-    compare(Blocks.pieces(doc.blocks[0]), ["Para one."])
-    compare(Blocks.pieces(doc.blocks[1]), ["a", "b"])
-    compare(Blocks.pieces(doc.blocks[2]), ["x = 1"])
+  function test_find_index_stamps_piece_ids_in_document_order() {
+    var doc = Blocks.build("# Beta\n\nalpha beta\n\n- beta one\n- two\n\n| h | beta |\n|---|---|\n| beta | x |\n\n```\nbeta = 1\nbeta\n```\n")
+    var idx = doc.pieces
+    compare(idx.map(function(p) { return p.text }), ["Beta", "alpha beta", "beta one", "two", "h", "beta", "beta", "x", "beta = 1\nbeta"])
+    compare(idx.map(function(p) { return p.pid }), [0, 1, 2, 3, 4, 5, 6, 7, 8])
+    compare(idx.map(function(p) { return p.block }), [0, 1, 2, 2, 3, 3, 3, 3, 4])
+    compare(doc.blocks[0].pid, 0)
+    compare(doc.blocks[2].items[1].blocks[0].pid, 3)
+    compare(doc.blocks[3].headerPids, [4, 5])
+    compare(doc.blocks[3].rowPids, [[6, 7]])
+    compare(doc.blocks[4].pid, 8)
+    var m = Blocks.findAll(doc, "BETA")
+    compare(m.length, 7)
+    compare(m[0].pid, 0)
+    compare(m[5], { pid: 8, block: 4, k: 0 })
+    compare(m[6], { pid: 8, block: 4, k: 1 })
+    compare(Blocks.findAll(doc, "").length, 0)
   }
 
   function test_every_sample_builds() {

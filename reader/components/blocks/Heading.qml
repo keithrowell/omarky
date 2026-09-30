@@ -20,6 +20,7 @@ Item {
     width: parent.width
     runs: root.block.runs
     ctx: root.ctx
+    pid: root.block.pid !== undefined ? root.block.pid : -1
     size: Reading.size(root.step)
     leading: root.level <= 2 ? 1.25 : 1.35
     family: Reading.heading

@@ -95,5 +95,9 @@ TestCase {
     compare(html.split("#ffff00").length - 1, 1)
     compare(html.split("#ff8800").length - 1, 1)
     compare(Inline.countMatches("alpha beta gamma beta", "BETA"), 2)
+    var rs = runsOf("a `code` beta")
+    compare(Inline.docPos(rs, 0), 0)
+    compare(Inline.docPos(rs, 2), 3, "inside the chip, after its pad")
+    compare(Inline.docPos(rs, 7), 9, "after the chip and both pads")
   }
 }

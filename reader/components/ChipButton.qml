@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Commons
+import qs.Ui
 import qs.services
 
 // A small quiet button: an icon and optional label, a hairline and a soft
@@ -11,6 +12,7 @@ Rectangle {
   property color tint: Theme.dim
   property real size: Math.round(Reading.chromeSmall)
   property bool active: false
+  property string tip: ""
   signal clicked()
 
   implicitHeight: Math.round(size * 2)
@@ -43,5 +45,10 @@ Rectangle {
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     onClicked: root.clicked()
+  }
+
+  PanelToolTip {
+    visible: root.tip !== "" && mouse.containsMouse
+    text: root.tip
   }
 }
