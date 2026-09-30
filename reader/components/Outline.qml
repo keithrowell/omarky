@@ -61,7 +61,7 @@ Rectangle {
       readonly property bool isCurrent: index === root.currentItem
       readonly property int depth: modelData.level - root.minLevel
       width: list.width
-      height: label.implicitHeight + Style.space(9)
+      height: label.implicitHeight + Style.space(12)
 
       Rectangle {
         anchors.fill: parent
@@ -84,15 +84,15 @@ Rectangle {
 
       Text {
         id: label
-        x: Style.space(20) + entry.depth * Style.space(12)
+        x: Style.space(22) + entry.depth * Style.space(14)
         width: parent.width - x - Style.space(18)
         anchors.verticalCenter: parent.verticalCenter
         text: entry.modelData.text || "—"
         textFormat: Text.PlainText
         elide: Text.ElideRight
-        color: entry.isCurrent ? Theme.text : entry.depth === 0 ? Theme.dim : Theme.faint
+        color: entry.isCurrent ? Theme.text : entry.depth === 0 ? Theme.dim : Theme.mix(Theme.dim, Theme.faint, 0.5)
         font.family: Style.font.family
-        font.pixelSize: entry.depth === 0 ? Style.font.bodySmall : Style.font.caption
+        font.pixelSize: entry.depth === 0 ? Style.font.body : Style.font.bodySmall
         font.bold: entry.depth === 0
         Behavior on color { ColorAnimation { duration: Reading.motion(120) } }
       }
