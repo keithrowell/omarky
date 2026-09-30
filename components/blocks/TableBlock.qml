@@ -29,28 +29,60 @@ Item {
     return Text.AlignLeft
   }
 
-  // Natural width of each column, from its widest cell, capped.
-  readonly property var widths: {
+  // Column widths: each column's natural width (its widest cell), capped.
+  // If that is wider than the page, columns give up space in proportion to
+  // what they have beyond their minimum (the header, or ~10 characters), so
+  // prose tables wrap to fit; only when even the minimums do not fit does
+  // the table scroll sideways.
+  readonly property var natural: {
     var out = []
     for (var c = 0; c < cols; c++) {
       var w = headMetrics.advanceWidth(Inline.plain(block.header[c]).toUpperCase())
-      for (var r = 0; r < block.rows.length; r++) {
-        var cell = block.rows[r][c]
-        var t = Inline.plain(cell)
-        var bold = cell.some(function(x) { return x.b })
-        w = Math.max(w, (bold ? boldMetrics : textMetrics).advanceWidth(t) * 1.02)
-      }
+      for (var r = 0; r < block.rows.length; r++) w = Math.max(w, cellWidth(block.rows[r][c]))
       out.push(Math.ceil(Math.min(w, maxCol) + padX * 2 + 2))
     }
     return out
   }
+  readonly property var minimum: {
+    var out = []
+    for (var c = 0; c < cols; c++) {
+      var head = headMetrics.advanceWidth(Inline.plain(block.header[c]).toUpperCase().split(/\s+/).reduce(function(a, b) { return a.length > b.length ? a : b }, ""))
+      out.push(Math.ceil(Math.min(natural[c], Math.max(head + padX * 2 + 2, textMetrics.averageCharacterWidth * 10 + padX * 2))))
+    }
+    return out
+  }
+  readonly property var widths: {
+    var avail = width - 2
+    var total = natural.reduce(function(a, b) { return a + b }, 0)
+    if (total <= avail || avail <= 0) return natural
+    var minTotal = minimum.reduce(function(a, b) { return a + b }, 0)
+    // Too wide either way: scroll, at a comfortable width per column.
+    if (minTotal >= avail) {
+      var cap = textMetrics.averageCharacterWidth * 24 + padX * 2
+      return natural.map(function(n, c) { return Math.ceil(Math.max(minimum[c], Math.min(n, cap))) })
+    }
+    var give = total - avail, slack = total - minTotal
+    return natural.map(function(n, c) { return Math.floor(n - (n - minimum[c]) * give / slack) })
+  }
   readonly property real naturalWidth: widths.reduce(function(a, b) { return a + b }, 0)
+
+  // Each run in the font it is drawn in; code chips add their padding.
+  function cellWidth(runs) {
+    var w = 0
+    for (var i = 0; i < runs.length; i++) {
+      var r = runs[i]
+      if (r.code) w += codeMetrics.advanceWidth(r.t) + textMetrics.advanceWidth("\u2005\u2005")
+      else w += (r.b ? boldMetrics : textMetrics).advanceWidth(r.t)
+    }
+    return w * 1.02 + 1
+  }
 
   implicitHeight: frame.height
   implicitWidth: Math.min(naturalWidth, width)
 
   FontMetrics { id: textMetrics; font.family: Reading.prose; font.styleName: "Regular"; font.pixelSize: root.textSize }
   FontMetrics { id: boldMetrics; font.family: Reading.prose; font.styleName: "Bold"; font.pixelSize: root.textSize }
+  FontMetrics { id: codeMetrics; font.family: Reading.mono; font.pixelSize: Reading.tones.codeSize }
   FontMetrics { id: headMetrics; font.family: Reading.mono; font.styleName: "Bold"; font.pixelSize: root.headSize; font.letterSpacing: 0.8 }
 
   Rectangle {
