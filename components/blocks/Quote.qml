@@ -11,7 +11,9 @@ Item {
   property var look: ({})
 
   readonly property real barWidth: Math.max(2, Math.round(Reading.body / 6))
-  readonly property real inset: Math.round(Reading.body * 1.2)
+  readonly property int depth: (look.quoteDepth || 0) + 1
+  // Deeply nested quotes stop stepping in (malformed input).
+  readonly property real inset: depth <= 8 ? Math.round(Reading.body * 1.2) : Math.round(Reading.body * 0.5)
   implicitHeight: stack.height
 
   Rectangle {
@@ -27,6 +29,6 @@ Item {
     width: parent.width - root.inset
     blocks: root.block.blocks
     ctx: root.ctx
-    look: ({ size: Math.round(Reading.body * 0.94), tier: "dim", contained: true })
+    look: ({ size: Math.round(Reading.body * 0.94), tier: "dim", contained: true, quoteDepth: root.depth })
   }
 }
