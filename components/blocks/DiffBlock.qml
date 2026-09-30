@@ -21,6 +21,20 @@ Rectangle {
   readonly property real signW: Math.round(size * 1.6)
   property bool copied: false
 
+  // Find (see RichText.qml): the whole diff is one searchable piece.
+  readonly property var finder: ctx ? ctx.finder : null
+  readonly property string findQuery: finder && block.pid !== undefined ? finder.query : ""
+  readonly property int currentK: finder && finder.currentPid === block.pid ? finder.currentK : -1
+  onCurrentKChanged: if (currentK >= 0) Qt.callLater(revealCurrent)
+  Component.onCompleted: if (currentK >= 0) Qt.callLater(revealCurrent)
+
+  function revealCurrent() {
+    if (currentK < 0 || !ctx) return
+    // Matches count over the diff's source text; map to its line.
+    var line = Code.lineOfMatch(block.text, findQuery, currentK)
+    if (line >= 0) ctx.revealMatch(root, headerH + 1 + padY + line * lineH + lineH / 2)
+  }
+
   implicitHeight: headerH + 1 + padY * 2 + block.lines.length * lineH
   radius: Math.max(4, Style.cornerRadius)
   color: Theme.panel
@@ -33,14 +47,23 @@ Rectangle {
   }
 
   function linesHtml() {
-    var out = ""
+    var out = "", state = { k: 0 }
+    var opts = findQuery ? { find: findQuery, findBg: Reading.tones.findBg, current: currentK,
+                             currentBg: Reading.tones.currentBg, currentText: Reading.tones.currentText } : null
+    var raw = block.text.split("\n")
     for (var i = 0; i < block.lines.length; i++) {
       var l = block.lines[i]
+      // Count matches in the raw line (sign included) so numbering agrees
+      // with find; paint them in the shown text.
+      var before = state.k
+      Code.paintLine(raw[i] || "", opts ? { find: opts.find } : null, state)
+      var shown = { k: before }
+      var body = Code.paintLine(l.text, opts, shown)
       var c = l.kind === "add" ? Theme.mix(Theme.text, Theme.green, 0.3)
             : l.kind === "del" ? Theme.mix(Theme.text, Theme.red, 0.3)
             : l.kind === "hunk" ? Theme.blue
             : l.kind === "meta" ? Theme.faint : Theme.text
-      out += Code.lineHtml(l.text, lineH, "; color:" + Theme.hex(c))
+      out += Code.lineHtml(l.text, lineH, "; color:" + Theme.hex(c), body)
     }
     return out
   }
@@ -170,6 +193,7 @@ Rectangle {
       font.pixelSize: root.size
       tabStopDistance: metrics.averageCharacterWidth * 4
       text: root.linesHtml()
+      onSelectedTextChanged: if (selectedText && root.ctx) root.ctx.claimSelection(code)
     }
   }
 

@@ -11,6 +11,7 @@ than editing them, and keep the one local change below.
 | `Commons/Style.qml` | `~/.local/share/omarchy/shell/Commons/Style.qml` | 2026-09-30 |
 | `Commons/Util.qml` | `~/.local/share/omarchy/shell/Commons/Util.qml` | 2026-09-30 |
 | `Commons/qmldir` | `~/.local/share/omarchy/shell/Commons/qmldir` | 2026-09-30 |
+| `Ui/BorderOverlay.qml` | `~/.local/share/omarchy/shell/Ui/BorderOverlay.qml` | 2026-09-30 |
 | `Ui/BorderSurface.qml` | `~/.local/share/omarchy/shell/Ui/BorderSurface.qml` | 2026-09-30 |
 | `Ui/PanelToolTip.qml` | `~/.local/share/omarchy/shell/Ui/PanelToolTip.qml` | 2026-09-30 |
 
@@ -19,7 +20,7 @@ Omarchy revision at copy time: `f632d26b` (2026-08-23).
 `Util.qml` is Omarchy's version. The Factory's copy (`~/lab/factory/ui/Commons/Util.qml`)
 adds an `execArgv()` helper; OmaRead does not need it, so it keeps the upstream file.
 
-`Ui/qmldir` is trimmed to the two components OmaRead uses.
+`Ui/qmldir` is trimmed to the three components OmaRead uses.
 
 ## Local change
 

@@ -25,7 +25,29 @@ TextEdit {
   // heading anchors).
   property real firstLineY: 0
 
-  readonly property string html: Inline.toHtml(runs, Reading.tones, { hover: hoveredLink })
+  // Find: this piece's id (lib/blocks.js stampPieces) ties it to matches.
+  property int pid: -1
+  readonly property var finder: ctx ? ctx.finder : null
+  readonly property string findQuery: finder && pid >= 0 ? finder.query : ""
+  readonly property bool holdsCurrent: finder !== null && pid >= 0 && finder.currentPid === pid
+  readonly property int currentK: holdsCurrent ? finder.currentK : -1
+
+  readonly property string html: Inline.toHtml(runs, Reading.tones, {
+    hover: hoveredLink, find: findQuery, findBg: Reading.tones.findBg,
+    current: currentK, currentBg: Reading.tones.currentBg, currentText: Reading.tones.currentText
+  })
+
+  function revealCurrent() {
+    if (currentK < 0 || !ctx) return
+    var ranges = Inline.matchRanges(Inline.plain(runs), findQuery)
+    if (currentK >= ranges.length) return
+    var r = positionToRectangle(Inline.docPos(runs, ranges[currentK][0]))
+    ctx.revealMatch(root, r.y + r.height / 2)
+  }
+  onCurrentKChanged: if (currentK >= 0) Qt.callLater(revealCurrent)
+  Component.onCompleted: if (currentK >= 0) Qt.callLater(revealCurrent)
+
+  onSelectedTextChanged: if (selectedText && ctx) ctx.claimSelection(root)
 
   readOnly: true
   selectByMouse: true

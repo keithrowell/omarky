@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import qs.Commons
 
 // Reading typography: the families and the modular scale every block uses.
@@ -8,7 +9,7 @@ import qs.Commons
 Singleton {
   id: root
 
-  property real zoom: 1.0
+  readonly property real zoom: Prefs.zoom
 
   readonly property string prose: "iA Writer Quattro S"
   readonly property string mono: Quickshell.env("OMAREAD_CODE_FONT") || "iA Writer Mono S"
@@ -29,8 +30,11 @@ Singleton {
   readonly property real codeSize: Math.round(body * 0.84)
   readonly property real codeLeading: 1.5
 
-  // Motion: durations collapse to zero under reduced motion.
-  property bool reducedMotion: Quickshell.env("OMAREAD_REDUCED_MOTION") === "1"
+  // Motion: durations collapse to zero under reduced motion, which is
+  // OMAREAD_REDUCED_MOTION=1 or Hyprland's animations switched off (Omarchy
+  // has no separate setting).
+  readonly property bool reducedMotion: Quickshell.env("OMAREAD_REDUCED_MOTION") === "1" || !hyprAnimations
+  property bool hyprAnimations: true
   function motion(ms) { return reducedMotion ? 0 : ms }
   readonly property real ratio: 1.25
 
@@ -46,7 +50,10 @@ Singleton {
     codeText: Theme.hex(Theme.mix(Theme.text, Theme.accent, 0.12)),
     codeBg: Theme.hex(Theme.flat(Theme.fg, Theme.light ? 0.07 : 0.085)),
     codeSize: Math.round(body * 0.86),
-    rawText: Theme.hex(Theme.faint)
+    rawText: Theme.hex(Theme.faint),
+    findBg: Theme.hex(Theme.flat(Theme.accent, Theme.light ? 0.22 : 0.3)),
+    currentBg: Theme.hex(Theme.accent),
+    currentText: Theme.hex(Theme.bg)
   })
 
   // Vertical rhythm: the gap above a block, in pixels, given the block
@@ -66,6 +73,16 @@ Singleton {
     var framed = { code: 1, diff: 1, table: 1, alert: 1, image: 1, quote: 1, frontmatter: 1 }
     if (framed[cur.type] || framed[prev.type]) return Math.round(em * 1.25)
     return Math.round(em * 0.9)
+  }
+
+  Process {
+    running: true
+    command: ["hyprctl", "-j", "getoption", "animations:enabled"]
+    stdout: StdioCollector {
+      onStreamFinished: {
+        try { root.hyprAnimations = JSON.parse(text).int !== 0 } catch (e) { root.hyprAnimations = true }
+      }
+    }
   }
 
   function size(step) { return Math.round(body * Math.pow(ratio, step)) }

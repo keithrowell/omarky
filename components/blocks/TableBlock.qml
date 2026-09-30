@@ -90,22 +90,22 @@ Item {
                 required property int index
                 width: root.widths[index]
                 height: head.implicitHeight + root.padY * 2
-                Text {
+                RichText {
                   id: head
                   x: root.padX
                   y: root.padY
                   width: parent.width - root.padX * 2
-                  text: Inline.plain(root.block.header[index])
-                  textFormat: Text.PlainText
-                  wrapMode: Text.Wrap
+                  runs: [{ t: Inline.plain(root.block.header[index]) }]
+                  ctx: root.ctx
+                  pid: root.block.headerPids ? root.block.headerPids[index] : -1
                   horizontalAlignment: root.align(index)
-                  color: Theme.dim
-                  font.family: Reading.mono
-                  font.styleName: "Bold"
-                  font.pixelSize: root.headSize
-                  font.letterSpacing: 0.8
-                  font.capitalization: Font.AllUppercase
-                  lineHeight: 1.3
+                  baseColor: Theme.dim
+                  family: Reading.mono
+                  styleName: "Bold"
+                  size: root.headSize
+                  leading: 1.35
+                  tracking: 0.8
+                  capitals: true
                 }
               }
             }
@@ -139,6 +139,7 @@ Item {
                     width: parent.width - root.padX * 2
                     runs: rowItem.modelData[index]
                     ctx: root.ctx
+                    pid: root.block.rowPids ? root.block.rowPids[rowItem.index][index] : -1
                     size: root.textSize
                     leading: 1.45
                     horizontalAlignment: root.align(index)
