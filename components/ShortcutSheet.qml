@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell.Io
 import qs.Commons
 import qs.services
 
@@ -17,6 +18,13 @@ Rectangle {
     { title: "File", keys: [["Ctrl+O", "Open a file"], ["Ctrl+R", "Reload"], ["Ctrl+W  q", "Close window"], ["?", "This sheet"]] }
   ]
 
+  property string version: ""
+  FileView {
+    path: Qt.resolvedUrl("../VERSION").toString().replace("file://", "")
+    printErrors: false
+    onLoaded: root.version = text().trim()
+  }
+
   MouseArea { anchors.fill: parent; onClicked: root.closeRequested() }
 
   Rectangle {
@@ -29,6 +37,16 @@ Rectangle {
     border.width: 1
     border.color: Theme.hairline
     MouseArea { anchors.fill: parent }
+
+    Text {
+      anchors.right: parent.right
+      anchors.rightMargin: Style.space(24)
+      y: Style.space(22)
+      text: "OmaRead " + root.version
+      color: Theme.ghost
+      font.family: Style.font.family
+      font.pixelSize: Style.font.caption
+    }
 
     Column {
       id: column

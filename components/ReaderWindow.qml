@@ -49,6 +49,14 @@ FloatingWindow {
     if (o.reloaded) header.pulse()
     if (o.missing) doc.missing = true
     if (o.hover !== undefined) view.hoveredIndex = o.hover
+    // Screenshots start with the anchored heading near the top.
+    if (o.anchor) Qt.callLater(function() {
+      var i = doc.anchorMap[o.anchor]
+      if (i === undefined) return
+      view.positionViewAtIndex(i, ListView.Beginning)
+      var item = view.itemAtIndex(i)
+      if (item) view.contentY = view.clampY(item.y + item.gap - Style.space(26))
+    })
   }
 
   // ---- dev hooks for IPC checks (shell.qml)
