@@ -48,7 +48,10 @@ fi
 
 mkdir -p "$state"
 export OMAREAD_OPEN="$(printf '%s\n' "${targets[@]+"${targets[@]}"}")"
-qs_args=(--log-rules "qt.qml.usedbeforedeclared=false" -p "$root/shell.qml")
+# Log rules: the minified markdown-it trips a declaration-order lint, and Qt
+# logs a portal app-ID clash on every Quickshell app (the Factory too);
+# neither is ours to fix (docs/decisions/0008).
+qs_args=(--log-rules "qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false" -p "$root/shell.qml")
 if [ "$foreground" = 1 ]; then
   exec qs "${qs_args[@]}"
 fi

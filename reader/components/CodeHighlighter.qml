@@ -13,7 +13,9 @@ Item {
   readonly property var def: {
     var name = Highlight.definitionName(lang)
     var d = name ? Repository.definitionForName(name) : null
-    if ((!d || !d.name) && lang) d = Repository.definitionForFileName("file." + String(lang).toLowerCase())
+    // Then as a file extension ("rb", "tsx"); only for things that look like
+    // one, since the first such lookup compiles every definition's globs.
+    if ((!d || !d.name) && /^[A-Za-z0-9+#]{1,8}$/.test(lang)) d = Repository.definitionForFileName("file." + String(lang).toLowerCase())
     return d && d.name ? d : null
   }
   readonly property var theme: {

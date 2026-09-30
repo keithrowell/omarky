@@ -121,6 +121,9 @@ ShellRoot {
     function state(n: int): string { var w = shell.win(n); return w ? JSON.stringify(w.debugState()) : "{}" }
     function key(n: int, spec: string): void { var w = shell.win(n); if (w) w.sendKey(spec) }
     function shot(n: int, path: string): void { var w = shell.win(n); if (w) w.grabRoot.grabToImage(function(r) { r.saveToFile(path) }) }
+    function link(n: int, href: string): void { var w = shell.win(n); if (w) w.debugLink(href) }
+    function hover(n: int, index: int): void { var w = shell.win(n); if (w) w.debugHover(index) }
+    function bench(n: int): string { var w = shell.win(n); return w ? JSON.stringify(w.debugBench()) : "{}" }
     function close(n: int): void { var w = shell.win(n); if (w) w.closeRequested() }
   }
 
