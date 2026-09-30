@@ -108,6 +108,8 @@ def reading_time(words, wpm=238):
 
 ![A folded page with a reading line](../ops/omaread.svg)
 
+![A wide bitmap, scaled to the column with rounded corners](assets/dusk.png)
+
 ![This image does not exist](missing-picture.png)
 
 ## Raw HTML

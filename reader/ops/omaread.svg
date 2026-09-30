@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- OmaRead: a folded page with a reading line. -->
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6f3ec"/>
+      <stop offset="1" stop-color="#e9e4d8"/>
+    </linearGradient>
+  </defs>
+  <path d="M30 10h46l26 26v74a8 8 0 0 1-8 8H30a8 8 0 0 1-8-8V18a8 8 0 0 1 8-8z" fill="url(#page)"/>
+  <path d="M76 10v18a8 8 0 0 0 8 8h18z" fill="#d6cfbf"/>
+  <rect x="36" y="46" width="46" height="5" rx="2.5" fill="#bdb5a4"/>
+  <rect x="36" y="60" width="56" height="5" rx="2.5" fill="#bdb5a4"/>
+  <rect x="36" y="74" width="56" height="6" rx="3" fill="#d8a657"/>
+  <rect x="28" y="73" width="3" height="8" rx="1.5" fill="#d8a657"/>
+  <rect x="36" y="89" width="56" height="5" rx="2.5" fill="#bdb5a4"/>
+  <rect x="36" y="103" width="34" height="5" rx="2.5" fill="#bdb5a4"/>
+</svg>

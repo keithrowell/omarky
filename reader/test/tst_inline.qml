@@ -65,8 +65,9 @@ TestCase {
   function test_code_chip_html() {
     var html = Inline.toHtml(runsOf("use `md.parse()` here"), tones)
     verify(html.indexOf("iA Writer Mono S") > 0)
-    verify(html.indexOf("background-color:#303030") > 0)
     verify(html.indexOf("md.parse()") > 0)
+    compare(Inline.chipRanges(runsOf("use `md.parse()` here")), [[4, 16]])
+    compare(Inline.chipRanges(runsOf("`a` and `bc`")), [[0, 3], [8, 12]])
   }
 
   function test_inline_html() {

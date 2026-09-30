@@ -9,10 +9,40 @@ ListView {
   property var blocks: []
   property bool wide: false
   property var ctx: null
+  property var anchorMap: ({})
 
   readonly property real measure: Math.round(bodyMetrics.averageCharacterWidth * (wide ? 100 : 68))
   readonly property real column: Math.min(measure, width - Style.space(48) * 2)
   readonly property real gutter: Math.round((width - column) / 2)
+
+  // Where contentY would be with block `index` at the top (less a margin).
+  function targetFor(index) {
+    var keep = contentY
+    positionViewAtIndex(index, ListView.Beginning)
+    var y = contentY
+    contentY = keep
+    return Math.max(originY, Math.min(y - Style.space(24), originY + contentHeight - height))
+  }
+
+  function scrollToIndex(index, animated) {
+    if (index < 0 || index >= count) return
+    var y = targetFor(index)
+    if (animated === false || Reading.reducedMotion) { scrollAnim.stop(); contentY = y; return }
+    scrollAnim.to = y
+    scrollAnim.restart()
+  }
+
+  function scrollToAnchor(name) {
+    if (name in anchorMap) scrollToIndex(anchorMap[name], true)
+  }
+
+  NumberAnimation {
+    id: scrollAnim
+    target: root
+    property: "contentY"
+    duration: Reading.motion(260)
+    easing.type: Easing.OutCubic
+  }
 
   function pageDown() {
     if (atYEnd) return false

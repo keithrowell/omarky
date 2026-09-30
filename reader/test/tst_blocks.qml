@@ -208,6 +208,16 @@ TestCase {
     compare(notes.items[2].refs, 0)
   }
 
+  function test_anchor_map() {
+    var doc = Blocks.build("# Top\n\nCited[^n].\n\n- in a list[^m]\n\n## Top\n\n[^n]: Note.\n[^m]: Other.\n")
+    compare(doc.anchors["top"], 0)
+    compare(doc.anchors["top-1"], 3)
+    compare(doc.anchors["fnref-1-1"], 1)
+    compare(doc.anchors["fnref-2-1"], 2)
+    compare(doc.anchors["fn-1"], 4)
+    compare(doc.anchors["fn-2"], 4)
+  }
+
   function test_pieces_are_the_searchable_text() {
     var doc = Blocks.build("Para **one**.\n\n- a\n- b\n\n```\nx = 1\n```\n")
     compare(Blocks.pieces(doc.blocks[0]), ["Para one."])

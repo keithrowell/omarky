@@ -19,6 +19,7 @@ Item {
     id: text
     width: parent.width
     runs: root.block.runs
+    ctx: root.ctx
     size: Reading.size(root.step)
     leading: root.level <= 2 ? 1.25 : 1.35
     family: Reading.heading

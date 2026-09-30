@@ -18,12 +18,8 @@ Loader {
     footnotes: "blocks/Footnotes.qml"
   })
 
-  // Block types built so far (step 3 builds them one at a time).
-  readonly property var ready: ["paragraph", "heading", "list", "quote", "alert", "code", "diff"]
-
   Component.onCompleted: {
     var src = sources[block.type] || "blocks/HtmlBlock.qml"
-    if (ready.indexOf(block.type) < 0) src = "blocks/Pending.qml"
     setSource(Qt.resolvedUrl(src), { block: block, ctx: ctx, look: look })
   }
 }

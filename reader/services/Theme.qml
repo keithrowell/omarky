@@ -52,6 +52,8 @@ Singleton {
   readonly property color hairline: Util.alpha(Color.foreground, light ? 0.14 : 0.12)
   readonly property color hairlineSoft: Util.alpha(Color.foreground, light ? 0.09 : 0.075)
   readonly property color selection: Util.alpha(Color.accent, light ? 0.22 : 0.3)
+  readonly property color chipFill: Util.alpha(Color.foreground, light ? 0.07 : 0.085)
+  readonly property color chipEdge: Util.alpha(Color.foreground, light ? 0.07 : 0.06)
   readonly property color hover: Util.alpha(Color.foreground, 0.06)
 
   function mix(a, b, t) {
