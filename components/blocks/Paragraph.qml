@@ -3,8 +3,8 @@ import qs.services
 import qs.components
 
 RichText {
+  id: root
   required property var block
-  property var ctx: null
   property var look: ({})
   runs: block.runs
   size: look.size || Reading.body

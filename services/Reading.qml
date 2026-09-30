@@ -55,7 +55,8 @@ Singleton {
     if (!prev) return 0
     var em = body
     if (cur.type === "heading") {
-      if (prev.type === "heading" && cur.level > prev.level) return Math.round(em * 0.7)
+      if (prev.type === "heading" && cur.level > prev.level)
+        return Math.round(em * (prev.level <= 2 ? 1.25 : 0.7))   // clear of the hairline
       return Math.round(em * [0, 2.6, 2.2, 1.7, 1.4, 1.3, 1.3][cur.level])
     }
     if (prev.type === "heading") return Math.round(em * (prev.level <= 2 ? 0.75 : 0.5))
