@@ -16,7 +16,10 @@ Singleton {
   readonly property string themeDir: Color.currentThemePath
   property var named: ({})
   property string currentName: ""
-  readonly property string name: overrideDir ? overrideDir.replace(/\/+$/, "").split("/").pop() : currentName
+  // With an override, a theme.name beside the directory (a fake
+  // current/theme + current/theme.name, as `omarchy theme set` makes) is
+  // followed too; otherwise the directory's own name is the theme's name.
+  readonly property string name: currentName || (overrideDir ? overrideDir.replace(/\/+$/, "").split("/").pop() : "")
   readonly property bool light: named.mode ? named.mode === "light" : luminance(Color.background) > 0.5
   // Bumped after every (re)load so views can re-derive cached rich text.
   property int revision: 0
@@ -113,13 +116,12 @@ Singleton {
   // `omarchy theme set` swaps current/theme, then rewrites theme.name.
   FileView {
     id: nameFile
-    path: Color.stateHome + "/omarchy/current/theme.name"
-    watchChanges: root.overrideDir === ""
+    path: root.overrideDir ? root.overrideDir.replace(/\/+$/, "") + ".name" : Color.stateHome + "/omarchy/current/theme.name"
+    watchChanges: true
     printErrors: false
     onLoaded: root.currentName = text().trim()
     onFileChanged: {
       reload()
-      if (root.overrideDir) return
       colorsFile.reload()
       shellFile.reload()
       Style.scheduleRefresh()
