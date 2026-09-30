@@ -13,6 +13,8 @@ ShellRoot {
 
   // Touch the palette singleton so it starts following theme switches.
   readonly property color _palette: Theme.green
+  // Start generating syntax-highlighting themes right away.
+  readonly property bool _highlight: Highlight.ready
   readonly property string shotSpec: Quickshell.env("OMAREAD_SHOT") || ""
 
   Component { id: readerComponent; ReaderWindow {} }
