@@ -62,15 +62,16 @@ Singleton {
     if (!prev) return 0
     var em = body
     if (cur.type === "heading") {
+      if (prev.type === "hr") return Math.round(em * 1.5)   // the rule already marks the break
       if (prev.type === "heading" && cur.level > prev.level)
         return Math.round(em * (prev.level <= 2 ? 1.25 : 0.7))   // clear of the hairline
       return Math.round(em * [0, 2.6, 2.2, 1.7, 1.4, 1.3, 1.3][cur.level])
     }
-    if (prev.type === "heading") return Math.round(em * (prev.level <= 2 ? 0.75 : 0.5))
+    var framed = { code: 1, diff: 1, table: 1, alert: 1, image: 1, quote: 1, frontmatter: 1 }
+    if (prev.type === "heading") return Math.round(em * (prev.level <= 2 || framed[cur.type] ? 0.75 : 0.5))
     if (prev.type === "frontmatter") return Math.round(em * 2.2)
     if (cur.type === "hr" || prev.type === "hr") return Math.round(em * 1.9)
     if (cur.type === "footnotes") return Math.round(em * 2.6)
-    var framed = { code: 1, diff: 1, table: 1, alert: 1, image: 1, quote: 1, frontmatter: 1 }
     if (framed[cur.type] || framed[prev.type]) return Math.round(em * 1.25)
     return Math.round(em * 0.9)
   }
