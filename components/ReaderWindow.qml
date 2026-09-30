@@ -57,7 +57,7 @@ FloatingWindow {
       title: title, width: width, height: height, implicitW: implicitWidth, path: path, loaded: doc.loaded, missing: doc.missing, blocks: doc.blocks.length,
       parseMs: doc.parseMs, reloads: doc.reloads, topLine: doc.blocks[view.topIndex] ? doc.blocks[view.topIndex].srcStart : -1, contentY: Math.round(view.contentY), topIndex: view.topIndex,
       progress: Math.round(view.progress * 1000) / 1000, outline: outlineShown, wide: wide,
-      column: Math.round(view.column), zoom: Prefs.zoom, body: Reading.body, help: helpShown,
+      theme: Theme.name, bg: Theme.hex(Theme.bg), kshTheme: Highlight.themeName, column: Math.round(view.column), zoom: Prefs.zoom, body: Reading.body, help: helpShown,
       find: { shown: findShown, query: finder.query, count: finder.matches.length, current: finder.current },
       clipboard: Quickshell.clipboardText.slice(0, 200), selection: ctx.selectionOwner ? ctx.selectionOwner.selectedText : ""
     }
