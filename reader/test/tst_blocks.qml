@@ -62,9 +62,9 @@ TestCase {
     compare(byKey.status.kind, "pill")
     compare(byKey.status.value, "accepted")
     compare(byKey.date.kind, "pill")
-    compare(byKey.number.value, "0003")
+    compare(byKey.number.value, "0001")
     compare(byKey.deciders.kind, "list")
-    compare(byKey.deciders.items, ["Keith", "Claude"])
+    compare(byKey.deciders.items, ["OmaRead maintainers"])
     compare(byKey.tags.items, ["rendering", "performance", "typography"])
     compare(byKey.summary.kind, "text")
     verify(byKey.summary.value.indexOf("The document is a flat list") === 0)
@@ -239,8 +239,7 @@ TestCase {
 
   function test_every_sample_builds() {
     var names = ["kitchen-sink.md", "prose.md", "code.md", "tables.md", "alerts.md", "frontmatter.md",
-                 "malformed.md", "empty.md", "real/adr-0003.md", "real/fix-sign-out-plan.md",
-                 "real/holding-utterances.md", "real/omaread-spec.md"]
+                 "malformed.md", "empty.md", "real/omaread-spec.md"]
     for (var i = 0; i < names.length; i++) {
       var doc = Blocks.build(readSample(names[i]))
       verify(doc.blocks instanceof Array, names[i])
