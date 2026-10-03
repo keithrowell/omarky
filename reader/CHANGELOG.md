@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.1 (2026-10-03)
+
+- Fonts an app can set: prose, heading and code families, each from the environment
+  (`OMAREAD_PROSE_FONT`, `OMAREAD_HEADING_FONT`, `OMAREAD_MONO_FONT`; `OMAREAD_CODE_FONT` still
+  works) or from QML (`Reading.proseFamily`, `headingFamily`, `monoFamily`). A family that is not
+  installed falls back to OmaRead's default. Defaults are unchanged, and the measure follows
+  the prose font in use.
+- MarkdownView: `baseUrl` can be a local directory, so a string read from a file resolves its
+  images and links beside it; `keepPlace` keeps the reader's place when the string is the same
+  document edited.
+
 ## 0.3.0 (2026-10-03)
 
 - Image galleries: HTML that is nothing but `<img>` tags (optionally in `<p>`, `<div>`, `<center>`

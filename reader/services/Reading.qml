@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons
+import "../lib/fonts.js" as Fonts
 
 // Reading typography: the families and the modular scale every block uses.
 // Zoom scales this only, never the chrome (Style.font stays as it is).
@@ -11,13 +12,36 @@ Singleton {
 
   readonly property real zoom: Prefs.zoom
 
-  readonly property string prose: "iA Writer Quattro S"
-  readonly property string mono: Quickshell.env("OMAREAD_CODE_FONT") || "iA Writer Mono S"
-  // Headings: OMAREAD_HEADING_FONT="Family/Style" is a dev switch for
-  // comparing candidates in screenshots (docs/decisions/0005).
-  readonly property var headingFont: (Quickshell.env("OMAREAD_HEADING_FONT") || "iA Writer Quattro S/Bold").split("/")
-  readonly property string heading: headingFont[0]
-  readonly property string headingStyle: headingFont[1] || "Bold"
+  // The reading families. Each can be asked for by the environment or by
+  // an app embedding MarkdownView (Reading.proseFamily = "IBM Plex Sans");
+  // the environment wins, so it stays a switch for comparing candidates
+  // (docs/decisions/0005). A family that is not installed falls back to the
+  // default, never to whatever Qt would substitute (lib/fonts.js).
+  //   OMAREAD_PROSE_FONT    prose, tables, lists (the measure follows it)
+  //   OMAREAD_HEADING_FONT  headings, "Family/Style"
+  //   OMAREAD_MONO_FONT     code and labels (OMAREAD_CODE_FONT still works)
+  property string proseFamily: ""
+  property string headingFamily: ""
+  property string monoFamily: ""
+
+  readonly property string defaultProse: "iA Writer Quattro S"
+  readonly property string defaultHeading: "iA Writer Quattro S/Bold"
+  readonly property string defaultMono: "iA Writer Mono S"
+
+  // Installed families, read once; refreshFonts() re-reads them after a
+  // font is installed while the app runs.
+  property var families: Qt.fontFamilies()
+  function refreshFonts() { families = Qt.fontFamilies() }
+
+  readonly property string prose: Fonts.pick(Quickshell.env("OMAREAD_PROSE_FONT") || proseFamily, families, defaultProse)
+  readonly property string mono: Fonts.pick(Quickshell.env("OMAREAD_MONO_FONT") || Quickshell.env("OMAREAD_CODE_FONT") || monoFamily,
+                                            families, defaultMono)
+  readonly property var headingFont: {
+    var d = defaultHeading.split("/")
+    return Fonts.pickStyled(Quickshell.env("OMAREAD_HEADING_FONT") || headingFamily || defaultHeading, families, d[0], d[1])
+  }
+  readonly property string heading: headingFont.family
+  readonly property string headingStyle: headingFont.style
 
   // Body size: the shell's rem root scaled up for long-form reading.
   readonly property real body: Math.round(Style.font.body * 1.2 * zoom)

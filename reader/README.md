@@ -146,6 +146,38 @@ MarkdownView draws no background of its own: paint `Theme.bg` behind it (from `q
 the reader window does. A new `markdown` string opens at the top with find cleared; an empty
 one clears the view.
 
+A string read from a local file can still find its images and sibling files: give `baseUrl` a
+directory (`/abs/dir` or `file:///abs/dir`), and relative links to `.md` files come back through
+`openFile`. Set `keepPlace: true` when a new string is the same document edited (a file changed
+on disk), and the reader stays where they were instead of going back to the top; set `markdown`
+to `""` before showing a different document.
+
+### Fonts
+
+The reading column uses three families, each of which an app or the environment can change:
+
+| Role | Default | Environment | From QML |
+|---|---|---|---|
+| Prose (paragraphs, lists, tables) | iA Writer Quattro S | `OMAREAD_PROSE_FONT` | `Reading.proseFamily` |
+| Headings, `Family/Style` | iA Writer Quattro S/Bold | `OMAREAD_HEADING_FONT` | `Reading.headingFamily` |
+| Code and labels | iA Writer Mono S | `OMAREAD_MONO_FONT` (or the older `OMAREAD_CODE_FONT`) | `Reading.monoFamily` |
+
+```qml
+import qs.services
+
+Component.onCompleted: {
+  Reading.proseFamily = "IBM Plex Sans"
+  Reading.headingFamily = "IBM Plex Sans/Bold"
+  Reading.monoFamily = "IBM Plex Mono"
+}
+```
+
+The environment wins over the app, so it stays a switch for comparing candidates. A family that
+is not installed falls back to the default above (a heading's style falls back with it), never
+to whatever Qt would substitute, so an app can ask for a font before it is installed. The
+68-character measure is computed from whichever prose font is in use. `Reading.refreshFonts()`
+re-reads the installed families after a font is installed while the app is running.
+
 ## Licence
 
 MIT. `Commons/` and `Ui/` are copied from the Omarchy shell (MIT) and `vendor/markdown-it.js` is
