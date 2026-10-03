@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 (2026-10-03)
+
+- Image galleries: HTML that is nothing but `<img>` tags (optionally in `<p>`, `<div>`, `<center>`
+  or `<a>`) now shows the images in centred rows that wrap, at their HTML height or width,
+  instead of as source. Any other raw HTML is still shown literally (docs/decisions/0002).
+
 ## 0.2.0 (2026-10-03)
 
 - MarkdownView: the renderer as a reusable component (Markdown string or file in, links out).

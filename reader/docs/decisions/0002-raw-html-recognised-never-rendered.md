@@ -11,3 +11,11 @@ gets:
 - Everything else is shown literally, as muted monospace (escaped, never passed to Qt as HTML).
 - The one exception is `<br>`, which becomes a line break; it is common in tables written by
   agents and harmless.
+- The other exception is HTML that is nothing but `<img>` tags, optionally
+  wrapped in `<p>`, `<div>`, `<center>` or `<a>` and spaced with `<br>` or `&nbsp;`. It becomes a
+  `gallery` block: the images in centred rows that wrap. This is how reports bound for Sakusei
+  PDFs and GitHub READMEs put screenshots side by side (`<p><img … style="height:260px"> …</p>`),
+  and showing that as source made those documents unreadable. Only `src`, `alt`, `title` and a
+  px `width`/`height` (attribute or inline style) are read; images load through the same path
+  as Markdown images. Any other tag or any text in the block and it is shown literally as before,
+  so nothing beyond images is ever interpreted.

@@ -75,7 +75,8 @@ scale.
 
 `> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]` and `[!CAUTION]` become tinted cards. YAML
 front matter becomes a card too, with statuses and dates as pills. HTML comments, such as agent
-snapshot headers, are hidden.
+snapshot headers, are hidden. HTML that is only `<img>` tags, the usual way to put screenshots side
+by side, shows the images in a row; any other raw HTML is shown as source, never interpreted.
 
 ![Find, in gruvbox](docs/screenshots/find.png)
 

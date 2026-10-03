@@ -67,7 +67,7 @@ Singleton {
         return Math.round(em * (prev.level <= 2 ? 1.25 : 0.7))   // clear of the hairline
       return Math.round(em * [0, 2.6, 2.2, 1.7, 1.4, 1.3, 1.3][cur.level])
     }
-    var framed = { code: 1, diff: 1, table: 1, alert: 1, image: 1, quote: 1, frontmatter: 1 }
+    var framed = { code: 1, diff: 1, table: 1, alert: 1, image: 1, gallery: 1, quote: 1, frontmatter: 1 }
     if (prev.type === "heading") return Math.round(em * (prev.level <= 2 || framed[cur.type] ? 0.75 : 0.5))
     if (prev.type === "frontmatter") return Math.round(em * 2.2)
     if (cur.type === "hr" || prev.type === "hr") return Math.round(em * 1.9)
