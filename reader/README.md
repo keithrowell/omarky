@@ -7,7 +7,7 @@ keeps your place while an editor or agent rewrites the file, and is a reader onl
 
 ![OmaRead in tokyo-night and catppuccin-latte](docs/screenshots/hero.png)
 
-Version 0.1.0. Built in QML on Quickshell and Omarchy's own shell components, with no web view.
+Version 0.2.0. Built in QML on Quickshell and Omarchy's own shell components, with no web view.
 
 ## Install
 
@@ -120,6 +120,27 @@ other Markdown files open in a new window at their anchor, and web links open in
 `docs/spec.md` is the original brief, `docs/decisions/` records the choices made while building
 it, and `docs/REPORT.md` covers how it was checked and what is still missing. The log is in
 `~/.local/state/omaread/qs.log`.
+
+## Using the renderer in another app
+
+The reading column is a component of its own, `components/MarkdownView.qml`. Link OmaRead's
+`Commons`, `Ui`, `components`, `services`, `lib` and `vendor` directories into your Quickshell
+config and it takes a Markdown string (or a file path) and hands links back:
+
+```qml
+import qs.components
+
+MarkdownView {
+  markdown: article.text
+  baseUrl: article.url          // relative images and links resolve against it
+  externalLinks: true           // web links come to you instead of the browser
+  onLinkActivated: url => openArticle(url)
+}
+```
+
+It also has `path` (a file, watched and reloaded), `wide`, `documentName`, the `notice(text)`
+and `openFile(path, anchor)` signals, and `doc`, `view`, `finder` and `progress` for building
+an outline, find or a progress line around it, as `components/ReaderWindow.qml` does.
 
 ## Licence
 
