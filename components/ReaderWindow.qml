@@ -3,7 +3,6 @@ import QtQuick.Dialogs
 import Quickshell
 import qs.Commons
 import qs.services
-import "../lib/blocks.js" as Blocks
 
 // One window per open file: the header, the outline, the reading column,
 // find, and every key in §5 of the spec.
@@ -18,6 +17,11 @@ FloatingWindow {
     return dir.indexOf(home) === 0 ? "~" + dir.slice(home.length) : dir
   }
   readonly property Item grabRoot: page
+  // The renderer's parts, under the names the rest of this file uses.
+  readonly property var doc: md.doc
+  readonly property var view: md.view
+  readonly property var ctx: md.ctx
+  readonly property var finder: md.finder
   // Screenshot-only switches (tools/screenshot): outline, wide, find, help.
   property var shotOptions: ({})
 
@@ -124,114 +128,14 @@ FloatingWindow {
     if (p) Prefs.addRecent(p)
   }
 
-  // ---- what blocks call back into: links, copying, resolving paths, find
-  QtObject {
-    id: ctx
-
-    property Item selectionOwner: null
-    readonly property QtObject finder: finder
-
-    function resolveUrl(src) {
-      var s = String(src || "")
-      if (/^(https?|file|data|qrc):/i.test(s)) return s
-      if (s.charAt(0) === "~") s = Quickshell.env("HOME") + s.slice(1)
-      if (s.charAt(0) !== "/") s = win.dir + "/" + s
-      return "file://" + encodeURI(decodeURI(s))
+  // Picks up the window's anchor once the file is in, and flashes the
+  // header on each live reload.
+  Connections {
+    target: win.doc
+    function onLoadedChanged() {
+      if (win.doc.loaded && win.initialAnchor) Qt.callLater(function() { win.view.scrollToAnchor(win.initialAnchor) })
     }
-
-    function copyText(text, note) {
-      Quickshell.clipboardText = String(text)
-      toast.show(note || "Copied")
-    }
-
-    function copyAnchor(slug) {
-      copyText(win.fileName + "#" + slug, "Copied " + win.fileName + "#" + slug)
-    }
-
-    function copyBlock(index) {
-      var b = doc.blocks[index]
-      if (!b) return
-      copyText(doc.sourceLines(b.srcStart, b.srcEnd), "Copied the block's Markdown")
-    }
-
-    // Only one text item keeps a selection at a time; Ctrl+C copies it.
-    function claimSelection(item) {
-      if (selectionOwner && selectionOwner !== item && selectionOwner.deselect) selectionOwner.deselect()
-      selectionOwner = item
-    }
-
-    // http(s) and mailto open with xdg-open; #anchors scroll; relative .md
-    // files open in a new OmaRead window; other local files via xdg-open.
-    function openLink(href) {
-      var h = String(href || "")
-      if (!h) return
-      if (h.charAt(0) === "#") { view.scrollToAnchor(decodeURIComponent(h.slice(1))); return }
-      if (/^(https?|mailto|ftp):/i.test(h)) { Quickshell.execDetached(["xdg-open", h]); return }
-      var hash = h.indexOf("#")
-      var target = hash >= 0 ? h.slice(0, hash) : h
-      var frag = hash >= 0 ? decodeURIComponent(h.slice(hash + 1)) : ""
-      target = decodeURI(target.replace(/^file:\/\//, ""))
-      if (target === "" || target === win.path) { if (frag) view.scrollToAnchor(frag); return }
-      if (target.charAt(0) === "~") target = Quickshell.env("HOME") + target.slice(1)
-      if (target.charAt(0) !== "/") target = win.dir + "/" + target
-      if (/\.(md|markdown|mdown|mkd|mdx)$/i.test(target)) win.openFile(target, frag)
-      else Quickshell.execDetached(["xdg-open", target])
-    }
-
-    // A text item holding the current match reports where it is.
-    function revealMatch(item, localY) { view.reveal(item, localY) }
-  }
-
-  // ---- find: every match in document order; the current one by piece id
-  QtObject {
-    id: finder
-    property string query: ""
-    property var matches: []
-    property int current: -1
-    readonly property int currentPid: current >= 0 && current < matches.length ? matches[current].pid : -1
-    readonly property int currentK: current >= 0 && current < matches.length ? matches[current].k : -1
-
-    function search(q) {
-      query = q
-      matches = Blocks.findAll({ pieces: doc.pieces }, q)
-      // Start from the first match at or below the top of the page.
-      var top = view.topIndex, pick = matches.length ? 0 : -1
-      for (var i = 0; i < matches.length; i++) if (matches[i].block >= top) { pick = i; break }
-      go(pick)
-    }
-
-    function go(i) {
-      if (!matches.length) { current = -1; return }
-      current = (i + matches.length) % matches.length
-      var m = matches[current]
-      // Off-screen blocks are brought in first; the text item holding the
-      // match then refines the position (ctx.revealMatch).
-      var bottom = view.indexAt(view.width / 2, view.contentY + view.height - 1)
-      if (!view.itemAtIndex(m.block) || m.block < view.topIndex || (bottom >= 0 && m.block > bottom))
-        view.positionViewAtIndex(m.block, ListView.Center)
-    }
-
-    function refresh() {
-      if (!query) return
-      var c = current
-      matches = Blocks.findAll({ pieces: doc.pieces }, query)
-      current = Math.min(c, matches.length - 1)
-    }
-  }
-
-  Doc {
-    id: doc
-    path: win.path
-    onAboutToReload: view.captureAnchor()
-    onReloaded: {
-      view.restoreAnchor()
-      header.pulse()
-      finder.refresh()
-    }
-    onLoadedChanged: if (loaded) {
-      view.appear()
-      if (win.initialAnchor) Qt.callLater(function() { view.scrollToAnchor(win.initialAnchor) })
-    }
+    function onReloaded() { header.pulse() }
   }
 
   // ---- keys
@@ -394,18 +298,16 @@ FloatingWindow {
         Behavior on x { NumberAnimation { duration: Reading.motion(160); easing.type: Easing.OutCubic } }
       }
 
-      DocView {
-        id: view
+      MarkdownView {
+        id: md
         x: outline.x + outline.width
         width: parent.width - x
         height: parent.height
-        visible: !!win.path && doc.loaded
-        blocks: doc.blocks
-        anchorMap: doc.anchorMap
-        lineCount: doc.lineCount
+        path: win.path
+        documentName: win.fileName
         wide: win.wide
-        ctx: ctx
-        signature: b => b.type + "\n" + doc.sourceLines(b.srcStart, b.srcEnd)
+        onNotice: t => toast.show(t)
+        onOpenFile: (p, a) => win.openFile(p, a)
       }
 
       EmptyState {
@@ -446,22 +348,6 @@ FloatingWindow {
     }
 
     Toast { id: toast; z: 7 }
-
-    HighlightWarmup {
-      langs: {
-        var seen = {}, out = []
-        function walk(list) {
-          for (var i = 0; i < list.length; i++) {
-            var b = list[i]
-            if (b.type === "code" && b.lang && !seen[b.lang]) { seen[b.lang] = true; out.push(b.lang) }
-            if (b.blocks) walk(b.blocks)
-            if (b.items) b.items.forEach(function(it) { if (it.blocks) walk(it.blocks) })
-          }
-        }
-        walk(doc.blocks)
-        return out
-      }
-    }
 
     // Drop a Markdown file anywhere on the window.
     DropArea {

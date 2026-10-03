@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 (2026-10-03)
+
+- MarkdownView: the renderer as a reusable component (Markdown string or file in, links out).
+  Another Quickshell app can link OmaRead's directories into its own config and show Markdown
+  with `MarkdownView` from `qs.components`; OmaRead's own window now uses it too.
+- A document can be a string as well as a file (`Doc.text`); relative images and links resolve
+  against a web `baseUrl` when one is given.
+
 ## 0.1.0 (2026-09-30)
 
 First release.

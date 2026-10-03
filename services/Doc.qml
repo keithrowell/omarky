@@ -7,11 +7,14 @@ import "../lib/blocks.js" as Blocks
 // block model. Changes on disk are debounced (editors write in bursts) and
 // re-parsed; views get aboutToReload/reloaded around the swap so they can
 // keep the reader's place. A deleted file keeps its last content and is
-// polled until it comes back.
+// polled until it comes back. Without a path, `text` is parsed instead, and
+// again whenever it changes.
 Item {
   id: root
 
   property string path: ""
+  // Markdown handed over directly (no file). Ignored when path is set.
+  property string text: ""
   property string source: ""
   property var blocks: []
   property var headings: []
@@ -26,6 +29,9 @@ Item {
 
   signal aboutToReload()
   signal reloaded()
+
+  onTextChanged: if (!path && text !== "") parse(text)
+  Component.onCompleted: if (!path && text !== "" && !loaded) parse(text)
 
   function parse(text) {
     var t0 = Date.now()
