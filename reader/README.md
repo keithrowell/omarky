@@ -141,6 +141,9 @@ MarkdownView {
 It also has `path` (a file, watched and reloaded), `wide`, `documentName`, the `notice(text)`
 and `openFile(path, anchor)` signals, and `doc`, `view`, `finder` and `progress` for building
 an outline, find or a progress line around it, as `components/ReaderWindow.qml` does.
+MarkdownView draws no background of its own: paint `Theme.bg` behind it (from `qs.services`), as
+the reader window does. A new `markdown` string opens at the top with find cleared; an empty
+one clears the view.
 
 ## Licence
 
