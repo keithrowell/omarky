@@ -20,8 +20,13 @@ Item {
   property string path: ""
   property string markdown: ""
   // Where relative images and links resolve when there is no file: an
-  // http(s) page URL.
+  // http(s) page URL, or a local directory ("/abs/dir" or "file:///abs/dir")
+  // so a string read from a file still finds its images and sibling files.
   property string baseUrl: ""
+  // With a string: a changed `markdown` is the same document edited, so the
+  // reader keeps their place (as a file reload does) instead of starting at
+  // the top. Set `markdown` to "" first to show a different document.
+  property bool keepPlace: false
   // Shown in copied heading links: "name#slug".
   property string documentName: ""
   property bool wide: false
@@ -33,7 +38,13 @@ Item {
   readonly property alias ctx: mdCtx
   readonly property alias finder: mdFinder
   readonly property real progress: mdView.progress
-  readonly property string dir: path ? path.slice(0, path.lastIndexOf("/")) : ""
+  readonly property string dir: path ? path.slice(0, path.lastIndexOf("/")) : localBase
+  readonly property string localBase: {
+    var b = String(baseUrl || "")
+    if (/^file:\/\//i.test(b)) b = decodeURI(b.slice(7))
+    else if (b.charAt(0) !== "/") return ""
+    return b.length > 1 ? b.replace(/\/+$/, "") : b
+  }
 
   // A web or mail link, when externalLinks is set; also any relative link
   // in a string with neither path nor baseUrl, unchanged.
@@ -98,8 +109,8 @@ Item {
     // http(s) and mailto open with xdg-open (or go to linkActivated);
     // #anchors scroll; relative .md files open in a new OmaRead window;
     // other local files via xdg-open. With a web baseUrl, relative links
-    // are web links; a string with neither path nor baseUrl hands them to
-    // linkActivated as they are.
+    // are web links; with a local one they are files beside it, as for a
+    // path; a string with neither hands them to linkActivated as they are.
     function openLink(href) {
       var h = String(href || "")
       if (!h) return
@@ -107,7 +118,7 @@ Item {
       if (!/^[a-z][a-z0-9+.-]*:/i.test(h)) {
         var web = root.resolveWeb(h)
         if (web) h = web
-        else if (!root.path) { root.linkActivated(h); return }
+        else if (!root.dir) { root.linkActivated(h); return }
       }
       if (/^(https?|mailto|ftp):/i.test(h)) {
         if (root.externalLinks) root.linkActivated(h)
@@ -176,9 +187,9 @@ Item {
     id: mdDoc
     path: root.path
     text: root.markdown
-    onAboutToReload: if (root.path) mdView.captureAnchor()
+    onAboutToReload: if (root.path || root.keepPlace) mdView.captureAnchor()
     onReloaded: {
-      if (!root.path) { root.freshDocument(); return }
+      if (!root.path && !root.keepPlace) { root.freshDocument(); return }
       mdView.restoreAnchor()
       mdFinder.refresh()
     }
