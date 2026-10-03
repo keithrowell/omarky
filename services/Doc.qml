@@ -8,7 +8,7 @@ import "../lib/blocks.js" as Blocks
 // re-parsed; views get aboutToReload/reloaded around the swap so they can
 // keep the reader's place. A deleted file keeps its last content and is
 // polled until it comes back. Without a path, `text` is parsed instead, and
-// again whenever it changes.
+// again whenever it changes; an empty `text` clears the document.
 Item {
   id: root
 
@@ -30,7 +30,7 @@ Item {
   signal aboutToReload()
   signal reloaded()
 
-  onTextChanged: if (!path && text !== "") parse(text)
+  onTextChanged: if (!path) { if (text !== "") parse(text); else clear() }
   Component.onCompleted: if (!path && text !== "" && !loaded) parse(text)
 
   function parse(text) {
@@ -49,6 +49,19 @@ Item {
     missing = false
     failed = false
     if (!first) { reloads++; reloaded() }
+  }
+
+  // Back to no document at all.
+  function clear() {
+    source = ""
+    headings = []
+    anchorMap = {}
+    pieces = []
+    lineCount = 0
+    blocks = []
+    loaded = false
+    missing = false
+    failed = false
   }
 
   function reload() {

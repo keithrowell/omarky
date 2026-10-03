@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.services
 import "../lib/blocks.js" as Blocks
+import "../lib/url.js" as Url
 
 // The renderer on its own: a Markdown file (`path`) or string (`markdown`)
 // in, the reading column out. Owns the parsed document, the view, find and
@@ -34,7 +35,8 @@ Item {
   readonly property real progress: mdView.progress
   readonly property string dir: path ? path.slice(0, path.lastIndexOf("/")) : ""
 
-  // A web or mail link, when externalLinks is set.
+  // A web or mail link, when externalLinks is set; also any relative link
+  // in a string with neither path nor baseUrl, unchanged.
   signal linkActivated(string url)
   // Something was copied; the app shows it (a toast).
   signal notice(string text)
@@ -45,12 +47,14 @@ Item {
   function appear() { mdView.appear() }
 
   // A relative reference against baseUrl, or "" when there is no web base.
-  function resolveWeb(s) {
-    var base = root.baseUrl
-    if (!base || !/^https?:/i.test(base)) return ""
-    if (s.indexOf("//") === 0) return base.replace(/:.*$/, ":") + s
-    if (s.charAt(0) === "/") return base.replace(/^([a-z]+:\/\/[^/?#]*).*$/i, "$1") + s
-    return base.replace(/[#?].*$/, "").replace(/[^/]*$/, "") + s
+  function resolveWeb(s) { return Url.resolve(root.baseUrl, s) }
+
+  // A new string is a new document, not a reload: back to the top, find
+  // cleared, faded in. Files keep the reader's place across reloads.
+  function freshDocument() {
+    mdFinder.clear()
+    mdView.positionViewAtBeginning()
+    appear()
   }
 
   // ---- what blocks call back into: links, copying, resolving paths, find
@@ -94,12 +98,17 @@ Item {
     // http(s) and mailto open with xdg-open (or go to linkActivated);
     // #anchors scroll; relative .md files open in a new OmaRead window;
     // other local files via xdg-open. With a web baseUrl, relative links
-    // are web links.
+    // are web links; a string with neither path nor baseUrl hands them to
+    // linkActivated as they are.
     function openLink(href) {
       var h = String(href || "")
       if (!h) return
       if (h.charAt(0) === "#") { mdView.scrollToAnchor(decodeURIComponent(h.slice(1))); return }
-      if (!/^[a-z][a-z0-9+.-]*:/i.test(h)) h = root.resolveWeb(h) || h
+      if (!/^[a-z][a-z0-9+.-]*:/i.test(h)) {
+        var web = root.resolveWeb(h)
+        if (web) h = web
+        else if (!root.path) { root.linkActivated(h); return }
+      }
       if (/^(https?|mailto|ftp):/i.test(h)) {
         if (root.externalLinks) root.linkActivated(h)
         else Quickshell.execDetached(["xdg-open", h])
@@ -149,6 +158,12 @@ Item {
         mdView.positionViewAtIndex(m.block, ListView.Center)
     }
 
+    function clear() {
+      query = ""
+      matches = []
+      current = -1
+    }
+
     function refresh() {
       if (!query) return
       var c = current
@@ -161,12 +176,13 @@ Item {
     id: mdDoc
     path: root.path
     text: root.markdown
-    onAboutToReload: mdView.captureAnchor()
+    onAboutToReload: if (root.path) mdView.captureAnchor()
     onReloaded: {
+      if (!root.path) { root.freshDocument(); return }
       mdView.restoreAnchor()
       mdFinder.refresh()
     }
-    onLoadedChanged: if (loaded) root.appear()
+    onLoadedChanged: if (loaded) { if (root.path) root.appear(); else root.freshDocument() }
   }
 
   DocView {
