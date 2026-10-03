@@ -112,6 +112,10 @@ def reading_time(words, wpm=238):
 
 ![This image does not exist](missing-picture.png)
 
+HTML that is only images, as galleries are written for PDFs, becomes a row of them:
+
+<p><img src="assets/dusk.png" style="height:120px;width:auto" alt="Dusk"> <img src="../ops/omaread.svg" height="120" alt="The OmaRead icon"> <img src="missing-too.png" height="120" alt="Missing"></p>
+
 ## Raw HTML
 
 <div class="callout">Raw HTML is shown, never interpreted.</div>

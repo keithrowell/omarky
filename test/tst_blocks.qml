@@ -93,6 +93,35 @@ TestCase {
     compare(doc.blocks[1].text, "<div class=\"x\">hi</div>")
   }
 
+  function test_html_images_become_a_gallery() {
+    var doc = Blocks.build("<p><img src=\"a.png\" style=\"height:260px;width:auto;display:inline-block\" alt=\"First\"> <img src='b b.jpg' alt=\"Second &amp; last\" title=\"T\"></p>\n")
+    compare(types(doc), ["gallery"])
+    var items = doc.blocks[0].items
+    compare(items.length, 2)
+    compare(items[0].src, "a.png")
+    compare(items[0].alt, "First")
+    compare(items[0].h, 260)
+    compare(items[0].w, 0)
+    compare(items[1].src, "b b.jpg")
+    compare(items[1].alt, "Second & last")
+    compare(items[1].title, "T")
+    compare(items[1].h, 0)
+  }
+
+  function test_html_image_wrappers_and_sizes() {
+    var doc = Blocks.build("<p align=\"center\">\n  <a href=\"x\"><img src=\"one.png\" width=\"300\"></a><br>\n  <img src=\"two.png\" height=\"120px\" />\n</p>\n\n<div><img src=images/three.png/></div>\n")
+    compare(types(doc), ["gallery", "gallery"])
+    compare(doc.blocks[0].items.length, 2)
+    compare(doc.blocks[0].items[0].w, 300)
+    compare(doc.blocks[0].items[1].h, 120)
+    compare(doc.blocks[1].items[0].src, "images/three.png")
+  }
+
+  function test_html_with_anything_but_images_stays_literal() {
+    var doc = Blocks.build("<p><img src=\"a.png\"> and some words</p>\n\n<p><img alt=\"no src\"></p>\n\n<p><script src=\"x.js\"></script></p>\n")
+    compare(types(doc), ["html", "html", "html"])
+  }
+
   function test_unclosed_comment_stays_visible() {
     var doc = Blocks.build("<!-- never closed\n\n# Still here\n")
     compare(types(doc), ["html"])
@@ -256,7 +285,7 @@ TestCase {
     var seen = {}
     doc.blocks.forEach(function(b) { seen[b.type] = true })
     var want = ["frontmatter", "heading", "paragraph", "list", "quote", "alert", "code", "diff",
-                "table", "hr", "image", "html", "footnotes"]
+                "table", "hr", "image", "gallery", "html", "footnotes"]
     for (var i = 0; i < want.length; i++) verify(seen[want[i]], "kitchen sink has " + want[i])
   }
 

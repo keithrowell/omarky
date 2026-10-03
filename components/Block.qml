@@ -14,7 +14,7 @@ Loader {
     paragraph: "blocks/Paragraph.qml", heading: "blocks/Heading.qml", list: "blocks/ListBlock.qml",
     quote: "blocks/Quote.qml", alert: "blocks/Alert.qml", code: "blocks/CodeBlock.qml",
     diff: "blocks/DiffBlock.qml", table: "blocks/TableBlock.qml", hr: "blocks/Rule.qml",
-    image: "blocks/ImageBlock.qml", html: "blocks/HtmlBlock.qml", frontmatter: "blocks/FrontMatter.qml",
+    image: "blocks/ImageBlock.qml", gallery: "blocks/GalleryBlock.qml", html: "blocks/HtmlBlock.qml", frontmatter: "blocks/FrontMatter.qml",
     footnotes: "blocks/Footnotes.qml"
   })
 
