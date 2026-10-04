@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2 (2026-10-04)
+
+- Bare front matter: `key: value` lines at the top of a file with no `---` fences, ended by the
+  first blank line (MultiMarkdown metadata, the shape static blogs use), is drawn as the same card
+  as YAML front matter instead of a run-together paragraph. Two or more key lines are needed, so a
+  one-line `Note: …` paragraph stays prose. A key with no value shows as a faint dash.
+
 ## 0.3.1 (2026-10-03)
 
 - Fonts an app can set: prose, heading and code families, each from the environment

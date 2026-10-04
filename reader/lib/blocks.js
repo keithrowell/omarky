@@ -12,7 +12,7 @@
 // alerts, footnotes) lives inside the block as child `blocks` arrays, so
 // the document view stays one flat ListView row per top-level block.
 //
-//   frontmatter  { title, fields: [{ key, kind: pill|list|link|text, value, items }] }
+//   frontmatter  { title, fields: [{ key, kind: pill|list|link|text|empty, value, items }] }
 //   heading      { level, runs, text, slug }
 //   paragraph    { runs }
 //   list         { ordered, start, tight, depth, tasks, items: [{ number, task: ""|todo|done, blocks }] }
@@ -379,6 +379,7 @@ function build(src) {
     fields.forEach(function(f) {
       if (f.key.toLowerCase() === "title" && !f.items && !title) { title = f.value; return }
       var kind = f.items ? "list"
+        : f.value === "" ? "empty"
         : /^(https?:\/\/|mailto:)\S+$/.test(f.value) ? "link"
         : f.value.length <= 32 && f.value.split(/\s+/).length <= 4 ? "pill"
         : "text"

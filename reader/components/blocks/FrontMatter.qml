@@ -101,7 +101,8 @@ Rectangle {
           width: column.width - root.keyW
           sourceComponent: fieldRow.modelData.kind === "list" ? listValue
                          : fieldRow.modelData.kind === "pill" ? pillValue
-                         : fieldRow.modelData.kind === "link" ? linkValue : textValue
+                         : fieldRow.modelData.kind === "link" ? linkValue
+                         : fieldRow.modelData.kind === "empty" ? emptyValue : textValue
           property var field: fieldRow.modelData
         }
       }
@@ -153,6 +154,22 @@ Rectangle {
         font.underline: linkHover.hovered
         HoverHandler { id: linkHover; cursorShape: Qt.PointingHandCursor }
         TapHandler { onTapped: if (root.ctx) root.ctx.openLink(field.value) }
+      }
+    }
+  }
+
+  // A key with nothing after it: a faint dash, so the row still reads.
+  Component {
+    id: emptyValue
+    Item {
+      height: Math.round(Reading.body * 1.55)
+      Text {
+        anchors.verticalCenter: parent.verticalCenter
+        text: "\u2014"
+        textFormat: Text.PlainText
+        color: Theme.ghost
+        font.family: Reading.prose
+        font.pixelSize: Math.round(Reading.body * 0.9)
       }
     }
   }

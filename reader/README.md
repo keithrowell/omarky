@@ -73,8 +73,9 @@ scale.
 
 ![GitHub alerts in rose-pine](docs/screenshots/alerts.png)
 
-`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]` and `[!CAUTION]` become tinted cards. YAML
-front matter becomes a card too, with statuses and dates as pills. HTML comments, such as agent
+`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]` and `[!CAUTION]` become tinted cards. Front
+matter becomes a card too, with statuses and dates as pills, whether it is YAML between `---`
+fences or bare `key: value` lines ended by a blank line. HTML comments, such as agent
 snapshot headers, are hidden. HTML that is only `<img>` tags, the usual way to put screenshots side
 by side, shows the images in a row; any other raw HTML is shown as source, never interpreted.
 

@@ -140,7 +140,7 @@ These are starting points. Refine them against screenshots until they look excel
 
 | Block | Treatment |
 |---|---|
-| **Front matter** (`---` YAML at the top) | A card, not raw YAML: title prominent if present, then key → value rows. Short values as pills (status, dates, tags as chips). Long values wrap. A subtle "front matter" label. |
+| **Front matter** (`---` YAML at the top, or bare `key: value` lines ended by a blank line) | A card, not raw YAML: title prominent if present, then key → value rows. Short values as pills (status, dates, tags as chips). Long values wrap. An empty value is a faint dash. A subtle "front matter" label. |
 | **HTML comments** | Hidden entirely, including Agentile's `<!-- SNAPSHOT … -->` headers. HTML that is only `<img>` tags becomes a row of images (docs/decisions/0002). Other raw HTML shows as muted monospace. Never interpret it. |
 | **Headings h1–h6** | A clear modular scale, e.g. 1.25–1.333 ratio from the body size. h1 has generous space above (except at the top) and tight space below, so it binds to its content. h1/h2 may carry a faint hairline underneath. On hover a faint `#` in the left margin; clicking it copies `file.md#slug`. Slugs follow GitHub's rules. |
 | **Paragraph** | Body size from `Style.font` (rem root from `shell.toml`) scaled up for reading, roughly 1.15–1.25× the UI base, tuned by eye. Line height about 1.6. Paragraph spacing about 0.9em. |
