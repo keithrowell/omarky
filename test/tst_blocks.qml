@@ -76,6 +76,55 @@ TestCase {
     compare(doc.blocks[1].srcStart, 19)
   }
 
+  function test_bare_front_matter_card() {
+    var doc = Blocks.build(readSample("bare-frontmatter.md"))
+    var fm = doc.blocks[0]
+    compare(fm.type, "frontmatter")
+    compare(fm.title, "Bare front matter")
+    compare(fm.srcStart, 0)
+    compare(fm.srcEnd, 9, "the block runs through the blank line that ends it")
+    var byKey = {}
+    fm.fields.forEach(function(f) { byKey[f.key] = f })
+    verify(!byKey.title, "title is lifted out of the rows")
+    compare(byKey.id.kind, "text", "a UUID is too long for a pill")
+    compare(byKey.id.value, "3f2a9c1e-7b4d-4e8a-9c01-5d6e7f8a9b0c")
+    compare(byKey.published_at.kind, "pill")
+    compare(byKey.published_at.value, "2026-10-04 09:30")
+    compare(byKey.teaser.kind, "text")
+    compare(byKey.author.value, "OmaRead maintainers")
+    // The heading after the metadata keeps its real source line.
+    compare(doc.blocks[1].type, "heading")
+    compare(doc.blocks[1].srcStart, 9)
+  }
+
+  function test_bare_front_matter_empty_value_is_empty_kind() {
+    var doc = Blocks.build(readSample("bare-frontmatter.md"))
+    var thread = doc.blocks[0].fields.filter(function(f) { return f.key === "thread" })[0]
+    compare(thread.kind, "empty")
+    compare(thread.value, "")
+  }
+
+  function test_bare_front_matter_runs_to_end_of_file() {
+    var doc = Blocks.build("title: Only metadata\nstatus: draft\n")
+    compare(types(doc), ["frontmatter"])
+    compare(doc.blocks[0].srcEnd, 3)
+  }
+
+  function test_single_key_line_is_a_paragraph() {
+    var doc = Blocks.build("Note: remember this\n\n# Heading\n")
+    compare(types(doc), ["paragraph", "heading"])
+  }
+
+  function test_key_lines_mixed_with_prose_are_a_paragraph() {
+    var doc = Blocks.build("id: 1\ntitle: x\nThen a sentence of prose.\n\n# Heading\n")
+    compare(types(doc), ["paragraph", "heading"])
+  }
+
+  function test_key_with_spaces_is_not_bare_front_matter() {
+    var doc = Blocks.build("Dear reader: hello\nOne more: line\n\nBody.\n")
+    compare(types(doc), ["paragraph", "paragraph"])
+  }
+
   function test_front_matter_only_at_top() {
     var doc = Blocks.build("Intro\n\n---\ntitle: nope\n---\n")
     verify(types(doc).indexOf("frontmatter") < 0)
@@ -267,7 +316,7 @@ TestCase {
   }
 
   function test_every_sample_builds() {
-    var names = ["kitchen-sink.md", "prose.md", "code.md", "tables.md", "alerts.md", "frontmatter.md",
+    var names = ["kitchen-sink.md", "prose.md", "code.md", "tables.md", "alerts.md", "frontmatter.md", "bare-frontmatter.md",
                  "malformed.md", "empty.md", "real/omaread-spec.md"]
     for (var i = 0; i < names.length; i++) {
       var doc = Blocks.build(readSample(names[i]))
