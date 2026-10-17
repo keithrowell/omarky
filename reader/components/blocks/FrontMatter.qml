@@ -147,7 +147,7 @@ Rectangle {
         elide: Text.ElideMiddle
         text: field.value
         textFormat: Text.PlainText
-        color: Theme.accent
+        color: Theme.link
         font.family: Reading.prose
         font.styleName: "Regular"
         font.pixelSize: Math.round(Reading.body * 0.9)

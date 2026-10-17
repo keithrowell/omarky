@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons
+import "../lib/palette.js" as Palette
 
 // Named colours from the current Omarchy theme (colors.toml) on top of the
 // shell's Color singleton, and the reading tiers derived from them. Follows
@@ -35,6 +36,8 @@ Singleton {
   readonly property color magenta: named.magenta || named.color5 || Color.accent
   readonly property color cyan: named.cyan || named.color6 || Color.accent
   readonly property color orange: named.orange || named.yellow || named.color3 || Color.urgent
+  // Links: the accent, unless the theme's accent is its text colour, then blue.
+  readonly property color link: Palette.linkColor(hex(Color.accent), hex(Color.foreground), hex(blue))
 
   // Text tiers: foreground mixed toward the background, so they read the
   // same way in light and dark themes (Qt.darker would brighten nothing).

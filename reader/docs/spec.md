@@ -142,7 +142,7 @@ These are starting points. Refine them against screenshots until they look excel
 |---|---|
 | **Front matter** (`---` YAML at the top, or bare `key: value` lines ended by a blank line) | A card, not raw YAML: title prominent if present, then key → value rows. Short values as pills (status, dates, tags as chips). Long values wrap. An empty value is a faint dash. A subtle "front matter" label. |
 | **HTML comments** | Hidden entirely, including Agentile's `<!-- SNAPSHOT … -->` headers. HTML that is only `<img>` tags becomes a row of images (docs/decisions/0002). Other raw HTML shows as muted monospace. Never interpret it. |
-| **Headings h1–h6** | A clear modular scale, e.g. 1.25–1.333 ratio from the body size. h1 has generous space above (except at the top) and tight space below, so it binds to its content. h1/h2 may carry a faint hairline underneath. On hover a faint `#` in the left margin; clicking it copies `file.md#slug`. Slugs follow GitHub's rules. |
+| **Headings h1–h6** | A clear modular scale, e.g. 1.25–1.333 ratio from the body size. h1 has generous space above (except at the top) and tight space below, so it binds to its content. No rule underneath. On hover a faint `#` in the left margin; clicking it copies `file.md#slug`. Slugs follow GitHub's rules. |
 | **Paragraph** | Body size from `Style.font` (rem root from `shell.toml`) scaled up for reading, roughly 1.15–1.25× the UI base, tuned by eye. Line height about 1.6. Paragraph spacing about 0.9em. |
 | **Lists** | Bullets and numbers hang in the margin so the text aligns with the paragraph. Nested levels are indented with a lighter bullet. Tight and loose lists are spaced differently (markdown-it tells you which). |
 | **Task list items** | `- [ ]` / `- [x]` render as drawn checkboxes (not glyphs), with the checked text slightly dimmed. Read-only. |
@@ -154,7 +154,7 @@ These are starting points. Refine them against screenshots until they look excel
 | **Horizontal rule** | A short, centred, thin ornament (three dots or a short hairline), not a full-width line. |
 | **Image** | Local paths are resolved relative to the file. Fits the column width, keeps its aspect ratio, has rounded corners, and uses the alt text as a dim caption below. Missing image: a small neat placeholder with the alt text. Remote images load. |
 | **Footnotes** | Superscript references in the accent colour. Notes are collected at the end under a hairline. Clicking scrolls to the note, and the note links back. |
-| **Links** | Accent colour, with no underline until hover. See §5 for behaviour. |
+| **Links** | Accent colour, with no underline until hover; when a theme makes its accent the same as its text colour (Kanagawa), the theme's blue instead. See §5 for behaviour. |
 
 Inline code, bold, italic and strikethrough must look crafted, not default. Adjust colours using
 the theme's tiers: `text`, `dim`, `faint`, `raised`, `sunken`, `hairline` as in the Factory's

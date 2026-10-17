@@ -53,7 +53,7 @@ Column {
         verticalAlignment: Text.AlignVCenter
         text: note.modelData.number + "."
         textFormat: Text.PlainText
-        color: Theme.accent
+        color: Theme.link
         font.family: Reading.mono
         font.pixelSize: Math.round(root.textSize * 0.9)
         font.features: { "tnum": 1 }

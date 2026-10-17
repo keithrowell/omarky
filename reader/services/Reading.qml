@@ -70,7 +70,7 @@ Singleton {
     text: Theme.hex(Theme.text),
     strong: Theme.hex(Theme.strong),
     dim: Theme.hex(Theme.dim),
-    link: Theme.hex(Theme.accent),
+    link: Theme.hex(Theme.link),
     codeText: Theme.hex(Theme.mix(Theme.text, Theme.accent, 0.12)),
     codeBg: Theme.hex(Theme.flat(Theme.fg, Theme.light ? 0.07 : 0.085)),
     codeSize: Math.round(body * 0.86),
