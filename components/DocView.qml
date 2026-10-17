@@ -54,8 +54,10 @@ ListView {
   model: blocks
   clip: true
   boundsBehavior: Flickable.StopAtBounds
-  flickDeceleration: 4000
-  maximumFlickVelocity: 5000
+  // The wheel handler below owns every scroll gesture (decision 0011); the
+  // Flickable's own wheel and drag handling would add a second, slower
+  // movement on top of it.
+  interactive: false
   cacheBuffer: Math.max(1600, height * 2)
   reuseItems: false
   header: Item { height: root.topRoom }
@@ -76,6 +78,7 @@ ListView {
 
   function glide(y, ms) {
     y = clampY(y)
+    fling.stop()
     if (Reading.reducedMotion || ms === 0) { scrollAnim.stop(); contentY = y; return }
     scrollAnim.duration = ms
     scrollAnim.to = y
@@ -87,6 +90,7 @@ ListView {
   // glide the rest, so the landing is exact and the motion stays short.
   function travel(resolve) {
     scrollAnim.stop()
+    fling.stop()
     var keep = contentY
     resolve()
     var target = contentY
@@ -147,6 +151,80 @@ ListView {
     property: "contentY"
     duration: 260
     easing.type: Easing.OutCubic
+  }
+
+  // ---- touchpad and wheel (decision 0011)
+  //
+  // For a two-finger scroll the compositor sends a value per frame; Qt moves
+  // a Flickable one logical pixel per unit, Chromium moves twelve and flings
+  // when the fingers lift. This handler does what Chromium does, so a swipe
+  // here travels as far as the same swipe in Helium. A mouse wheel notch
+  // moves 120 px, smoothed, as it does there too.
+  property real touchpadScroll: 12
+
+  WheelHandler {
+    id: wheel
+    target: null
+    // Wayland tags a finger scroll with the mouse device and only marks it
+    // as synthesised; the TouchPad flag is what lets those events in.
+    acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+    property bool gesture: false
+    property real lastT: 0
+    // The last few frames of the gesture, as contentY deltas and the time
+    // each took, for the fling velocity.
+    property var samples: []
+
+    onWheel: event => {
+      var now = Date.now()
+      var dy = event.pixelDelta.y
+      if (dy !== 0) {
+        if (!gesture) {
+          gesture = true
+          fling.stop()
+          scrollAnim.stop()
+          samples = []
+          lastT = now
+        }
+        var d = -dy * root.touchpadScroll
+        root.contentY = root.clampY(root.contentY + d)
+        samples = samples.concat([{ d: d, dt: Math.max(1, now - lastT) }]).slice(-3)
+        lastT = now
+      } else if (event.phase === Qt.NoScrollPhase && event.angleDelta.y !== 0) {
+        root.scrollBy(-event.angleDelta.y)
+      }
+      if (event.phase === Qt.ScrollEnd && gesture) {
+        gesture = false
+        if (now - lastT <= 200) {
+          var sd = 0, st = 0
+          for (var i = 0; i < samples.length; i++) { sd += samples[i].d; st += samples[i].dt }
+          if (st > 0) fling.begin(sd / (st / 1000))
+        }
+        samples = []
+      }
+    }
+  }
+
+  // Chromium's touchpad fling curve: the speed decays as
+  // dv/dt = -gamma * (v + beta), so a fast flick slows hard at first and
+  // then eases out, stopping on its own. Chromium's constants.
+  FrameAnimation {
+    id: fling
+    property real v: 0      // contentY change per second
+    readonly property real beta: 172
+    readonly property real gamma: 3.7
+    function begin(velocity) {
+      if (Reading.reducedMotion || Math.abs(velocity) < 50) return
+      v = Math.max(-20946, Math.min(20946, velocity))
+      start()
+    }
+    onTriggered: {
+      var speed = (Math.abs(v) + beta) * Math.exp(-gamma * frameTime) - beta
+      if (speed <= 0) { stop(); return }
+      v = v < 0 ? -speed : speed
+      var y = root.clampY(root.contentY + v * frameTime)
+      if (y === root.contentY) { stop(); return }
+      root.contentY = y
+    }
   }
 
   // ---- live reload: keep the reader on the same block (or the nearest one
