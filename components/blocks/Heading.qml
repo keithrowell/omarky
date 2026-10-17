@@ -3,8 +3,8 @@ import qs.Commons
 import qs.services
 import qs.components
 
-// h1–h6 on a 1.25 modular scale. h1/h2 carry a faint hairline; on hover a
-// `#` appears in the left margin and copies file.md#slug.
+// h1–h6 on a 1.25 modular scale. On hover a `#` appears in the left margin
+// and copies file.md#slug.
 Item {
   id: root
   required property var block
@@ -13,7 +13,7 @@ Item {
   readonly property int level: block.level
   readonly property real step: [0, 3, 2, 1, 0.5, 0, 0][level]
 
-  implicitHeight: text.implicitHeight + (rule.visible ? rule.gap + 1 : 0)
+  implicitHeight: text.implicitHeight
 
   RichText {
     id: text
@@ -28,16 +28,6 @@ Item {
     baseColor: root.level >= 5 ? Theme.dim : Theme.strong
     tracking: root.level === 6 ? 0.6 : 0
     capitals: root.level === 6
-  }
-
-  Rectangle {
-    id: rule
-    readonly property real gap: Math.round(Reading.body * 0.45)
-    visible: root.level <= 2
-    y: text.implicitHeight + gap
-    width: parent.width
-    height: 1
-    color: root.level === 1 ? Theme.hairline : Theme.hairlineSoft
   }
 
   HoverHandler { id: hover }

@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Two-finger scrolling travels as far as it does in Chromium (Helium), twelve times what Qt's
+  Flickable gives a trackpad, and flings when the fingers lift, on Chromium's own curve. A mouse
+  wheel notch moves 120 px, smoothed. The view's own wheel handling is off (docs/decisions/0011).
+- Headings no longer carry a hairline underneath h1 and h2.
+- Links keep their colour on a theme whose accent is the same as its text colour (Kanagawa):
+  links, footnote numbers and the front matter link row then use the theme's blue.
+
 ## 0.3.2 (2026-10-04)
 
 - Bare front matter: `key: value` lines at the top of a file with no `---` fences, ended by the
