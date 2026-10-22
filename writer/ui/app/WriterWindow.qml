@@ -14,6 +14,8 @@ FloatingWindow {
   id: win
 
   property string path: ""
+  // Open with the cursor after the last character (capture notes).
+  property bool startAtEnd: false
   // The file this window has now (path is only where it started).
   readonly property string filePath: buffer.path
   readonly property bool draft: Settings.isDraft(buffer.path)
@@ -49,6 +51,12 @@ FloatingWindow {
   function finish() {
     if (draft && editor.text.trim() === "") { buffer.remove(); return }
     if (dirty) buffer.save(editor.text)
+  }
+
+  function toEnd() {
+    editor.textEdit.cursorPosition = editor.text.length
+    editor.follow(true)
+    editor.forceFocus()
   }
 
   function save() {
@@ -153,7 +161,8 @@ FloatingWindow {
     path: win.path || Settings.newDraftPath()
     onOpened: text => {
       editor.text = text
-      editor.textEdit.cursorPosition = 0
+      editor.textEdit.cursorPosition = win.startAtEnd ? text.length : 0
+      if (win.startAtEnd) Qt.callLater(function() { editor.follow(true) })
       win.counts = E.stats(text)
       if (!win.draft) Settings.addRecent(path)
       editor.forceFocus()

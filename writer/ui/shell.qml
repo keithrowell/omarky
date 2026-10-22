@@ -31,8 +31,10 @@ ShellRoot {
   property int nextId: 1
 
   // A file already open comes to the front instead of opening twice.
-  function open(path) {
-    var p = String(path || "")
+  // "path" or "path<TAB>end" (cursor at the end).
+  function open(target) {
+    var parts = String(target || "").split("\t")
+    var p = parts[0], atEnd = parts[1] === "end"
     if (p) for (var i = 0; i < instances.count; i++) {
       var w = instances.objectAt(i)
       if (w && w.filePath === p) {
@@ -40,10 +42,11 @@ ShellRoot {
           'a=$(hyprctl clients -j | jq -r --arg t "$1" \'.[] | select(.title == $t) | .address\' | head -1); ' +
           '[ -n "$a" ] && hyprctl dispatch "hl.dsp.focus({ window = \\"address:$a\\" })"', "sh", w.title]
         focusTitle.running = true
+        if (atEnd) w.toEnd()
         return
       }
     }
-    windows.append({ wid: nextId++, path: p })
+    windows.append({ wid: nextId++, path: p, atEnd: atEnd })
   }
 
   Process { id: focusTitle }
@@ -100,7 +103,9 @@ ShellRoot {
     model: windows
     delegate: WriterWindow {
       required property int wid
+      required property bool atEnd
       required path
+      startAtEnd: atEnd
       onOpenFile: p => shell.open(p)
       onNewWindow: shell.open("")
       onClosed: shell.closeWindow(wid)

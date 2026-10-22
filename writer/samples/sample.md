@@ -31,4 +31,13 @@ end
 
 That's ~~all~~ most of it. Press ==Ctrl+/== for the rest.[^1]
 
+Ah, this looks *great*. So cool to have a markdown editor that works so nice. 
+
+1. list item 1
+2. number 2.
+- sub list 1
+- 2
+3. etc
+4. 
+
 [^1]: Footnotes are marked too.
