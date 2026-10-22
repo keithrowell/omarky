@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=OmaWriter
+GenericName=Markdown Editor
+Comment=Write Markdown that looks good while you write it
+Exec=omawriter %F
+Icon=omawriter
+Terminal=false
+MimeType=text/markdown;
+Categories=Office;TextEditor;
+Keywords=markdown;md;writer;editor;byword;
+StartupWMClass=omawriter

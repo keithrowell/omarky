@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# End-to-end check of a real (offscreen) OmaWriter: typing, the editor's
+# keys, autosave to disk, a reload from disk, and a clean log.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+work="$(mktemp -d)"
+trap 'kill "${pid:-0}" 2>/dev/null || true; rm -rf "$work"' EXIT
+export OMAWRITER_INSTANCE="check-$$" OMAWRITER_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
+export QML_IMPORT_PATH="$ROOT/build/qml"
+file="$work/doc.md"
+OMAWRITER_OPEN="$file" qs --log-rules "qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false" \
+  -p "$ROOT/ui/shell.qml" >"$work/qs.log" 2>&1 &
+pid=$!
+nap() { python3 -c "import time; time.sleep($1)"; }
+ipc() { qs ipc --pid "$pid" call omawriter "$@"; }
+for i in $(seq 50); do ipc count 2>/dev/null | grep -q '^[1-9]' && break; nap 0.2; done
+nap 0.5
+fail=0
+expect() { # name expected actual
+  if [ "$2" == "$3" ]; then echo "ok    $1"; else echo "FAIL  $1"; printf '  expected: %q\n  actual:   %q\n' "$2" "$3"; fail=1; fi
+}
+
+ipc type -1 "- one"; ipc key -1 Return; ipc type -1 "two"; ipc key -1 Return; ipc key -1 Return; ipc type -1 "x"
+expect "Enter continues a list, twice ends it" $'- one\n- two\nx' "$(ipc text -1)"
+ipc key -1 Return; ipc type -1 "1. a"; ipc key -1 Return
+expect "numbered lists count" $'- one\n- two\nx\n1. a\n2. ' "$(ipc text -1)"
+ipc key -1 Tab
+expect "Tab indents a list item" $'- one\n- two\nx\n1. a\n   2. ' "$(ipc text -1)"
+ipc key -1 shift+Tab; ipc key -1 Return
+ipc type -1 "word"; ipc key -1 ctrl+2
+expect "Ctrl+2 makes a heading" $'- one\n- two\nx\n1. a\n## word' "$(ipc text -1)"
+ipc key -1 ctrl+b
+expect "Ctrl+B with no selection puts the marks in" $'- one\n- two\nx\n1. a\n## word****' "$(ipc text -1)"
+nap 1.4
+expect "autosave writes the file" "$(ipc text -1)" "$(cat "$file" 2>/dev/null)"
+printf 'Rewritten by someone else.\n' >"$file"
+nap 0.8
+expect "a clean buffer takes a change on disk" "Rewritten by someone else." "$(ipc text -1)"
+state="$(ipc state -1)"
+echo "state $state"
+if grep -E 'WARN|ERROR|CRIT' "$work/qs.log" | grep -vE 'WAYLAND_DISPLAY|running wayland|--- WARNING ---|window masks|by-path'; then
+  echo "FAIL  the qs log is not clean"; fail=1
+else
+  echo "ok    clean log"
+fi
+exit $fail
