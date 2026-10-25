@@ -22,6 +22,12 @@ Rectangle {
     if (b.type === "fold" && b.heading) return 0
     return b.sectionChanges || 0
   }
+  // Words inserted and removed in the section, for the mix bar.
+  function mixAt(index) {
+    var b = blocks[index]
+    if (!b || (b.type === "fold" && b.heading)) return { ins: 0, del: 0 }
+    return { ins: b.sectionIns || 0, del: b.sectionDel || 0 }
+  }
 
   // h1–h4; indent relative to the shallowest level present.
   readonly property var items: headings.filter(function(h) { return h.level <= 4 })
@@ -73,6 +79,7 @@ Rectangle {
       readonly property bool isCurrent: index === root.currentItem
       readonly property int depth: modelData.level - root.minLevel
       readonly property int n: root.countAt(modelData.index)
+      readonly property var mix: root.mixAt(modelData.index)
       width: list.width
       height: label.implicitHeight + Style.space(12)
 
@@ -88,7 +95,7 @@ Rectangle {
       Text {
         id: label
         x: Style.space(22) + entry.depth * Style.space(14)
-        width: parent.width - x - Style.space(18) - (count.visible ? count.width + Style.space(8) : 0)
+        width: parent.width - x - Style.space(18) - (count.visible ? count.width + mixBar.width + Style.space(14) : 0)
         anchors.verticalCenter: parent.verticalCenter
         text: entry.modelData.text || "Untitled"
         textFormat: Text.PlainText
@@ -101,10 +108,25 @@ Rectangle {
         Behavior on color { ColorAnimation { duration: Reading.motion(120) } }
       }
 
-      Text {
-        id: count
+      // The mix: green for words added, red for words removed, as one
+      // small bar after the count.
+      Item {
+        id: mixBar
+        visible: entry.n > 0
         anchors.right: parent.right
         anchors.rightMargin: Style.space(20)
+        anchors.verticalCenter: parent.verticalCenter
+        width: Style.space(22)
+        height: Style.space(4)
+        readonly property int sum: entry.mix.ins + entry.mix.del
+        readonly property real share: sum > 0 ? entry.mix.ins / sum : 0.5
+        Rectangle { x: 0; width: Math.round(parent.width * parent.share); height: parent.height; radius: 2; color: Theme.flat(Theme.green, 0.8); visible: width > 0 }
+        Rectangle { x: Math.round(parent.width * parent.share) + (parent.share > 0 && parent.share < 1 ? 1 : 0); width: parent.width - x; height: parent.height; radius: 2; color: Theme.flat(Theme.red, 0.75); visible: width > 0 }
+      }
+      Text {
+        id: count
+        anchors.right: mixBar.left
+        anchors.rightMargin: Style.space(8)
         anchors.verticalCenter: parent.verticalCenter
         visible: entry.n > 0
         text: String(entry.n)

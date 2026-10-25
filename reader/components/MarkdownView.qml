@@ -82,6 +82,8 @@ Item {
 
     property Item selectionOwner: null
     readonly property QtObject finder: mdFinder
+    // The margin left of the column, for tags that must fit in it.
+    readonly property real gutter: mdView.gutter
 
     function resolveUrl(src) {
       var s = String(src || "")

@@ -360,17 +360,57 @@ function compare(fromText, toText) {
   return { blocks: out, total: total, lineCount: Math.max(1, b.lineCount), source: toText || "" }
 }
 
-// Each heading's count covers its body and every deeper heading until the
-// next heading at its level or above, plus its own change.
-function sectionCounts(blocks) {
-  for (var i = 0; i < blocks.length; i++) {
-    if (blocks[i].type !== "heading") continue
-    var n = 0
-    for (var j = i + 1; j < blocks.length; j++) {
-      if (blocks[j].type === "heading" && blocks[j].level <= blocks[i].level) break
-      n += blocks[j].changes || 0
+// Words inserted and removed in a block: every run flagged ins or del, in
+// the block's own runs, its list items, its quoted blocks and its table
+// cells. A block added or removed whole counts all of its words.
+function wordCounts(block) {
+  var ins = 0, del = 0
+  function words(t) { var m = String(t || "").match(/\S+/g); return m ? m.length : 0 }
+  function runs(list) {
+    for (var i = 0; i < (list || []).length; i++) {
+      var r = list[i]
+      if (r.ins) ins += words(r.t)
+      if (r.del) del += words(r.t)
     }
-    blocks[i].sectionChanges = n + (blocks[i].changes || 0)
+  }
+  function walk(b) {
+    if (!b) return
+    if (b.runs) runs(b.runs)
+    if (b.header) runs(b.header.reduce(function(a, c) { return a.concat(c) }, []))
+    if (b.rows) b.rows.forEach(function(row) { row.forEach(runs) })
+    if (b.blocks) b.blocks.forEach(walk)
+    if (b.items) b.items.forEach(function(it) { if (it.blocks) it.blocks.forEach(walk); else walk(it) })
+    if (b.type === "code" || b.type === "diff") {
+      var n = words(b.text)
+      if (b.change === "added") ins += n
+      if (b.change === "removed") del += n
+    }
+  }
+  walk(block)
+  return { ins: ins, del: del }
+}
+
+// Each heading's count covers its body and every deeper heading until the
+// next heading at its level or above, plus its own change. The words
+// inserted and removed over the same span give the mix of the changes.
+function sectionCounts(blocks) {
+  var counts = blocks.map(wordCounts)
+  for (var i = 0; i < blocks.length; i++) {
+    blocks[i].insWords = counts[i].ins
+    blocks[i].delWords = counts[i].del
+  }
+  for (var k = 0; k < blocks.length; k++) {
+    if (blocks[k].type !== "heading") continue
+    var n = blocks[k].changes || 0, ins = counts[k].ins, del = counts[k].del
+    for (var j = k + 1; j < blocks.length; j++) {
+      if (blocks[j].type === "heading" && blocks[j].level <= blocks[k].level) break
+      n += blocks[j].changes || 0
+      ins += counts[j].ins
+      del += counts[j].del
+    }
+    blocks[k].sectionChanges = n
+    blocks[k].sectionIns = ins
+    blocks[k].sectionDel = del
   }
 }
 
