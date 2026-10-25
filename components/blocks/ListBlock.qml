@@ -53,12 +53,13 @@ Column {
       width: root.width
       height: body.height
 
+      // Same edges as a block's wash (DocView), so washes line up down the page.
       Rectangle {
         visible: item.wash !== ""
-        x: Math.min(marker.x, 0) - Math.round(root.textSize * 0.4)
-        y: -Math.round(root.textSize * 0.25)
-        width: root.width - x + Math.round(root.textSize * 0.5)
-        height: body.height + Math.round(root.textSize * 0.5)
+        x: -Reading.washPad
+        y: -Math.round(root.textSize * 0.3)
+        width: root.width + Reading.washPad * 2
+        height: body.height + Math.round(root.textSize * 0.6)
         radius: Math.max(4, Style.cornerRadius - 2)
         color: item.wash === "added" ? Theme.flat(Theme.green, Theme.light ? 0.1 : 0.15) : Theme.flat(Theme.red, Theme.light ? 0.08 : 0.12)
       }
