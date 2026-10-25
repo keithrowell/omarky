@@ -10,4 +10,5 @@ RichText {
   pid: block.pid !== undefined ? block.pid : -1
   size: look.size || Reading.body
   baseColor: look.tier === "dim" ? Theme.dim : Theme.text
+  marksStrike: !look.removed
 }

@@ -31,6 +31,7 @@ Item {
     baseColor: root.level >= 5 ? Theme.dim : Theme.strong
     tracking: root.level === 6 ? 0.6 : 0
     capitals: root.level === 6
+    marksStrike: !root.look.removed
   }
 
   HoverHandler { id: hover }

@@ -46,8 +46,22 @@ Column {
       required property var modelData
       required property int index
       readonly property bool done: modelData.task === "done"
+      // An item added or removed whole sits on a wash, unless the list as
+      // a whole is marked, in which case the page washes the list.
+      readonly property string wash: (root.block.change === "added" || root.block.change === "removed") ? ""
+                                     : (modelData.change === "added" || modelData.change === "removed" ? modelData.change : "")
       width: root.width
       height: body.height
+
+      Rectangle {
+        visible: item.wash !== ""
+        x: Math.min(marker.x, 0) - Math.round(root.textSize * 0.4)
+        y: -Math.round(root.textSize * 0.25)
+        width: root.width - x + Math.round(root.textSize * 0.5)
+        height: body.height + Math.round(root.textSize * 0.5)
+        radius: Math.max(4, Style.cornerRadius - 2)
+        color: item.wash === "added" ? Theme.flat(Theme.green, Theme.light ? 0.1 : 0.15) : Theme.flat(Theme.red, Theme.light ? 0.08 : 0.12)
+      }
 
       // ---- marker, hung in the margin and centred on the first line
       Item {
@@ -135,7 +149,7 @@ Column {
         blocks: item.modelData.blocks
         ctx: root.ctx
         tight: root.block.tight
-        look: item.done ? Object.assign({}, root.look, { tier: "dim" }) : root.look
+        look: Object.assign({}, root.look, item.done ? { tier: "dim" } : {}, item.wash === "removed" || root.look.removed ? { removed: true } : {})
       }
     }
   }

@@ -291,28 +291,33 @@ ListView {
     // instead; a list added or removed whole is marked once, here.
     readonly property string change: !modelData.change || modelData.change === "same" ? ""
                                      : modelData.type === "list" && modelData.change === "reworded" ? "" : modelData.change
-    readonly property bool added: modelData.change === "added"
-    readonly property bool prevAdded: index > 0 && root.blocks[index - 1].change === "added"
-    readonly property bool nextAdded: index + 1 < root.blocks.length && root.blocks[index + 1].change === "added"
+    // A block added or removed whole sits on a wash (green or red);
+    // consecutive blocks of one kind share it.
+    readonly property string wash: modelData.change === "added" || modelData.change === "removed" ? modelData.change : ""
+    readonly property bool prevWash: wash !== "" && index > 0 && root.blocks[index - 1].change === wash
+    readonly property bool nextWash: wash !== "" && index + 1 < root.blocks.length && root.blocks[index + 1].change === wash
+    // A neighbour washed the other colour: the two share the gap with a seam.
+    readonly property bool prevOther: wash !== "" && !prevWash && index > 0 && (root.blocks[index - 1].change === "added" || root.blocks[index - 1].change === "removed")
+    readonly property bool nextOther: wash !== "" && !nextWash && index + 1 < root.blocks.length && (root.blocks[index + 1].change === "added" || root.blocks[index + 1].change === "removed")
+    readonly property real nextGap: index + 1 < root.blocks.length ? Reading.gapBefore(modelData, root.blocks[index + 1]) : 0
     // Centre of the block's first line box, or of a body line when the
     // block does not say.
     readonly property real firstLineMid: block.item && block.item.lineHeightPx
       ? (block.item.firstLineY || 0) + block.item.lineHeightPx / 2
       : Math.round(Reading.body * Reading.lineHeight / 2)
 
-    // Added blocks sit on a soft wash; consecutive ones share it.
     Rectangle {
-      visible: row.added
-      x: root.gutter - Style.space(26)
-      y: row.prevAdded ? 0 : row.gap - Style.space(8)
-      width: root.column + Style.space(40)
-      height: (row.nextAdded ? row.height : row.gap + block.height + Style.space(8)) - y
+      visible: row.wash !== ""
+      x: root.gutter - Style.space(12)
+      y: row.prevWash ? 0 : row.prevOther ? Math.round(row.gap / 2) + 1 : row.gap - Style.space(8)
+      width: root.column + Style.space(24)
+      height: (row.nextWash ? row.height : row.nextOther ? row.height + Math.round(row.nextGap / 2) - 1 : row.gap + block.height + Style.space(8)) - y
       radius: Math.max(6, Style.cornerRadius)
-      topLeftRadius: row.prevAdded ? 0 : radius
-      topRightRadius: row.prevAdded ? 0 : radius
-      bottomLeftRadius: row.nextAdded ? 0 : radius
-      bottomRightRadius: row.nextAdded ? 0 : radius
-      color: Theme.flat(Theme.green, Theme.light ? 0.1 : 0.15)
+      topLeftRadius: row.prevWash ? 0 : radius
+      topRightRadius: row.prevWash ? 0 : radius
+      bottomLeftRadius: row.nextWash ? 0 : radius
+      bottomRightRadius: row.nextWash ? 0 : radius
+      color: row.wash === "added" ? Theme.flat(Theme.green, Theme.light ? 0.1 : 0.15) : Theme.flat(Theme.red, Theme.light ? 0.08 : 0.12)
     }
     ChangeTag {
       change: row.change
@@ -339,6 +344,7 @@ ListView {
       width: root.column
       block: row.modelData
       ctx: root.ctx
+      look: row.wash === "removed" ? ({ removed: true }) : ({})
     }
   }
 }
