@@ -16,7 +16,10 @@
   on a wash, and a `fold` block draws a "3 paragraphs unchanged" row or a dimmed heading.
   `Blocks.index()` indexes any block list and `Doc.adopt()` installs one.
 - The outline marks the current section with shading alone; the accent bar beside it is gone.
-  In changes mode it shows each section's change count at the right.
+  In changes mode it shows each section's change count at the right, with a small bar after it
+  split green and red by the words added and removed in the section.
+- A change tag whose word will not fit the margin (a narrow window, or the outline open in one)
+  becomes a dot in the same tone, with the word in its tooltip.
 - Two-finger scrolling travels as far as it does in Chromium (Helium), twelve times what Qt's
   Flickable gives a trackpad, and flings when the fingers lift, on Chromium's own curve. A mouse
   wheel notch moves 120 px, smoothed. The view's own wheel handling is off (docs/decisions/0011).
