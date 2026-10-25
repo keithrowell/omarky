@@ -15,6 +15,18 @@ TestCase {
 
   function changes(r) { return r.blocks.map(function(b) { return b.change }) }
 
+  function test_words_added_and_removed_per_section() {
+    var r = Changes.compare("# A\n\none two three\n\n# B\n\nkeep this line\n", "# A\n\none two\n\n# B\n\nkeep this line\n\nA new closing paragraph here.\n")
+    var a = r.blocks[0], b = r.blocks.filter(function(x) { return x.type === "heading" && x.text === "B" })[0]
+    compare(a.sectionIns, 0)
+    compare(a.sectionDel, 1)
+    compare(b.sectionIns, 5)
+    compare(b.sectionDel, 0)
+    var added = r.blocks[r.blocks.length - 1]
+    compare(added.change, "added")
+    compare(added.insWords, 5)
+  }
+
   function test_identical_is_zero() {
     var r = Changes.compare("# A\n\nx y z\n", "# A\n\nx y z\n")
     compare(r.total, 0)
