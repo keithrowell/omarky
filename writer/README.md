@@ -71,7 +71,7 @@ A file changed by another program while OmaWriter has it open is reloaded in pla
 | `native/` | `MarkdownHighlighter`, the C++ QSyntaxHighlighter that paints the editor and sets its line layout |
 | `ui/app/` | The window, editor, file handling and settings, in QML |
 | `ui/app/editing.js` | The pure text logic behind the keys (tested) |
-| `vendor/omaread/` | OmaRead's renderer, theme and shell components, copied at the commit in `REVISION` |
+| `vendor/omarky/` | [Omarky](https://github.com/keithrowell/omarky), the library shared with OmaRead: the renderer the preview uses, the theme and the chrome, as a submodule; `tools/vendor` moves it |
 | `tools/test` | Unit tests for `editing.js` and the native highlighter, headless |
 | `tools/check` | Drives an offscreen OmaWriter through IPC: keys, autosave, reload from disk, a clean log |
 | `tools/shot` | Offscreen screenshot of a file under any Omarchy theme |
