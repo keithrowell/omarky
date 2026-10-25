@@ -51,9 +51,10 @@ Singleton {
   readonly property real chrome: Style.font.body
   readonly property real chromeSmall: Style.font.caption
   // Code: a touch smaller than prose, a little tighter leading.
-  // How far a change wash (MarkdownView.changes) reaches past the column
-  // on each side: the width a hanging bullet takes, so bullets sit inside.
-  readonly property real washPad: Math.round(body * 1.5)
+  // How far a change wash (MarkdownView.changes) reaches past the column:
+  // on the left, a hanging bullet plus a little air; on the right, less.
+  readonly property real washPad: Math.round(body * 1.25)
+  readonly property real washPadRight: Math.round(body * 0.8)
   readonly property real codeSize: Math.round(body * 0.84)
   readonly property real codeLeading: 1.5
 

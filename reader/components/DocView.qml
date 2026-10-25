@@ -310,7 +310,7 @@ ListView {
       visible: row.wash !== ""
       x: root.gutter - Reading.washPad
       y: row.prevWash ? 0 : row.prevOther ? Math.round(row.gap / 2) + 1 : row.gap - Style.space(8)
-      width: root.column + Reading.washPad * 2
+      width: root.column + Reading.washPad + Reading.washPadRight
       height: (row.nextWash ? row.height : row.nextOther ? row.height + Math.round(row.nextGap / 2) - 1 : row.gap + block.height + Style.space(8)) - y
       radius: Math.max(6, Style.cornerRadius)
       topLeftRadius: row.prevWash ? 0 : radius

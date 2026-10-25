@@ -58,7 +58,7 @@ Column {
         visible: item.wash !== ""
         x: -Reading.washPad
         y: -Math.round(root.textSize * 0.3)
-        width: root.width + Reading.washPad * 2
+        width: root.width + Reading.washPad + Reading.washPadRight
         height: body.height + Math.round(root.textSize * 0.6)
         radius: Math.max(4, Style.cornerRadius - 2)
         color: item.wash === "added" ? Theme.flat(Theme.green, Theme.light ? 0.1 : 0.15) : Theme.flat(Theme.red, Theme.light ? 0.08 : 0.12)

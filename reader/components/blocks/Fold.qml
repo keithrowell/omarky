@@ -28,7 +28,7 @@ Item {
   Rectangle {
     anchors.fill: parent
     anchors.leftMargin: -Reading.washPad
-    anchors.rightMargin: -Reading.washPad
+    anchors.rightMargin: -Reading.washPadRight
     anchors.topMargin: -Style.space(6)
     anchors.bottomMargin: -Style.space(6)
     z: -1
