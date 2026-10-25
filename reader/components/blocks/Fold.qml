@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Commons
 import qs.services
+import qs.components
 
 // A run of unchanged blocks folded to one hairline row ("3 paragraphs
 // unchanged"), or an unchanged section folded to its dimmed heading
@@ -32,28 +33,24 @@ Item {
     Behavior on color { ColorAnimation { duration: Reading.motion(120) } }
   }
 
-  // A whole section: its heading, dimmed, with "unchanged" beside it.
-  Row {
+  // A whole section: its heading, dimmed, tagged "unchanged" in the margin
+  // like any other block.
+  Text {
+    id: headingText
     visible: root.section
     anchors.verticalCenter: parent.verticalCenter
-    spacing: Math.round(Reading.body * 0.7)
-    Text {
-      text: root.section ? root.block.heading.text : ""
-      textFormat: Text.PlainText
-      font.family: Reading.heading
-      font.styleName: root.level >= 5 ? "Regular" : Reading.headingStyle
-      font.pixelSize: root.headingSize
-      color: Theme.dim
-      anchors.baseline: parent.baseline
-    }
-    Text {
-      text: "unchanged"
-      textFormat: Text.PlainText
-      font.family: Style.font.family
-      font.pixelSize: Style.font.caption
-      color: Theme.faint
-      anchors.baseline: parent.baseline
-    }
+    text: root.section ? root.block.heading.text : ""
+    textFormat: Text.PlainText
+    font.family: Reading.heading
+    font.styleName: root.level >= 5 ? "Regular" : Reading.headingStyle
+    font.pixelSize: root.headingSize
+    color: Theme.dim
+  }
+  ChangeTag {
+    visible: root.section
+    change: "unchanged"
+    x: -width - Math.round(Reading.body * 1.9)
+    anchors.verticalCenter: headingText.verticalCenter
   }
 
   // A run of blocks: a hairline each side of the count.

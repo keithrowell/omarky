@@ -119,17 +119,13 @@ Column {
         }
       }
 
-      // Change mark for the item (MarkdownView.changes), left of the marker.
-      Text {
-        visible: !!item.modelData.change && item.modelData.change !== "same"
-        x: marker.x - width - Math.round(root.textSize * 0.6)
+      // Change tag for the item (MarkdownView.changes), left of the marker
+      // and centred on the first line; a list added or removed whole is
+      // tagged once by the page instead.
+      ChangeTag {
+        change: root.block.change === "added" || root.block.change === "removed" ? "" : (item.modelData.change || "")
+        x: Math.min(marker.x - width - Math.round(root.textSize * 0.5), -width - Math.round(root.textSize * 1.9))
         y: Math.round(root.xCentre - height / 2)
-        text: item.modelData.change || ""
-        textFormat: Text.PlainText
-        font.family: Style.font.family
-        font.pixelSize: Style.font.caption
-        font.letterSpacing: 0.4
-        color: item.modelData.change === "added" ? Theme.green : item.modelData.change === "removed" ? Theme.red : Theme.faint
       }
 
       BlockStack {

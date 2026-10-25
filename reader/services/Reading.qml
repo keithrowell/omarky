@@ -89,6 +89,9 @@ Singleton {
   // before it. Headings bind to what follows them, not what precedes.
   function gapBefore(prev, cur) {
     if (!prev) return 0
+    // A folded section (MarkdownView.changes) spaces like its heading.
+    if (cur.type === "fold" && cur.heading) cur = { type: "heading", level: cur.heading.level }
+    if (prev.type === "fold" && prev.heading) prev = { type: "heading", level: prev.heading.level }
     var em = body
     if (cur.type === "heading") {
       if (prev.type === "hr") return Math.round(em * 1.5)   // the rule already marks the break
