@@ -1,60 +1,24 @@
-#!/usr/bin/env bash
-# OmaRead — a Markdown reader for Omarchy.
+#!/usr/bin/ruby
+# OmaRead: a Markdown reader for Omarchy.
 #
-#   omaread [FILE.md[#anchor] …]   open files (each in its own window)
-#   omaread                        an empty window with recent files
-#   omaread --foreground …         run qs in this terminal (development)
+#   omaread [FILE.md[#anchor] …]           open files (each in its own window)
+#   omaread                                an empty window with recent files
+#   omaread FILE --changes                 FILE compared with its last differing version
+#   omaread FILE --from SPEC [--to SPEC]   FILE compared between two versions
+#   omaread FILE --list                    print FILE's versions
+#   omaread FILE --resolve SPEC            print one version of FILE as JSON
+#   omaread FILE --versions                print FILE's history and shortcuts as JSON
+#   omaread --foreground …                 run qs in this terminal (development)
 #   omaread --version
+#
+# A SPEC is a person ("danny", "me"), a day ("yesterday", "a week ago",
+# "fri", "23 oct"), both ("danny fri"), "sent" (the date in SENT.md),
+# "before X", "now", or anything git understands. Run as omachanges, a
+# bare FILE opens its changes.
 #
 # A running OmaRead gets the files over IPC and opens new windows; this
 # script exits at once. Otherwise it starts one detached qs process, logging
 # to ~/.local/state/omaread/qs.log.
-set -euo pipefail
-
-self="$(readlink -f "$0")"
-root="$(cd "$(dirname "$self")/.." && pwd)"
-state="${XDG_STATE_HOME:-$HOME/.local/state}/omaread"
-lock="${XDG_RUNTIME_DIR:-/tmp}/omaread/${OMAREAD_INSTANCE:-omaread}.lock"
-foreground=0
-targets=()
-
-for arg in "$@"; do
-  case "$arg" in
-    -h|--help) sed -n '2,11p' "$self" | sed 's/^# \{0,1\}//'; exit 0 ;;
-    --foreground) foreground=1; continue ;;
-    -V|--version) echo "omaread $(cat "$root/VERSION")"; exit 0 ;;
-  esac
-  path="$arg"; anchor=""
-  # file.md#section, unless a file really has that name.
-  if [ ! -e "$arg" ] && [[ "$arg" == *"#"* ]]; then path="${arg%#*}"; anchor="${arg##*#}"; fi
-  path="${path#file://}"
-  targets+=("$(realpath -m -- "$path")${anchor:+#$anchor}")
-done
-
-# Generated syntax-highlighting themes (services/Highlight.qml, decision 0006).
-export XDG_DATA_DIRS="$HOME/.local/share/omaread/ksh:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
-
-# Fast path: an instance holds the lock, so hand it the files.
-if [ -f "$lock" ] && ! flock -n "$lock" true 2>/dev/null; then
-  pid="$(cat "$lock" 2>/dev/null || true)"
-  if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-    ok=1
-    if [ ${#targets[@]} -eq 0 ]; then
-      qs ipc --pid "$pid" call omaread open "" >/dev/null 2>&1 || ok=0
-    else
-      for t in "${targets[@]}"; do qs ipc --pid "$pid" call omaread open "$t" >/dev/null 2>&1 || ok=0; done
-    fi
-    [ "$ok" = 1 ] && exit 0
-  fi
-fi
-
-mkdir -p "$state"
-export OMAREAD_OPEN="$(printf '%s\n' "${targets[@]+"${targets[@]}"}")"
-# Log rules: the minified markdown-it trips a declaration-order lint, and Qt
-# logs a portal app-ID clash on every Quickshell app (the Factory too);
-# neither is ours to fix (docs/decisions/0008).
-qs_args=(--log-rules "qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false" -p "$root/shell.qml")
-if [ "$foreground" = 1 ]; then
-  exec qs "${qs_args[@]}"
-fi
-setsid -f qs "${qs_args[@]}" >"$state/qs.log" 2>&1 </dev/null
+$LOAD_PATH.unshift(File.expand_path("../launcher", __dir__))
+require "omaread"
+exit OmaRead::CLI.new(ARGV, root: File.expand_path("..", __dir__)).run
