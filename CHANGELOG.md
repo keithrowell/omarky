@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- `MarkdownView.changes` takes a prepared document with change marks, for OmaChanges: inserted
+  runs sit on a wash in the theme's green, removed runs read faint under a strike in its red, a
+  changed block says "reworded", "added" or "removed" in the margin, an added block sits on a
+  soft wash, and a `fold` block draws a "3 paragraphs unchanged" row or a dimmed heading.
+  `Blocks.index()` indexes any block list and `Doc.adopt()` installs one.
 - Two-finger scrolling travels as far as it does in Chromium (Helium), twelve times what Qt's
   Flickable gives a trackpad, and flings when the fingers lift, on Chromium's own curve. A mouse
   wheel notch moves 120 px, smoothed. The view's own wheel handling is off (docs/decisions/0011).

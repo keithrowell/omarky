@@ -119,6 +119,19 @@ Column {
         }
       }
 
+      // Change mark for the item (MarkdownView.changes), left of the marker.
+      Text {
+        visible: !!item.modelData.change && item.modelData.change !== "same"
+        x: marker.x - width - Math.round(root.textSize * 0.6)
+        y: Math.round(root.xCentre - height / 2)
+        text: item.modelData.change || ""
+        textFormat: Text.PlainText
+        font.family: Style.font.family
+        font.pixelSize: Style.font.caption
+        font.letterSpacing: 0.4
+        color: item.modelData.change === "added" ? Theme.green : item.modelData.change === "removed" ? Theme.red : Theme.faint
+      }
+
       BlockStack {
         id: body
         x: root.indent
