@@ -358,4 +358,13 @@ TestCase {
     verify(ms < 900, "long.md built in " + ms + " ms")
     console.info("long.md: " + doc.blocks.length + " blocks in " + ms + " ms")
   }
+
+  function test_index_matches_build() {
+    var d = Blocks.build("# A\n\nx\n\n## B\n\ny `c` z\n")
+    var ix = Blocks.index(d.blocks)
+    compare(ix.headings.length, 2)
+    compare(ix.headings[1].slug, "b")
+    compare(ix.anchors["b"], 2)
+    compare(ix.pieces.length, d.pieces.length)
+  }
 }
