@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- The renderer, the diff engine, the shared chrome, the launcher's Ruby, the tests and the samples
+  moved to [Omarky](https://github.com/keithrowell/omarky), a library this app and OmaWriter both
+  vendor as a submodule (decision 0014). The app is `ui/shell.qml` and `ui/app/`; the library is
+  linked into `ui/`. `tools/vendor` moves the submodule, `tools/test` runs the library's tests then
+  this app's.
+
 ## 0.4.0 (2026-10-26)
 
 - Changes mode: OmaChanges, built on 25 October as its own app, is now part of OmaRead. When the

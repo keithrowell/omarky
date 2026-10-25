@@ -66,7 +66,7 @@ class CliTest < Minitest::Test
     other = File.join(@dir, "other.md"); File.write(other, "# Other\n")
     out, _, st = run_cli("--foreground", @path, "#{other}#intro", env: { "HOME" => @dir })
     assert st.success?, out
-    assert_includes out, "argv: [--log-rules] [qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false] [-p] [#{ROOT}/shell.qml]\n"
+    assert_includes out, "argv: [--log-rules] [qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false] [-p] [#{ROOT}/ui/shell.qml]\n"
     assert_equal "#{@path}\n#{other}#intro", opened(out)
     assert_includes out, "data<<#{@dir}/.local/share/omaread/ksh:/usr/share>>\n"
   end
@@ -94,7 +94,7 @@ class CliTest < Minitest::Test
     log = File.join(@state, "qs.log")
     20.times { break if File.file?(log) && File.read(log).include?("data<<"); sleep 0.1 }
     text = File.read(log)
-    assert_includes text, "[-p] [#{ROOT}/shell.qml]"
+    assert_includes text, "[-p] [#{ROOT}/ui/shell.qml]"
     assert_equal @path, opened(text)
   end
 
@@ -123,7 +123,7 @@ class CliTest < Minitest::Test
     File.write(File.join(@runtime, "omaread", "test.lock"), "#{Process.pid}\n")   # alive, but nobody holds the lock
     out, _, st = run_cli("--foreground", @path)
     assert st.success?
-    assert_includes out, "[-p] [#{ROOT}/shell.qml]"
+    assert_includes out, "[-p] [#{ROOT}/ui/shell.qml]"
     assert_equal @path, opened(out)
   end
 

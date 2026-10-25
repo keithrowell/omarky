@@ -4,4 +4,4 @@ require "minitest/autorun"
 require "tmpdir"
 require "fileutils"
 require "omaread"
-require_relative "fixture_repo"
+require "fixture_repo"   # the library's sample history (vendor/omarky/test/ruby)

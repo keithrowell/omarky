@@ -8,16 +8,13 @@ module OmaRead
   # specs; the window resolves them by running `omaread PATH --resolve SPEC`.
   # An empty TO means now; `--changes` sends "before now" as FROM.
   class CLI
-    LOG_RULES = "qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false"
     MODE_FLAGS = %w[--from --to --changes --list --resolve --versions]
 
     def initialize(argv, root:, name: File.basename($0))
       @argv = argv.dup
       @root = root
       @name = name
-      @state = ENV["OMAREAD_STATE_DIR"] || File.join(ENV["XDG_STATE_HOME"] || File.join(Dir.home, ".local/state"), "omaread")
-      @runtime = File.join(ENV["XDG_RUNTIME_DIR"] || "/tmp", "omaread")
-      @instance = ENV["OMAREAD_INSTANCE"] || "omaread"
+      @app = Omarky::Instance.new(name: "omaread", root: root)
     end
 
     def run
@@ -35,7 +32,7 @@ module OmaRead
                 else
                   files.map { target_for(_1) }
                 end
-      open(targets, foreground: opts["--foreground"])
+      @app.open(targets, foreground: opts["--foreground"])
     end
 
     private
@@ -86,10 +83,10 @@ module OmaRead
       file = files.first
       path, anchor = split_target(file)
       return error("#{file}: no such file") unless File.file?(path)
-      history = History.new(path)
+      history = Omarky::History.new(path)
       now = ENV["OMAREAD_NOW"] ? Time.parse(ENV["OMAREAD_NOW"]) : Time.now
-      resolver = Resolver.new(history, now: now)
-      return print_json(Versions.summary(history, resolver)) if opts["--versions"]
+      resolver = Omarky::Resolver.new(history, now: now)
+      return print_json(Omarky::Versions.summary(history, resolver)) if opts["--versions"]
       to = opts["--to"]
       from = opts["--from"]
       from ||= opts["--changes"] ? "before now" : (to ? "before #{to}" : nil)
@@ -119,8 +116,8 @@ module OmaRead
       bound = to_spec ? resolver.resolve(to_spec) : nil
       bound = nil if bound == :now
       v = resolver.resolve(spec, before: bound)
-      print_json(Versions.side(history, resolver, v, history.disk_text))
-    rescue Unresolved => e
+      print_json(Omarky::Versions.side(history, resolver, v, history.disk_text))
+    rescue Omarky::Unresolved => e
       warn e.message
       1
     end
@@ -130,63 +127,8 @@ module OmaRead
       0
     end
 
-    def lock_path = File.join(@runtime, "#{@instance}.lock")
-
-    # Fast path: a running instance holds the lock, so hand it the targets.
-    # Otherwise start one detached qs process (or exec it in the foreground).
-    def open(targets, foreground: false)
-      ENV["XDG_DATA_DIRS"] = "#{Dir.home}/.local/share/omaread/ksh:#{ENV['XDG_DATA_DIRS'] || '/usr/local/share:/usr/share'}"
-      if (pid = running_pid)
-        ok = (targets.empty? ? [""] : targets).all? do |t|
-          system("qs", "ipc", "--pid", pid, "call", "omaread", "open", t, out: File::NULL, err: File::NULL)
-        end
-        return 0 if ok
-      end
-      ENV["OMAREAD_OPEN"] = targets.join("\n")
-      # Log rules: the minified markdown-it trips a declaration-order lint, and
-      # Qt logs a portal app-ID clash on every Quickshell app (the Factory too);
-      # neither is ours to fix (docs/decisions/0008).
-      args = ["qs", "--log-rules", LOG_RULES, "-p", File.join(@root, "shell.qml")]
-      exec(*args) if foreground
-      FileUtils.mkdir_p(@state)
-      log = File.open(File.join(@state, "qs.log"), "w")
-      pid = fork do
-        Process.setsid
-        exec(*args, in: File::NULL, out: log, err: log)
-      end
-      log.close
-      Process.detach(pid)
-      0
-    end
-
-    # The pid in the lock file, when the lock is held and that pid is alive.
-    def running_pid
-      return nil unless File.file?(lock_path)
-      File.open(lock_path) do |f|
-        if f.flock(File::LOCK_EX | File::LOCK_NB)
-          f.flock(File::LOCK_UN)
-          return nil
-        end
-      end
-      pid = File.read(lock_path).strip
-      return nil if pid.empty?
-      Process.kill(0, pid.to_i)
-      pid
-    rescue Errno::ESRCH, Errno::EPERM, Errno::ENOENT
-      nil
-    end
-
-    # The header comment of bin/omaread, less the shebang.
-    def help
-      lines = File.readlines(File.join(@root, "bin/omaread")).drop(1).take_while { _1.start_with?("#") }
-      puts lines.map { _1.sub(/\A# ?/, "") }
-      0
-    end
-
-    def version
-      puts "omaread #{File.read(File.join(@root, 'VERSION')).strip}"
-      0
-    end
+    def help = @app.help(File.join(@root, "bin/omaread"))
+    def version = @app.version(File.join(@root, "VERSION"))
 
     def error(msg)
       warn "omaread: #{msg}"

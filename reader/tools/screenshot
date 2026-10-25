@@ -33,7 +33,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ ${#SAMPLES[@]} -eq 0 ]; then
-  for f in "$ROOT"/samples/*.md; do SAMPLES+=("$(basename "$f" .md)"); done
+  for f in "$ROOT"/vendor/omarky/samples/*.md; do SAMPLES+=("$(basename "$f" .md)"); done
 fi
 
 theme_dir() {
@@ -55,10 +55,10 @@ sizes = {"wide": [("", 1400, 1000)], "narrow": [("-narrow", 800, 1000)]}
 sizes["both"] = sizes["wide"] + sizes["narrow"]
 jobs = []
 for s in samples:
-    path = s if os.path.exists(s) else os.path.join(root, "samples", s + ".md")
+    path = s if os.path.exists(s) else os.path.join(root, "vendor/omarky/samples", s + ".md")
     path = os.path.abspath(path)
-    name = os.path.splitext(os.path.relpath(path, os.path.join(root, "samples")))[0].replace("/", "-") \
-        if path.startswith(os.path.join(root, "samples")) else os.path.splitext(os.path.basename(path))[0]
+    name = os.path.splitext(os.path.relpath(path, os.path.join(root, "vendor/omarky/samples")))[0].replace("/", "-") \
+        if path.startswith(os.path.join(root, "vendor/omarky/samples")) else os.path.splitext(os.path.basename(path))[0]
     for suffix, w, h in sizes[size]:
         jobs.append({"file": path, "name": name + suffix + tag, "w": w, "h": h,
                      "pages": int(pages), "opts": json.loads(opts)})
@@ -77,7 +77,7 @@ for theme in ${THEMES//,/ }; do
   jobs_json "$out" >"$out/.jobs.json"
   (
     OMAREAD_THEME_DIR="$dir" OMAREAD_SHOT="$out/.jobs.json" QT_QPA_PLATFORM=offscreen \
-      timeout 300 qs --log-rules "qt.qml.usedbeforedeclared=false" -p "$ROOT/shell.qml" >"$out/qs.log" 2>&1 || echo "qs exited $? for $theme" >&2
+      timeout 300 qs --log-rules "qt.qml.usedbeforedeclared=false" -p "$ROOT/ui/shell.qml" >"$out/qs.log" 2>&1 || echo "qs exited $? for $theme" >&2
   ) &
   pids+=($!)
   sleep 0.4   # simultaneous qs starts race on Quickshell's runtime symlinks

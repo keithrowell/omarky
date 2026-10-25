@@ -7,7 +7,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 T="${TMPDIR:-/tmp}/omaread-live"
 mkdir -p "$T"
-cp "$ROOT/samples/prose.md" "$T/live.md"
+cp "$ROOT/vendor/omarky/samples/prose.md" "$T/live.md"
 "$ROOT/tools/dev" stop; sleep 1
 "$ROOT/tools/dev" start "$T/live.md"; sleep 1
 

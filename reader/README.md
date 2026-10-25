@@ -16,7 +16,7 @@ On Omarchy (Arch Linux with Hyprland):
 
 ```
 sudo pacman -S --needed quickshell ttf-ia-writer syntax-highlighting ruby git
-git clone https://github.com/keithrowell/omaread.git ~/.local/src/omaread
+git clone --recurse-submodules https://github.com/keithrowell/omaread.git ~/.local/src/omaread
 ~/.local/src/omaread/ops/install
 ```
 
@@ -32,7 +32,7 @@ xdg-mime default omaread.desktop text/markdown
 To update:
 
 ```
-git -C ~/.local/src/omaread pull
+git -C ~/.local/src/omaread pull --recurse-submodules
 ```
 
 `syntax-highlighting` (KDE's KSyntaxHighlighting) colours code blocks. Without it, code shows as
@@ -176,7 +176,7 @@ other Markdown files open in a new window at their anchor, and web links open in
 
 | Command | What it does |
 |---|---|
-| `tools/test` | Runs the JavaScript unit tests (parser, inline, code, theme, the diff engine) headless, then the launcher's Ruby tests |
+| `tools/test` | Runs the library's tests (the renderer, the diff engine, the launcher) and then this app's |
 | `tools/check-changes` | Drives changes mode in an offscreen window over IPC on a sample history (`samples/changes/make-repo`) |
 | `tools/screenshot [sample…] [--themes a,b]` | Renders samples under themes to `shots/`, offscreen, and fails on any warning in the log |
 | `tools/readme-shots` | Renders the screenshots in this README |
@@ -190,16 +190,17 @@ it, and `docs/REPORT.md` covers how it was checked and what is still missing. Th
 
 | Path | Holds |
 |---|---|
-| `bin/omaread`, `launcher/` | The Ruby launcher: windows over IPC, history over git, the version resolver |
-| `lib/diff/` | The diff engine in JavaScript: tokens and word diffs, alignment, the comparison, the fold |
-| `components/Changes.qml` | Changes mode for a window: the two sides, the result, the fold |
-| `samples/changes/` | A proposal before and after, and `make-repo`, which builds the sample history |
+| `vendor/omarky/` | [Omarky](https://github.com/keithrowell/omarky), the library OmaRead and OmaWriter share: the renderer, the diff engine, the chrome, the launcher's Ruby, the tests and the samples. `tools/vendor` moves it to the library checkout's HEAD |
+| `ui/shell.qml`, `ui/app/` | This app: the shell, the reader window, the header, the outline, the empty state and the shortcut sheet |
+| `bin/omaread`, `launcher/` | The command line: flags into targets for the window, on `Omarky::Instance` |
 
 ## Using the renderer in another app
 
-The reading column is a component of its own, `components/MarkdownView.qml`. Link OmaRead's
+The reading column is a component of its own, `components/MarkdownView.qml` in
+[Omarky](https://github.com/keithrowell/omarky). Vendor the library as a submodule, link its
 `Commons`, `Ui`, `components`, `services`, `lib` and `vendor` directories into your Quickshell
-config and it takes a Markdown string (or a file path) and hands links back:
+root as this app does under `ui/`, and it takes a Markdown string (or a file path) and hands
+links back:
 
 ```qml
 import qs.components

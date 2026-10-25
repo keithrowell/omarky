@@ -1,0 +1,6 @@
+module app
+ReaderWindow 1.0 ReaderWindow.qml
+Header 1.0 Header.qml
+Outline 1.0 Outline.qml
+EmptyState 1.0 EmptyState.qml
+ShortcutSheet 1.0 ShortcutSheet.qml

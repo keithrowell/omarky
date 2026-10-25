@@ -14,6 +14,8 @@ mkdir -p "$bin" "$apps" "$icons"
 # OmaRead the default stays a deliberate step (see the README).
 before="$(xdg-mime query default text/markdown 2>/dev/null || true)"
 
+# The library comes along as a submodule.
+git -C "$root" submodule update --init -q 2>/dev/null || true
 ln -sfn "$root/bin/omaread" "$bin/omaread"
 # The same launcher under its old name opens straight into a comparison.
 ln -sfn "$root/bin/omaread" "$bin/omachanges"

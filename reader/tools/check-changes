@@ -8,7 +8,7 @@ work="$(mktemp -d)"
 trap 'kill "${pid:-0}" 2>/dev/null || true; rm -rf "$work"' EXIT
 export OMAREAD_INSTANCE="check-$$" OMAREAD_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
 export OMAREAD_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
-file="$("$ROOT/samples/changes/make-repo" "$work/repo")"
+file="$("$ROOT/vendor/omarky/samples/changes/make-repo" "$work/repo")"
 "$ROOT/bin/omaread" --foreground "$file" --from danny >"$work/qs.log" 2>&1 &
 pid=$!
 nap() { python3 -c "import time; time.sleep($1)"; }

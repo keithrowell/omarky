@@ -16,7 +16,7 @@ export XDG_DATA_DIRS="$HOME/.local/share/omaread/ksh:${XDG_DATA_DIRS:-/usr/local
 
 # Changes scenes read a sample git history, built fresh each run.
 rm -rf "$RAW/.changes-repo"
-CHANGES_FILE="$("$ROOT/samples/changes/make-repo" "$RAW/.changes-repo")"
+CHANGES_FILE="$("$ROOT/vendor/omarky/samples/changes/make-repo" "$RAW/.changes-repo")"
 export OMAREAD_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
 
 # name|theme|sample (under samples/, or an absolute path)|width|height|options (JSON)
@@ -40,11 +40,11 @@ render() {   # theme jobs-json
   printf '%s' "$jobs" >"$RAW/.$theme.json"
   OMAREAD_THEME_DIR="$THEMES/$theme" OMAREAD_SHOT="$RAW/.$theme.json" OMAREAD_STATE_DIR="$ROOT/shots/.state" \
     QT_QPA_PLATFORM=offscreen QT_SCALE_FACTOR=2 \
-    timeout 120 qs --log-rules "qt.qml.usedbeforedeclared=false" -p "$ROOT/shell.qml" >"$RAW/.$theme.log" 2>&1
+    timeout 120 qs --log-rules "qt.qml.usedbeforedeclared=false" -p "$ROOT/ui/shell.qml" >"$RAW/.$theme.log" 2>&1
 }
 
 job() {   # name sample w h opts
-  local file="$2"; [ "${file#/}" = "$file" ] && file="$ROOT/samples/$2.md"
+  local file="$2"; [ "${file#/}" = "$file" ] && file="$ROOT/vendor/omarky/samples/$2.md"
   printf '{"file":"%s","name":"%s","w":%s,"h":%s,"pages":1,"opts":%s}' "$file" "$1" "$3" "$4" "$5"
 }
 

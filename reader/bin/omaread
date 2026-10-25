@@ -19,6 +19,6 @@
 # A running OmaRead gets the files over IPC and opens new windows; this
 # script exits at once. Otherwise it starts one detached qs process, logging
 # to ~/.local/state/omaread/qs.log.
-$LOAD_PATH.unshift(File.expand_path("../launcher", __dir__))
+$LOAD_PATH.unshift(File.expand_path("../launcher", __dir__), File.expand_path("../vendor/omarky/launcher", __dir__))
 require "omaread"
 exit OmaRead::CLI.new(ARGV, root: File.expand_path("..", __dir__)).run
