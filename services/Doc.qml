@@ -51,6 +51,23 @@ Item {
     if (!first) { reloads++; reloaded() }
   }
 
+  // A document prepared elsewhere (a diff): blocks already built and
+  // indexed. Same reload signals as a parse, so views keep their place.
+  function adopt(doc) {
+    var first = !loaded
+    if (!first) aboutToReload()
+    source = doc.source || ""
+    headings = doc.headings || []
+    anchorMap = doc.anchors || {}
+    pieces = doc.pieces || []
+    lineCount = doc.lineCount || 1
+    blocks = doc.blocks || []
+    loaded = true
+    missing = false
+    failed = false
+    if (!first) { reloads++; reloaded() }
+  }
+
   // Back to no document at all.
   function clear() {
     source = ""

@@ -100,4 +100,19 @@ TestCase {
     compare(Inline.docPos(rs, 2), 3, "inside the chip, after its pad")
     compare(Inline.docPos(rs, 7), 9, "after the chip and both pads")
   }
+
+  function test_mark_ranges() {
+    var rs = [{ t: "We propose a " }, { t: "twelve", del: true }, { t: "ten", ins: true }, { t: "-week " }, { t: "x", code: true }, { t: " " }, { t: "plan", ins: true }]
+    var m = Inline.markRanges(rs)
+    compare(m.length, 3)
+    compare(m[0], { a: 13, b: 19, kind: "del" })
+    compare(m[1], { a: 19, b: 22, kind: "ins" })
+    // "-week " (6) + chip "x" with two pad chars (3) + " " (1) = 10 after 22
+    compare(m[2], { a: 32, b: 36, kind: "ins" })
+  }
+
+  function test_del_run_is_faint() {
+    var html = Inline.toHtml([{ t: "old", del: true }], Object.assign({}, tones, { del: "#444444" }))
+    verify(html.indexOf("color:#444444") > 0)
+  }
 }

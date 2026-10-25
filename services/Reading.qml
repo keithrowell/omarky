@@ -75,6 +75,11 @@ Singleton {
     codeBg: Theme.hex(Theme.flat(Theme.fg, Theme.light ? 0.07 : 0.085)),
     codeSize: Math.round(body * 0.86),
     rawText: Theme.hex(Theme.faint),
+    // Change marks (MarkdownView.changes): the wash under inserted text,
+    // the colour of removed text and the strike drawn over it.
+    ins: Theme.hex(Theme.flat(Theme.green, Theme.light ? 0.22 : 0.26)),
+    del: Theme.hex(Theme.faint),
+    delLine: Theme.hex(Theme.flat(Theme.red, 0.85)),
     findBg: Theme.hex(Theme.flat(Theme.accent, Theme.light ? 0.22 : 0.3)),
     currentBg: Theme.hex(Theme.accent),
     currentText: Theme.hex(Theme.bg)

@@ -32,6 +32,12 @@ Item {
   property bool wide: false
   // Web and mail links go to linkActivated instead of xdg-open.
   property bool externalLinks: false
+  // A prepared document: { blocks, headings, anchors, pieces, lineCount,
+  // source }, as OmaChanges' diff engine makes. Set, it replaces `path` and
+  // `markdown`; a new object is a reload that keeps the reader's place.
+  property var changes: null
+  onChangesChanged: if (changes) mdDoc.adopt(changes)
+  Component.onCompleted: if (changes && !mdDoc.loaded) mdDoc.adopt(changes)
 
   readonly property alias doc: mdDoc
   readonly property alias view: mdView
@@ -53,6 +59,8 @@ Item {
   signal notice(string text)
   // A link to another Markdown file.
   signal openFile(string path, string anchor)
+  // A fold row (blocks/Fold.qml) was clicked; `index` is its block index.
+  signal unfoldRequested(int index)
 
   // Fade the column in, as on open.
   function appear() { mdView.appear() }
@@ -138,6 +146,8 @@ Item {
 
     // A text item holding the current match reports where it is.
     function revealMatch(item, localY) { mdView.reveal(item, localY) }
+
+    function unfold(index) { root.unfoldRequested(index) }
   }
 
   // ---- find: every match in document order; the current one by piece id
@@ -185,11 +195,11 @@ Item {
 
   Doc {
     id: mdDoc
-    path: root.path
-    text: root.markdown
-    onAboutToReload: if (root.path || root.keepPlace) mdView.captureAnchor()
+    path: root.changes ? "" : root.path
+    text: root.changes ? "" : root.markdown
+    onAboutToReload: if (root.path || root.keepPlace || root.changes) mdView.captureAnchor()
     onReloaded: {
-      if (!root.path && !root.keepPlace) { root.freshDocument(); return }
+      if (!root.path && !root.keepPlace && !root.changes) { root.freshDocument(); return }
       mdView.restoreAnchor()
       mdFinder.refresh()
     }
@@ -200,7 +210,7 @@ Item {
     id: mdView
     width: parent.width
     height: parent.height
-    visible: (!!root.path || root.markdown !== "") && mdDoc.loaded
+    visible: (!!root.path || root.markdown !== "" || !!root.changes) && mdDoc.loaded
     blocks: mdDoc.blocks
     anchorMap: mdDoc.anchorMap
     lineCount: mdDoc.lineCount
