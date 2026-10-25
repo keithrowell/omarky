@@ -287,31 +287,37 @@ ListView {
     width: root.width
     height: block.height + gap
     readonly property real gap: Reading.gapBefore(index > 0 ? root.blocks[index - 1] : null, modelData)
-    // Change marks (MarkdownView.changes): lists mark their items instead.
-    readonly property string change: modelData.change && modelData.change !== "same" && modelData.type !== "list" ? modelData.change : ""
+    // Change marks (MarkdownView.changes). A reworded list marks its items
+    // instead; a list added or removed whole is marked once, here.
+    readonly property string change: !modelData.change || modelData.change === "same" ? ""
+                                     : modelData.type === "list" && modelData.change === "reworded" ? "" : modelData.change
+    readonly property bool added: modelData.change === "added"
+    readonly property bool prevAdded: index > 0 && root.blocks[index - 1].change === "added"
+    readonly property bool nextAdded: index + 1 < root.blocks.length && root.blocks[index + 1].change === "added"
+    // Centre of the block's first line box, or of a body line when the
+    // block does not say.
+    readonly property real firstLineMid: block.item && block.item.lineHeightPx
+      ? (block.item.firstLineY || 0) + block.item.lineHeightPx / 2
+      : Math.round(Reading.body * Reading.lineHeight / 2)
 
-    // A whole added block sits on a soft wash; removed and reworded blocks
-    // say so in the margin.
+    // Added blocks sit on a soft wash; consecutive ones share it.
     Rectangle {
-      visible: row.change === "added"
-      x: root.gutter - Style.space(12)
-      y: row.gap - Style.space(6)
-      width: root.column + Style.space(24)
-      height: block.height + Style.space(12)
+      visible: row.added
+      x: root.gutter - Style.space(26)
+      y: row.prevAdded ? 0 : row.gap - Style.space(8)
+      width: root.column + Style.space(40)
+      height: (row.nextAdded ? row.height : row.gap + block.height + Style.space(8)) - y
       radius: Math.max(6, Style.cornerRadius)
+      topLeftRadius: row.prevAdded ? 0 : radius
+      topRightRadius: row.prevAdded ? 0 : radius
+      bottomLeftRadius: row.nextAdded ? 0 : radius
+      bottomRightRadius: row.nextAdded ? 0 : radius
       color: Theme.flat(Theme.green, Theme.light ? 0.1 : 0.15)
     }
-    Text {
-      visible: row.change !== ""
-      x: root.gutter - width - Math.round(Reading.body * 0.9)
-      y: row.gap + Math.round(Reading.body * 0.3)
-      text: row.change
-      textFormat: Text.PlainText
-      font.family: Style.font.family
-      font.pixelSize: Style.font.caption
-      font.letterSpacing: 0.4
-      color: row.change === "added" ? Theme.green : row.change === "removed" ? Theme.red : Theme.faint
-      opacity: row.change === "removed" ? 0.85 : 1
+    ChangeTag {
+      change: row.change
+      x: root.gutter - width - Math.round(Reading.body * 1.9)
+      y: Math.round(row.gap + row.firstLineMid - height / 2)
     }
 
     HoverHandler {

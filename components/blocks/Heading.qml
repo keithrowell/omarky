@@ -14,6 +14,9 @@ Item {
   readonly property real step: [0, 3, 2, 1, 0.5, 0, 0][level]
 
   implicitHeight: text.implicitHeight
+  // The first line box, for marks aligned to it (DocView's change tag).
+  readonly property real firstLineY: text.firstLineY
+  readonly property real lineHeightPx: text.lineHeightPx
 
   RichText {
     id: text
