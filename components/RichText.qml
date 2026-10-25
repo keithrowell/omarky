@@ -75,6 +75,8 @@ TextEdit {
   property var marks: []
   readonly property real chipH: Math.round(Reading.tones.codeSize * 1.5)
   readonly property real washH: Math.round(size * 1.3)
+  // A block removed whole sits on a wash instead of striking every line.
+  property bool marksStrike: true
 
   // Each span as one rectangle per line it covers. Spans are [a, b] pairs
   // (chips) or { a, b, kind } (marks).
@@ -134,6 +136,7 @@ TextEdit {
     Rectangle {
       required property var modelData
       readonly property bool ins: modelData.kind === "ins"
+      visible: ins || root.marksStrike
       z: ins ? -1 : 1
       x: Math.round(modelData.x) - (ins ? 2 : 0)
       y: ins ? Math.round(modelData.y + root.washOffset) : Math.round(modelData.y + root.strikeOffset)
