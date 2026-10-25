@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# End-to-end check of changes mode in a real (offscreen) OmaRead: open the
+# sample history compared with Danny, fold, step, pick a version, leave the
+# mode and come back from the list, a change on disk, and a clean log.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+work="$(mktemp -d)"
+trap 'kill "${pid:-0}" 2>/dev/null || true; rm -rf "$work"' EXIT
+export OMAREAD_INSTANCE="check-$$" OMAREAD_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
+export OMAREAD_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
+file="$("$ROOT/samples/changes/make-repo" "$work/repo")"
+"$ROOT/bin/omaread" --foreground "$file" --from danny >"$work/qs.log" 2>&1 &
+pid=$!
+nap() { python3 -c "import time; time.sleep($1)"; }
+ipc() { qs ipc --pid "$pid" call omaread "$@"; }
+state() { ipc state -1; }
+field() { python3 -c "import json,sys; v=json.load(sys.stdin)$1; print(v if not isinstance(v, bool) else str(v).lower())"; }
+for i in $(seq 60); do ipc count 2>/dev/null | grep -q '^[1-9]' && break; nap 0.2; done
+for i in $(seq 40); do state 2>/dev/null | field '["comparing"]' | grep -q true && break; nap 0.2; done
+nap 0.6
+fail=0
+expect() { # name expected actual
+  if [ "$2" == "$3" ]; then echo "ok    $1"; else echo "FAIL  $1"; printf '  expected: %q\n  actual:   %q\n' "$2" "$3"; fail=1; fi
+}
+ge() { # name minimum actual
+  if [ "$3" -ge "$2" ]; then echo "ok    $1 ($3)"; else echo "FAIL  $1"; printf '  expected at least %s, got %s\n' "$2" "$3"; fail=1; fi
+}
+
+s="$(state)"
+expect "title is OmaRead's" "OmaRead — proposal.md" "$(echo "$s" | field '["title"]')"
+expect "the file has history" "true" "$(echo "$s" | field '["hasHistory"]')"
+expect "compared with Danny" "Danny" "$(echo "$s" | field '["from"]')"
+expect "to is Now" "Now" "$(echo "$s" | field '["to"]')"
+total="$(echo "$s" | field '["total"]')"
+ge "changes found" 5 "$total"
+blocks="$(echo "$s" | field '["blocks"]')"
+
+ipc key -1 f; nap 0.5
+s="$(state)"
+expect "fold on" "true" "$(echo "$s" | field '["fold"]')"
+ge "fold rows appear" 1 "$(echo "$s" | field '["folds"]')"
+ipc key -1 f; nap 0.4
+s="$(state)"
+expect "fold off restores the blocks" "$blocks" "$(echo "$s" | field '["blocks"]')"
+expect "fold off removes the fold rows" "0" "$(echo "$s" | field '["folds"]')"
+
+ipc key -1 n; nap 0.5
+ge "n moves down" 1 "$(state | field '["topIndex"]')"
+
+ipc pick -1 keith; nap 1.5
+expect "picking keith" "Keith" "$(state | field '["from"]')"
+ipc pick -1 danny; nap 1.5
+expect "picking danny again" "Danny" "$(state | field '["from"]')"
+
+ipc key -1 escape; nap 0.5
+s="$(state)"
+expect "escape leaves the mode" "false" "$(echo "$s" | field '["comparing"]')"
+expect "the plain file is back" "true" "$(echo "$s" | field '["loaded"]')"
+ipc key -1 v; nap 0.3
+expect "v opens the list" "true" "$(state | field '["list"]')"
+ipc pick -1 "before now"; nap 1.5
+s="$(state)"
+expect "a pick from the list compares again" "true" "$(echo "$s" | field '["comparing"]')"
+# The file on disk matches its last check-in, so "before now" is the one before.
+expect "before now is the check-in before the last" "Keith" "$(echo "$s" | field '["from"]')"
+expect "the pick closes the list" "false" "$(echo "$s" | field '["list"]')"
+total="$(echo "$s" | field '["total"]')"
+
+printf '\nA paragraph typed after the window opened.\n' >>"$file"
+nap 1.2
+ge "a change on disk re-runs the comparison" $((total + 1)) "$(state | field '["total"]')"
+expect "the chip shows the file as changed" "true" "$(state | field '["dirty"]')"
+
+ms="$(state | field '["compareMs"]')"
+echo "info  compare took ${ms} ms"
+
+bad="$(grep -E 'WARN|ERROR|CRIT' "$work/qs.log" | grep -vE 'WAYLAND_DISPLAY|running wayland|--- WARNING ---|window masks' || true)"
+if [ -n "$bad" ]; then echo "FAIL  log"; echo "$bad" | head -20; fail=1; else echo "ok    clean log"; fi
+exit $fail

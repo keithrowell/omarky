@@ -26,6 +26,8 @@ Item {
   }
 
   function grab() {
+    // A version still being resolved: look again shortly.
+    if (win.shotBusy) { settle.restart(); return }
     var job = spec.jobs[jobIndex]
     page++
     var file = spec.out + "/" + job.name + "-" + page + ".png"

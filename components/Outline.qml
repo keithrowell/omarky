@@ -2,14 +2,26 @@ import QtQuick
 import qs.Commons
 import qs.services
 
-// The heading tree. The section being read is marked (scroll-spy) and kept
-// in view; clicking a heading asks the view to glide there.
+// The heading tree. The section being read is shaded (scroll-spy) and kept
+// in view; clicking a heading asks the view to glide there. In changes mode
+// each section's change count sits at the right, and headings with nothing
+// changed dim while the fold is on.
 Rectangle {
   id: root
   property var headings: []
   // Index into `headings` of the section at the top of the page.
   property int current: -1
+  // The shown blocks, for the change counts (headings carry sectionChanges).
+  property var blocks: []
+  property bool dimUnchanged: false
   signal jump(int blockIndex)
+
+  function countAt(index) {
+    var b = blocks[index]
+    if (!b) return 0
+    if (b.type === "fold" && b.heading) return 0
+    return b.sectionChanges || 0
+  }
 
   // h1–h4; indent relative to the shallowest level present.
   readonly property var items: headings.filter(function(h) { return h.level <= 4 })
@@ -60,6 +72,7 @@ Rectangle {
       required property int index
       readonly property bool isCurrent: index === root.currentItem
       readonly property int depth: modelData.level - root.minLevel
+      readonly property int n: root.countAt(modelData.index)
       width: list.width
       height: label.implicitHeight + Style.space(12)
 
@@ -72,29 +85,34 @@ Rectangle {
         Behavior on color { ColorAnimation { duration: Reading.motion(120) } }
       }
 
-      Rectangle {
-        visible: entry.isCurrent
-        x: Style.space(10)
-        anchors.verticalCenter: parent.verticalCenter
-        width: 2
-        height: label.implicitHeight
-        radius: 1
-        color: Theme.accent
-      }
-
       Text {
         id: label
         x: Style.space(22) + entry.depth * Style.space(14)
-        width: parent.width - x - Style.space(18)
+        width: parent.width - x - Style.space(18) - (count.visible ? count.width + Style.space(8) : 0)
         anchors.verticalCenter: parent.verticalCenter
-        text: entry.modelData.text || "—"
+        text: entry.modelData.text || "Untitled"
         textFormat: Text.PlainText
         elide: Text.ElideRight
         color: entry.isCurrent ? Theme.text : entry.depth === 0 ? Theme.dim : Theme.mix(Theme.dim, Theme.faint, 0.5)
         font.family: Style.font.family
         font.pixelSize: entry.depth === 0 ? Style.font.body : Style.font.bodySmall
         font.bold: entry.depth === 0
+        opacity: root.dimUnchanged && entry.n === 0 ? 0.5 : 1
         Behavior on color { ColorAnimation { duration: Reading.motion(120) } }
+      }
+
+      Text {
+        id: count
+        anchors.right: parent.right
+        anchors.rightMargin: Style.space(20)
+        anchors.verticalCenter: parent.verticalCenter
+        visible: entry.n > 0
+        text: String(entry.n)
+        textFormat: Text.PlainText
+        color: entry.isCurrent ? Theme.text : Theme.dim
+        font.family: Reading.mono
+        font.pixelSize: Style.font.caption
+        font.features: { "tnum": 1 }
       }
 
       HoverHandler { id: hover; cursorShape: Qt.PointingHandCursor }

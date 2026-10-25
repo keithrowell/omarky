@@ -21,14 +21,14 @@ case "${1:-}" in
   # Wait on the log, not IPC: an IPC call during startup races Qt's portal
   # registration and logs a harmless warning.
   start) shift; "$ROOT/bin/omaread" "$@"
-    for _ in $(seq 50); do grep -q "Configuration Loaded" "$XDG_STATE_HOME/omaread/qs.log" 2>/dev/null && break; sleep 0.1; done
+    for _ in $(seq 50); do grep -q "Configuration Loaded" "$OMAREAD_STATE_DIR/qs.log" 2>/dev/null && break; sleep 0.1; done
     sleep 0.3 ;;
   open) shift; "$ROOT/bin/omaread" "$@" ;;
   state) call state "${2:--1}" ;;
   key) call key "${3:--1}" "$2" ;;
   shot) mkdir -p "$ROOT/shots/dev"; call shot "${3:--1}" "$ROOT/shots/dev/$2.png"; sleep 0.3; echo "$ROOT/shots/dev/$2.png" ;;
   count) call count ;;
-  log) cat "$XDG_STATE_HOME/omaread/qs.log" ;;
+  log) cat "$OMAREAD_STATE_DIR/qs.log" ;;
   stop) kill "$(pid)" 2>/dev/null || true ;;
   *) sed -n '2,10p' "$0"; exit 1 ;;
 esac
