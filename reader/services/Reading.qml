@@ -77,7 +77,7 @@ Singleton {
     rawText: Theme.hex(Theme.faint),
     // Change marks (MarkdownView.changes): the wash under inserted text,
     // the colour of removed text and the strike drawn over it.
-    ins: Theme.hex(Theme.flat(Theme.green, Theme.light ? 0.22 : 0.26)),
+    ins: Theme.hex(Theme.flat(Theme.green, Theme.light ? 0.28 : 0.38)),
     del: Theme.hex(Theme.faint),
     delLine: Theme.hex(Theme.flat(Theme.red, 0.85)),
     findBg: Theme.hex(Theme.flat(Theme.accent, Theme.light ? 0.22 : 0.3)),

@@ -66,36 +66,48 @@ TextEdit {
   // pre-wrap: the chip padding spaces must not collapse into neighbours.
   text: "<p style=\"line-height:" + lineHeightPx + "px; margin:0; white-space:pre-wrap\">" + html + "</p>"
 
-  // ---- inline-code chips, drawn under the text
+  // ---- inline-code chips drawn under the text, and change marks: a wash
+  // under inserted text, a strike over removed text (rich text cannot
+  // colour a strike apart from its text, so both are drawn here).
   readonly property var chipSpans: Inline.chipRanges(runs)
+  readonly property var markSpans: Inline.markRanges(runs)
   property var chips: []
+  property var marks: []
   readonly property real chipH: Math.round(Reading.tones.codeSize * 1.5)
+  readonly property real washH: Math.round(size * 1.3)
 
-  function layoutChips() {
-    if (!chipSpans.length) { if (chips.length) chips = []; return }
+  // Each span as one rectangle per line it covers. Spans are [a, b] pairs
+  // (chips) or { a, b, kind } (marks).
+  function piecesOf(spans) {
     var out = []
-    for (var i = 0; i < chipSpans.length; i++) {
-      var a = chipSpans[i][0], b = chipSpans[i][1]
+    for (var i = 0; i < spans.length; i++) {
+      var sp = spans[i]
+      var a = sp.a !== undefined ? sp.a : sp[0], b = sp.b !== undefined ? sp.b : sp[1], kind = sp.kind || ""
       var ra = positionToRectangle(a), rb = positionToRectangle(b)
       var from = a
-      // A chip that wraps becomes one piece per line.
+      // A span that wraps becomes one piece per line.
       while (ra.y < rb.y - 1) {
         var k = from + 1
         while (k < b && positionToRectangle(k).y <= ra.y + 1) k++
         var rEnd = positionToRectangle(k - 1)
-        var w = rEnd.x + (positionToRectangle(k - 1).x < ra.x ? 0 : Reading.tones.codeSize * 0.6) - ra.x
-        out.push({ x: ra.x, y: ra.y, w: Math.max(4, w) })
+        var w = rEnd.x + (rEnd.x < ra.x ? 0 : size * 0.55) - ra.x
+        out.push({ x: ra.x, y: ra.y, w: Math.max(4, w), kind: kind })
         from = k
         ra = positionToRectangle(k)
       }
-      out.push({ x: ra.x, y: ra.y, w: Math.max(4, rb.x - ra.x) })
+      out.push({ x: ra.x, y: ra.y, w: Math.max(4, rb.x - ra.x), kind: kind })
     }
-    chips = out
+    return out
   }
 
+  function layoutChips() { chips = chipSpans.length ? piecesOf(chipSpans) : [] }
+  function layoutMarks() { marks = markSpans.length ? piecesOf(markSpans) : [] }
+  function relayout() { layoutChips(); layoutMarks() }
+
   onChipSpansChanged: Qt.callLater(layoutChips)
-  onWidthChanged: if (chipSpans.length) Qt.callLater(layoutChips)
-  onTextChanged: if (chipSpans.length) Qt.callLater(layoutChips)
+  onMarkSpansChanged: Qt.callLater(layoutMarks)
+  onWidthChanged: if (chipSpans.length || markSpans.length) Qt.callLater(relayout)
+  onTextChanged: if (chipSpans.length || markSpans.length) Qt.callLater(relayout)
 
   Repeater {
     model: root.chips
@@ -113,11 +125,28 @@ TextEdit {
     }
   }
 
+  Repeater {
+    model: root.marks
+    Rectangle {
+      required property var modelData
+      readonly property bool ins: modelData.kind === "ins"
+      z: ins ? -1 : 1
+      x: Math.round(modelData.x) - (ins ? 2 : 0)
+      y: ins ? Math.round(modelData.y + root.washOffset) : Math.round(modelData.y + root.strikeOffset)
+      width: Math.round(modelData.w) + (ins ? 4 : 0)
+      height: ins ? root.washH : Math.max(1, Math.round(root.size / 11))
+      radius: ins ? 3 : 0
+      color: ins ? Reading.tones.ins : Reading.tones.delLine
+    }
+  }
+
   onLinkActivated: link => { if (ctx) ctx.openLink(link) }
   onImplicitHeightChanged: firstLineY = positionToRectangle(0).y
   // Centre chips on the x-height of their line.
   FontMetrics { id: chipMetrics; font.family: root.family; font.styleName: "Regular"; font.pixelSize: root.size }
   readonly property real chipOffset: Math.round(chipMetrics.ascent - chipMetrics.xHeight / 2 - chipH / 2)
+  readonly property real washOffset: Math.round(chipMetrics.ascent - chipMetrics.xHeight / 2 - washH / 2)
+  readonly property real strikeOffset: Math.round(chipMetrics.ascent - chipMetrics.xHeight * 0.5)
 
   HoverHandler {
     cursorShape: root.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor

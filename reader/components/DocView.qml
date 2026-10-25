@@ -287,6 +287,32 @@ ListView {
     width: root.width
     height: block.height + gap
     readonly property real gap: Reading.gapBefore(index > 0 ? root.blocks[index - 1] : null, modelData)
+    // Change marks (MarkdownView.changes): lists mark their items instead.
+    readonly property string change: modelData.change && modelData.change !== "same" && modelData.type !== "list" ? modelData.change : ""
+
+    // A whole added block sits on a soft wash; removed and reworded blocks
+    // say so in the margin.
+    Rectangle {
+      visible: row.change === "added"
+      x: root.gutter - Style.space(12)
+      y: row.gap - Style.space(6)
+      width: root.column + Style.space(24)
+      height: block.height + Style.space(12)
+      radius: Math.max(6, Style.cornerRadius)
+      color: Theme.flat(Theme.green, Theme.light ? 0.1 : 0.15)
+    }
+    Text {
+      visible: row.change !== ""
+      x: root.gutter - width - Math.round(Reading.body * 0.9)
+      y: row.gap + Math.round(Reading.body * 0.3)
+      text: row.change
+      textFormat: Text.PlainText
+      font.family: Style.font.family
+      font.pixelSize: Style.font.caption
+      font.letterSpacing: 0.4
+      color: row.change === "added" ? Theme.green : row.change === "removed" ? Theme.red : Theme.faint
+      opacity: row.change === "removed" ? 0.85 : 1
+    }
 
     HoverHandler {
       onHoveredChanged: {

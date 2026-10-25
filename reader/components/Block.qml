@@ -15,7 +15,7 @@ Loader {
     quote: "blocks/Quote.qml", alert: "blocks/Alert.qml", code: "blocks/CodeBlock.qml",
     diff: "blocks/DiffBlock.qml", table: "blocks/TableBlock.qml", hr: "blocks/Rule.qml",
     image: "blocks/ImageBlock.qml", gallery: "blocks/GalleryBlock.qml", html: "blocks/HtmlBlock.qml", frontmatter: "blocks/FrontMatter.qml",
-    footnotes: "blocks/Footnotes.qml"
+    footnotes: "blocks/Footnotes.qml", fold: "blocks/Fold.qml"
   })
 
   Component.onCompleted: {
