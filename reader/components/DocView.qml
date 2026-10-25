@@ -321,7 +321,9 @@ ListView {
     }
     ChangeTag {
       change: row.change
-      x: root.gutter - width - Math.round(Reading.body * 1.9)
+      room: root.gutter - Math.round(Reading.body * 1.9) - Style.space(6)
+      // A dot stays inside a margin too narrow for the usual inset.
+      x: Math.max(dot ? Math.round((root.gutter - width) / 2) : 0, root.gutter - width - Math.round(Reading.body * 1.9))
       y: Math.round(row.gap + row.firstLineMid - height / 2)
     }
 

@@ -55,7 +55,8 @@ Item {
   ChangeTag {
     visible: root.section
     change: "unchanged"
-    x: -width - Math.round(Reading.body * 1.9)
+    room: (root.ctx && root.ctx.gutter ? root.ctx.gutter : 1e9) - Math.round(Reading.body * 1.9) - Style.space(6)
+    x: dot ? -Math.round(((root.ctx && root.ctx.gutter ? root.ctx.gutter : 1e9) + width) / 2) : -width - Math.round(Reading.body * 1.9)
     // Centred on the first line, as the tags on other blocks are.
     y: Math.round(headingText.contentHeight / Math.max(1, headingText.lineCount) / 2 - height / 2)
   }
