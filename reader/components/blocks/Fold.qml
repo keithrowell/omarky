@@ -23,10 +23,14 @@ Item {
     return n + " " + noun + " unchanged"
   }
 
+  // Hover shading on the same edges as a change wash (DocView), so the
+  // boxes down the page line up.
   Rectangle {
     anchors.fill: parent
-    anchors.leftMargin: -Style.space(8)
-    anchors.rightMargin: -Style.space(8)
+    anchors.leftMargin: -Reading.washPad
+    anchors.rightMargin: -Reading.washPad
+    anchors.topMargin: -Style.space(6)
+    anchors.bottomMargin: -Style.space(6)
     z: -1
     radius: Math.max(4, Style.cornerRadius - 2)
     color: hover.hovered ? Theme.hover : "transparent"
