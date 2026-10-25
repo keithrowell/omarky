@@ -104,10 +104,14 @@ TextEdit {
   function layoutMarks() { marks = markSpans.length ? piecesOf(markSpans) : [] }
   function relayout() { layoutChips(); layoutMarks() }
 
-  onChipSpansChanged: Qt.callLater(layoutChips)
-  onMarkSpansChanged: Qt.callLater(layoutMarks)
-  onWidthChanged: if (chipSpans.length || markSpans.length) Qt.callLater(relayout)
-  onTextChanged: if (chipSpans.length || markSpans.length) Qt.callLater(relayout)
+  // Laid out once the text has settled. A Timer, not Qt.callLater: the
+  // timer dies with the item, so a delegate recycled mid-frame never runs
+  // a layout on a dead object.
+  Timer { id: relayoutTimer; interval: 0; onTriggered: root.relayout() }
+  onChipSpansChanged: relayoutTimer.restart()
+  onMarkSpansChanged: relayoutTimer.restart()
+  onWidthChanged: if (chipSpans.length || markSpans.length) relayoutTimer.restart()
+  onTextChanged: if (chipSpans.length || markSpans.length) relayoutTimer.restart()
 
   Repeater {
     model: root.chips
