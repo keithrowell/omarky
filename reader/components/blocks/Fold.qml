@@ -15,7 +15,7 @@ Item {
   readonly property int level: section ? block.heading.level : 0
   readonly property real headingSize: section ? Reading.size([0, 3, 2, 1, 0.5, 0, 0][level]) : Reading.body
 
-  implicitHeight: section ? Math.round(headingSize * 1.5) : Math.round(Reading.body * 1.6)
+  implicitHeight: section ? headingText.implicitHeight : Math.round(Reading.body * 1.6)
 
   function label() {
     var n = block.count || 0
@@ -38,7 +38,9 @@ Item {
   Text {
     id: headingText
     visible: root.section
-    anchors.verticalCenter: parent.verticalCenter
+    width: parent.width
+    wrapMode: Text.Wrap
+    lineHeight: root.level <= 2 ? 1.25 : 1.35
     text: root.section ? root.block.heading.text : ""
     textFormat: Text.PlainText
     font.family: Reading.heading
@@ -50,7 +52,8 @@ Item {
     visible: root.section
     change: "unchanged"
     x: -width - Math.round(Reading.body * 1.9)
-    anchors.verticalCenter: headingText.verticalCenter
+    // Centred on the first line, as the tags on other blocks are.
+    y: Math.round(headingText.contentHeight / Math.max(1, headingText.lineCount) / 2 - height / 2)
   }
 
   // A run of blocks: a hairline each side of the count.
