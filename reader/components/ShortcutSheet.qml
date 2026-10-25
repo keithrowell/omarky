@@ -7,16 +7,21 @@ import qs.services
 Rectangle {
   id: root
   signal closeRequested()
+  // The file has earlier versions, so the changes keys apply.
+  property bool changes: false
   color: Util.alpha(Theme.bg, 0.72)
 
-  readonly property var groups: [
+  readonly property var groups: (changes ? [
+    { title: "Changes", keys: [["V", "Choose the versions"], ["N  P", "Next / previous change"], ["F", "Only what changed / everything"],
+                               ["Esc", "Back to reading"]] }
+  ] : []).concat([
     { title: "Read", keys: [["j  k  ↓  ↑", "Scroll"], ["Space  Shift+Space", "Page down / up"], ["g g  G", "Top / bottom"],
-                            ["Ctrl+\\", "Outline"], ["W", "Reading / wide measure"], ["Ctrl+  Ctrl−  Ctrl+0", "Zoom text"]] },
+                            ["O  Ctrl+\\", "Outline"], ["W", "Reading / wide measure"], ["Ctrl+  Ctrl−  Ctrl+0", "Zoom text"]] },
     { title: "Find & copy", keys: [["Ctrl+F", "Find"], ["Enter  Shift+Enter", "Next / previous match"],
                                    ["Right-click", "Copy a block's Markdown"], ["Ctrl+Shift+C", "Copy the block under the mouse"],
                                    ["Ctrl+Shift+A", "Copy the whole file"]] },
     { title: "File", keys: [["Ctrl+O", "Open a file"], ["Ctrl+R", "Reload"], ["Ctrl+W  q", "Close window"], ["?", "This sheet"]] }
-  ]
+  ])
 
   property string version: ""
   FileView {

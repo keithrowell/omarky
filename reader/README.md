@@ -3,24 +3,27 @@
 A Markdown reader for [Omarchy](https://omarchy.org). It opens a file and sets it the way a
 good book is set: a 68-character measure, real leading, and every block (tables, code, alerts,
 front matter) drawn as its own native component. It follows your Omarchy theme as you switch,
-keeps your place while an editor or agent rewrites the file, and is a reader only.
+keeps your place while an editor or agent rewrites the file, and shows what changed between two
+versions of a file in git. It is a reader only.
 
 ![OmaRead in tokyo-night and catppuccin-latte](docs/screenshots/hero.png)
 
-Version 0.2.0. Built in QML on Quickshell and Omarchy's own shell components, with no web view.
+Version 0.4.0. Built in QML on Quickshell and Omarchy's own shell components, with no web view.
 
 ## Install
 
 On Omarchy (Arch Linux with Hyprland):
 
 ```
-sudo pacman -S --needed quickshell ttf-ia-writer syntax-highlighting
+sudo pacman -S --needed quickshell ttf-ia-writer syntax-highlighting ruby git
 git clone https://github.com/keithrowell/omaread.git ~/.local/src/omaread
 ~/.local/src/omaread/ops/install
 ```
 
-The install script links `omaread` into `~/.local/bin` and adds a desktop entry and icon. It
-does not make OmaRead your default Markdown app; to do that:
+The install script links `omaread` and `omachanges` into `~/.local/bin` and adds a desktop entry
+and icon. The `ruby` package is needed even if you manage Ruby with mise: the launcher runs on
+`/usr/bin/ruby`, so opening a document never depends on a version manager or on the directory it
+was opened from. It does not make OmaRead your default Markdown app; to do that:
 
 ```
 xdg-mime default omaread.desktop text/markdown
@@ -86,6 +89,63 @@ keeps you on the same paragraph, even when text is added above it.
 
 ![The same page in six Omarchy themes](docs/screenshots/themes.png)
 
+## Changes
+
+![Changes: the file now against Danny's version](docs/screenshots/changes.png)
+
+When the file is in a git repository with earlier check-ins, a branching chip joins the header.
+Click it (or press `V`) and pick a version, and the window compares the file as it is now with
+that version, set the same way: one reading column, the changes marked in the line. Added words
+sit on a wash in your theme's green. Removed words stay where they were, faded, under a strike in
+its red. The margin says what happened to each paragraph. Versions are people and times, never
+commits. The pill in the header names the two ends, "Now compared with Danny, Fri 23 Oct", with
+the change count beside it, and the outline adds each section's count at the right. A dot on the
+chip means the file on disk differs from its last check-in.
+
+```
+omaread proposal.md --from danny
+omaread proposal.md --from yesterday
+omaread proposal.md --from sent
+omaread proposal.md --from "before danny fri" --to "danny fri"
+omaread proposal.md --changes
+omaread proposal.md --list
+```
+
+`--changes` compares with the newest version whose text differs from the file on disk, so a file
+with uncommitted edits shows them, and a clean file shows its last check-in against the one
+before. `omachanges` is the same command with `--changes` implied.
+
+| `--from` or `--to` | Resolves to |
+|---|---|
+| `danny`, `keith`, `me` | That person's most recent check-in of the file. A first name is enough; `me` is your git user name |
+| `yesterday`, `today`, `3 days ago`, `a week ago`, `fri`, `23 oct`, `2026-10-23` | The last check-in at or before the end of that day. A bare weekday is the most recent one before today |
+| `danny fri`, `keith 23 oct` | That person's last check-in on or before that day |
+| `sent` | The check-in at or before the date in `SENT.md` in the file's directory |
+| `before X` | The check-in just before whatever X resolves to; `before now` is what `--changes` uses |
+| `now` | The file on disk |
+| a SHA, `HEAD~2`, a tag | Still works, shown as a person and a time all the same |
+
+`--list` prints the file's versions, one per line (person, time, message), and opens nothing.
+
+![The fold: only what changed](docs/screenshots/changes-fold.png)
+
+`F` folds everything that did not change. Runs of unchanged paragraphs become one hairline row
+that says how many there were, and untouched sections fold to their heading. Click a row to open
+it in place. `N` and `P` move between changes. When the newer side is the file on disk, a change
+on disk re-runs the comparison and keeps your place, so OmaRead can sit beside your editor and
+follow the edit. `Esc`, or the cross on the pill, goes back to plain reading at the same place.
+
+![The version list](docs/screenshots/changes-versions.png)
+
+The list under the pill offers shortcuts first (each other author's last edit, your last edit,
+yesterday, a week ago, and when it was sent if the directory has a `SENT.md`), then every
+check-in of the file with the person, the time and the message. Rest on a row to read the whole
+message. "Compare two past versions…" at the foot lets you pick both ends.
+
+A skill at `~/.claude/skills/omachanges/SKILL.md` turns "show me the diff between this and
+Danny's version" or "what changed in the proposal since yesterday" into the command above and
+opens the window on the session's workspace.
+
 ## Keys
 
 | Key | Does |
@@ -93,7 +153,10 @@ keeps you on the same paragraph, even when text is added above it.
 | `j` `k` `↓` `↑` | Scroll |
 | `Space` `Shift+Space` | Page down, page up |
 | `g g` `G` | Top, bottom |
-| `Ctrl+\` | Show or hide the outline |
+| `O` or `Ctrl+\` | Show or hide the outline |
+| `V` | Choose the versions to compare (when the file has check-ins) |
+| `N` `P` | Next and previous change |
+| `F` | Only what changed, or everything |
 | `W` | Switch between the reading measure (68 characters) and a wide one (100) |
 | `Ctrl++` `Ctrl+-` `Ctrl+0` | Zoom the text (remembered) |
 | `Ctrl+F` or `/` | Find; `Enter` and `Shift+Enter` (or `n` and `N`) step through matches, `Esc` closes |
@@ -103,6 +166,7 @@ keeps you on the same paragraph, even when text is added above it.
 | `Ctrl+O` | Open a file (or drop one on the window) |
 | `Ctrl+R` | Reload |
 | `Ctrl+W` or `q` | Close the window |
+| `Esc` | Close the list or the find bar, or go back from a comparison to reading |
 | `?` | Show all of this |
 
 Hovering a heading shows a `#` in the margin; clicking it copies `file.md#heading`. Links to
@@ -112,7 +176,8 @@ other Markdown files open in a new window at their anchor, and web links open in
 
 | Command | What it does |
 |---|---|
-| `tools/test` | Runs the JavaScript unit tests (parser, inline, code, theme) headless |
+| `tools/test` | Runs the JavaScript unit tests (parser, inline, code, theme, the diff engine) headless, then the launcher's Ruby tests |
+| `tools/check-changes` | Drives changes mode in an offscreen window over IPC on a sample history (`samples/changes/make-repo`) |
 | `tools/screenshot [sample…] [--themes a,b]` | Renders samples under themes to `shots/`, offscreen, and fails on any warning in the log |
 | `tools/readme-shots` | Renders the screenshots in this README |
 | `tools/dev start FILE` | Starts a private offscreen instance to drive over IPC (`state`, `key`, `shot`) |
@@ -122,6 +187,13 @@ other Markdown files open in a new window at their anchor, and web links open in
 `docs/spec.md` is the original brief, `docs/decisions/` records the choices made while building
 it, and `docs/REPORT.md` covers how it was checked and what is still missing. The log is in
 `~/.local/state/omaread/qs.log`.
+
+| Path | Holds |
+|---|---|
+| `bin/omaread`, `launcher/` | The Ruby launcher: windows over IPC, history over git, the version resolver |
+| `lib/diff/` | The diff engine in JavaScript: tokens and word diffs, alignment, the comparison, the fold |
+| `components/Changes.qml` | Changes mode for a window: the two sides, the result, the fold |
+| `samples/changes/` | A proposal before and after, and `make-repo`, which builds the sample history |
 
 ## Using the renderer in another app
 

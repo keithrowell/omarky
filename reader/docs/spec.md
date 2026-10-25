@@ -311,3 +311,12 @@ Stop and ask only if something is **impossible** as specified. In that case writ
 - The README is written.
 - `docs/REPORT.md` exists: what was built, what was decided, known gaps, and the 6–8 showcase
   screenshots linked.
+
+## 11. Changes mode (added 26 October 2026)
+
+OmaChanges was designed and built as a separate app on 25 October 2026 (`docs/superpowers/specs/2026-10-25-omachanges-design.md`) and folded into OmaRead the next day (decision 0012). What it adds to the window:
+
+- **Versions.** When the file is in a git repository with at least one check-in, a branching chip joins the header's toggles. It opens a list of the file's versions as people and times, shortcuts first ("Danny's last edit", "yesterday", "when it was sent"), then every check-in with its message. `V` opens it too. A dot on the chip says the file on disk differs from its last check-in.
+- **Comparing.** Picking a version compares the file as it is now with it, in the same column, with `MarkdownView.changes`. The pill in the header names the two ends and the change count sits beside it. `N` and `P` step between changes with a brief tint on the block landed on, `F` folds everything unchanged, and `Esc` or the cross on the pill returns to reading at the same place. "Compare two past versions…" at the foot of the list lets both ends be chosen.
+- **Command line.** `omaread FILE --from SPEC [--to SPEC]`, `--changes`, `--list`, `--resolve SPEC`, `--versions`. A SPEC is a person, a day, both, `sent`, `before X`, `now`, or a git ref. `omachanges` is the same launcher implying `--changes`.
+- **Live.** When the newer side is the file on disk, a change on disk re-runs the comparison and keeps the place.

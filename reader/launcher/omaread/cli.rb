@@ -67,7 +67,10 @@ module OmaRead
       if !File.exist?(path) && path.include?("#")
         path, _, anchor = path.rpartition("#")
       end
-      [File.expand_path(path), anchor]
+      # Symlinks are resolved, as `realpath -m` did, so a file keeps one identity.
+      full = File.expand_path(path)
+      full = File.realpath(full) if File.exist?(full)
+      [full, anchor]
     end
 
     def target_for(arg)

@@ -14,7 +14,12 @@ THEMES="$HOME/.local/share/omarchy/themes"
 mkdir -p "$RAW" "$OUT"
 export XDG_DATA_DIRS="$HOME/.local/share/omaread/ksh:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
 
-# name|theme|sample|width|height|options (JSON)
+# Changes scenes read a sample git history, built fresh each run.
+rm -rf "$RAW/.changes-repo"
+CHANGES_FILE="$("$ROOT/samples/changes/make-repo" "$RAW/.changes-repo")"
+export OMAREAD_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
+
+# name|theme|sample (under samples/, or an absolute path)|width|height|options (JSON)
 SCENES=(
   "hero-dark|tokyo-night|kitchen-sink|1240|800|{\"outline\":true}"
   "hero-light|catppuccin-latte|code|1240|800|{\"anchor\":\"a-diff\",\"outline\":false}"
@@ -24,6 +29,9 @@ SCENES=(
   "structure|tokyo-night|kitchen-sink|1320|860|{\"anchor\":\"lists\",\"outline\":true}"
   "alerts|rose-pine|alerts|1320|860|{}"
   "find|gruvbox|real/omaread-spec|1320|860|{\"find\":\"quickshell\",\"reloaded\":true,\"outline\":true}"
+  "changes|kanagawa|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"outline\":true,\"anchor\":\"situation\"}"
+  "changes-fold|rose-pine|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"fold\":true,\"outline\":true}"
+  "changes-versions|tokyo-night|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"versions\":true}"
 )
 GRID_THEMES="gruvbox tokyo-night matte-black catppuccin-latte rose-pine flexoki-light"
 
@@ -36,7 +44,8 @@ render() {   # theme jobs-json
 }
 
 job() {   # name sample w h opts
-  printf '{"file":"%s","name":"%s","w":%s,"h":%s,"pages":1,"opts":%s}' "$ROOT/samples/$2.md" "$1" "$3" "$4" "$5"
+  local file="$2"; [ "${file#/}" = "$file" ] && file="$ROOT/samples/$2.md"
+  printf '{"file":"%s","name":"%s","w":%s,"h":%s,"pages":1,"opts":%s}' "$file" "$1" "$3" "$4" "$5"
 }
 
 # ---- render every scene (one qs per theme)

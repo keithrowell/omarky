@@ -1,12 +1,22 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 (2026-10-26)
 
-- `MarkdownView.changes` takes a prepared document with change marks, for OmaChanges: inserted
-  runs sit on a wash in the theme's green, removed runs read faint under a strike in its red, a
-  changed block says "reworded", "added" or "removed" in the margin, an added block sits on a
-  soft wash, and a `fold` block draws a "3 paragraphs unchanged" row or a dimmed heading.
+- Changes mode: OmaChanges, built on 25 October as its own app, is now part of OmaRead. When the
+  file has check-ins in git, a branching chip in the header (or `V`) lists its versions as
+  people and times; picking one compares the file as it is now with that version in the same
+  column, the changes marked in the line. `N` and `P` step between changes, `F` folds everything
+  unchanged, `Esc` goes back to reading. `omaread FILE --from danny`, `--to`, `--changes`,
+  `--list`, `--resolve` and `--versions` on the command line; `omachanges` is an alias that
+  implies `--changes`. The launcher is Ruby now (`/usr/bin/ruby`, standard library only), the
+  diff engine lives in `lib/diff/`, and `tools/check-changes` drives the mode offscreen.
+- `MarkdownView.changes` takes a prepared document with change marks: inserted runs sit on a wash
+  in the theme's green, removed runs read faint under a strike in its red, a changed block says
+  "reworded", "added" or "removed" in a pill in the margin, a block added or removed whole sits
+  on a wash, and a `fold` block draws a "3 paragraphs unchanged" row or a dimmed heading.
   `Blocks.index()` indexes any block list and `Doc.adopt()` installs one.
+- The outline marks the current section with shading alone; the accent bar beside it is gone.
+  In changes mode it shows each section's change count at the right.
 - Two-finger scrolling travels as far as it does in Chromium (Helium), twelve times what Qt's
   Flickable gives a trackpad, and flings when the fingers lift, on Chromium's own curve. A mouse
   wheel notch moves 120 px, smoothed. The view's own wheel handling is off (docs/decisions/0011).

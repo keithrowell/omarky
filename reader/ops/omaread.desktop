@@ -8,5 +8,5 @@ Icon=omaread
 Terminal=false
 MimeType=text/markdown;
 Categories=Office;Viewer;
-Keywords=markdown;md;reader;viewer;
+Keywords=markdown;md;reader;viewer;diff;changes;
 StartupWMClass=omaread

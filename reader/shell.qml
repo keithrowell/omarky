@@ -29,16 +29,20 @@ ShellRoot {
   property bool primary: false
   property int nextId: 1
 
+  // "path", "path#anchor", or "path[#anchor]<TAB>FROM<TAB>TO" to open
+  // comparing two versions (FROM and TO are specs for `omaread --resolve`;
+  // an empty TO is the file on disk).
   function splitTarget(target) {
-    var t = String(target)
+    var parts = String(target).split("\t")
+    var t = parts[0], from = parts[1] || "", to = parts[2] || ""
     var hash = t.lastIndexOf("#")
     // A '#' in a directory name is kept: only split when it follows the file.
-    if (hash > t.lastIndexOf("/")) return { path: t.slice(0, hash), anchor: t.slice(hash + 1) }
-    return { path: t, anchor: "" }
+    if (hash > t.lastIndexOf("/")) return { path: t.slice(0, hash), anchor: t.slice(hash + 1), from: from, to: to }
+    return { path: t, anchor: "", from: from, to: to }
   }
 
-  function open(path, anchor) {
-    windows.append({ wid: nextId++, path: String(path || ""), anchor: String(anchor || "") })
+  function open(path, anchor, from, to) {
+    windows.append({ wid: nextId++, path: String(path || ""), anchor: String(anchor || ""), from: String(from || ""), to: String(to || "") })
   }
 
   function closeWindow(wid) {
@@ -70,7 +74,7 @@ ShellRoot {
         if (shell.requested.length === 0) shell.open("", "")
         for (var i = 0; i < shell.requested.length; i++) {
           var t = shell.splitTarget(shell.requested[i])
-          shell.open(t.path, t.anchor)
+          shell.open(t.path, t.anchor, t.from, t.to)
         }
       }
     }
@@ -97,8 +101,12 @@ ShellRoot {
     delegate: ReaderWindow {
       required property int wid
       required property string anchor
+      required property string from
+      required property string to
       required path
       initialAnchor: anchor
+      fromSpec: from
+      toSpec: to
       onOpenFile: (p, a) => shell.open(p, a)
       onClosed: shell.closeWindow(wid)
       onCloseRequested: shell.closeWindow(wid)
@@ -109,10 +117,10 @@ ShellRoot {
   IpcHandler {
     target: "omaread"
     enabled: shell.primary
-    // "path" or "path#anchor"; "" opens an empty window.
+    // "path", "path#anchor" or "path<TAB>FROM<TAB>TO"; "" opens an empty window.
     function open(target: string): void {
       var t = shell.splitTarget(target)
-      shell.open(t.path, t.anchor)
+      shell.open(t.path, t.anchor, t.from, t.to)
     }
     function count(): int { return windows.count }
 
@@ -125,6 +133,9 @@ ShellRoot {
     function hover(n: int, index: int): void { var w = shell.win(n); if (w) w.debugHover(index) }
     function bench(n: int): string { var w = shell.win(n); return w ? JSON.stringify(w.debugBench()) : "{}" }
     function close(n: int): void { var w = shell.win(n); if (w) w.closeRequested() }
+    // Changes mode: compare against SPEC (the older end), or leave the mode.
+    function pick(n: int, spec: string): void { var w = shell.win(n); if (w) w.resolveSpec(spec, "from") }
+    function stop(n: int): void { var w = shell.win(n); if (w) w.stopComparing() }
   }
 
   function win(n) {
