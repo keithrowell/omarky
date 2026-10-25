@@ -139,7 +139,10 @@ Column {
       // tagged once by the page instead.
       ChangeTag {
         change: root.block.change === "added" || root.block.change === "removed" ? "" : (item.modelData.change || "")
-        x: Math.min(marker.x - width - Math.round(root.textSize * 0.5), -width - Math.round(root.textSize * 1.9))
+        room: (root.ctx && root.ctx.gutter ? root.ctx.gutter : 1e9) - Math.round(root.textSize * 1.9) - Style.space(6)
+        // A dot sits in the page margin where a paragraph's would, clear of the bullet.
+        x: dot ? -Math.round(((root.ctx && root.ctx.gutter ? root.ctx.gutter : 1e9) + width) / 2)
+          : Math.min(marker.x - width - Math.round(root.textSize * 0.5), -width - Math.round(root.textSize * 1.9))
         y: Math.round(root.xCentre - height / 2)
       }
 
