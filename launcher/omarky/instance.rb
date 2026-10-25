@@ -9,17 +9,19 @@ module Omarky
   #
   # The environment the window reads: <PREFIX>_OPEN (one target per line),
   # <PREFIX>_INSTANCE (a private lock name, for checks), <PREFIX>_STATE_DIR
-  # (where qs.log goes). The IPC target and the lock directory are the app's
-  # name.
+  # (where qs.log goes), <PREFIX>_BIN (the launcher's own path, for a window
+  # that needs to run it). The IPC target and the lock directory are the
+  # app's name.
   class Instance
     LOG_RULES = "qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false"
 
     attr_reader :name, :root, :prefix
 
-    def initialize(name:, root:, shell: "ui/shell.qml", ipc: name, prefix: name.upcase)
+    def initialize(name:, root:, shell: "ui/shell.qml", bin: "bin/#{name}", ipc: name, prefix: name.upcase)
       @name = name
       @root = root
       @shell = shell
+      @bin = bin
       @ipc = ipc
       @prefix = prefix
       @state = ENV["#{prefix}_STATE_DIR"] || File.join(ENV["XDG_STATE_HOME"] || File.join(Dir.home, ".local/state"), name)
@@ -44,6 +46,8 @@ module Omarky
         return 0 if ok
       end
       ENV["#{@prefix}_OPEN"] = targets.join("\n")
+      # The window runs the launcher for questions it must not answer itself (git).
+      ENV["#{@prefix}_BIN"] = File.join(@root, @bin)
       # Log rules: the minified markdown-it trips a declaration-order lint, and
       # Qt logs a portal app-ID clash on every Quickshell app; neither is ours
       # to fix (decision 0008).
