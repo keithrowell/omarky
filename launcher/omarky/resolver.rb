@@ -1,4 +1,4 @@
-module OmaRead
+module Omarky
   class Unresolved < StandardError; end
 
   # Turns a spec ("danny", "yesterday", "before danny fri", "sent", "before

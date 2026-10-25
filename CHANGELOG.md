@@ -1,5 +1,13 @@
 # Changelog
 
+Entries up to 0.4.0 are OmaRead's: this library was split out of it on 26 October 2026.
+
+## 0.1.0 (2026-10-26)
+
+- Split from OmaRead 0.4.0: the renderer, the diff engine, the shared chrome, the launcher's
+  Ruby (`Omarky::Instance`, `History`, `Resolver`, `Versions`), the tests and the samples, so
+  OmaRead and OmaWriter both vendor one library and code can move between them.
+
 ## 0.4.0 (2026-10-26)
 
 - Changes mode: OmaChanges, built on 25 October as its own app, is now part of OmaRead. When the

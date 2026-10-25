@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-# Build a sample git history for the proposal in samples/changes/, so OmaRead's changes mode can
+# Build a sample git history for the proposal in samples/changes/, so an app's changes mode can
 # be tried without a real client document:
 #
 #   samples/changes/make-repo DIR        (DIR is created; prints the document path)

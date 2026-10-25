@@ -4,7 +4,7 @@ class HistoryTest < Minitest::Test
   def setup
     @dir = Dir.mktmpdir
     @path = FixtureRepo.build(@dir)
-    @h = OmaRead::History.new(@path)
+    @h = Omarky::History.new(@path)
   end
 
   def teardown = FileUtils.rm_rf(@dir)
@@ -25,7 +25,7 @@ class HistoryTest < Minitest::Test
   def test_outside_a_repo
     Dir.mktmpdir do |d|
       f = File.join(d, "x.md"); File.write(f, "x")
-      refute OmaRead::History.new(f).in_repo?
+      refute Omarky::History.new(f).in_repo?
     end
   end
 end

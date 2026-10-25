@@ -6,8 +6,8 @@ class ResolverTest < Minitest::Test
   def setup
     @dir = Dir.mktmpdir
     @path = FixtureRepo.build(@dir)
-    @h = OmaRead::History.new(@path)
-    @r = OmaRead::Resolver.new(@h, now: NOW)
+    @h = Omarky::History.new(@path)
+    @r = Omarky::Resolver.new(@h, now: NOW)
   end
 
   def teardown = FileUtils.rm_rf(@dir)
@@ -57,14 +57,14 @@ class ResolverTest < Minitest::Test
     assert_equal "Team section", subject_of("keith", before: danny)
     assert_equal "First pass at the approach", subject_of("before keith", before: danny)   # Keith's last inside the bound, then one back
     assert_equal "Team section", subject_of("before danny", before: danny)                # the bound itself: the one before it
-    e = assert_raises(OmaRead::Unresolved) { @r.resolve("before 7 oct", before: danny) }
+    e = assert_raises(Omarky::Unresolved) { @r.resolve("before 7 oct", before: danny) }
     assert_equal "There is nothing before Keith, Wed 7 Oct, 6:20 pm.", e.message
   end
 
   def test_unresolved_messages
-    e = assert_raises(OmaRead::Unresolved) { @r.resolve("salman") }
+    e = assert_raises(Omarky::Unresolved) { @r.resolve("salman") }
     assert_equal "Salman has no check-ins of this file.", e.message
-    e = assert_raises(OmaRead::Unresolved) { @r.resolve("3 oct") }
+    e = assert_raises(Omarky::Unresolved) { @r.resolve("3 oct") }
     assert_equal "The file did not exist yet on 3 October.", e.message
   end
 
@@ -91,8 +91,8 @@ class ResolverTest < Minitest::Test
       env = { "GIT_AUTHOR_NAME" => "Keith Rowell", "GIT_AUTHOR_EMAIL" => "keith@example.com",
               "GIT_COMMITTER_NAME" => "Keith Rowell", "GIT_COMMITTER_EMAIL" => "keith@example.com" }
       FixtureRepo.run(d, env, "git", "commit", "-q", "-m", "Only")
-      r = OmaRead::Resolver.new(OmaRead::History.new(f), now: NOW)
-      e = assert_raises(OmaRead::Unresolved) { r.resolve("before now") }
+      r = Omarky::Resolver.new(Omarky::History.new(f), now: NOW)
+      e = assert_raises(Omarky::Unresolved) { r.resolve("before now") }
       assert_equal "There is nothing before now.", e.message
     end
   end
@@ -116,10 +116,10 @@ class ResolverHandleTest < Minitest::Test
   def setup
     t = Time.parse("2026-10-20T10:00:00+10:00")
     @versions = [
-      OmaRead::Version.new("b" * 40, "Keith Rowell", "keith@example.com", t + 86_400, "Later", ""),
-      OmaRead::Version.new("a" * 40, "dannymalonerace", "danny.malone@example.com", t, "Danny's handle", ""),
+      Omarky::Version.new("b" * 40, "Keith Rowell", "keith@example.com", t + 86_400, "Later", ""),
+      Omarky::Version.new("a" * 40, "dannymalonerace", "danny.malone@example.com", t, "Danny's handle", ""),
     ]
-    @r = OmaRead::Resolver.new(FakeHistory.new(@versions, "Keith Rowell", "/tmp/none/x.md", "/tmp/none"), now: t + 172_800)
+    @r = Omarky::Resolver.new(FakeHistory.new(@versions, "Keith Rowell", "/tmp/none/x.md", "/tmp/none"), now: t + 172_800)
   end
 
   def test_handle_matches_first_name
@@ -128,7 +128,7 @@ class ResolverHandleTest < Minitest::Test
   end
 
   def test_short_prefix_does_not_match
-    assert_raises(OmaRead::Unresolved) { @r.resolve("da") }
+    assert_raises(Omarky::Unresolved) { @r.resolve("da") }
   end
 
   def test_handle_displays_as_the_email_name

@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-# JS unit tests (test/tst_*.qml) under Qt's V4 engine, then the Ruby tests
-# of the launcher (test/ruby/*_test.rb).
-#   tools/test                              everything
-#   tools/test -input test/tst_words.qml    one QML suite
-#   tools/test -functions name…             QML functions by name
-#   tools/test --ruby                       Ruby only
-#   tools/test --ruby test/ruby/cli_test.rb one Ruby suite
+# The library's tests: the JS suites (test/tst_*.qml) under Qt's V4 engine,
+# then the launcher's Ruby suites.
+#   tools/test                            everything
+#   tools/test -input test/tst_words.qml  one QML suite
+#   tools/test --ruby                     Ruby only
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
@@ -13,15 +11,12 @@ export QT_QPA_PLATFORM=offscreen QML_XHR_ALLOW_FILE_READ=1
 # The minified vendor/markdown-it.js trips a declaration-order lint; it is valid JS.
 export QT_LOGGING_RULES="qt.qml.usedbeforedeclared=false"
 status=0
-ruby_only=0
-if [ "${1:-}" = "--ruby" ]; then ruby_only=1; shift; fi
-# /usr/bin/qmltestrunner is the Qt 5 one; use Qt 6.
-if [ "$ruby_only" = 0 ] && ls test/tst_*.qml >/dev/null 2>&1; then
+if [ "${1:-}" != "--ruby" ]; then
+  # /usr/bin/qmltestrunner is the Qt 5 one; use Qt 6.
   /usr/lib/qt6/bin/qmltestrunner -input test "$@" || status=1
 fi
-if [ "$ruby_only" = 1 ] || [ $# -eq 0 ]; then
-  suites=("$@")
-  [ ${#suites[@]} -eq 0 ] && suites=(test/ruby/*_test.rb)
-  for t in "${suites[@]}"; do /usr/bin/ruby -I launcher -I test/ruby "$t" || status=1; done
+[ "${1:-}" = "--ruby" ] && shift
+if [ $# -eq 0 ]; then
+  for t in test/ruby/*_test.rb; do /usr/bin/ruby -I launcher -I test/ruby "$t" || status=1; done
 fi
 exit $status

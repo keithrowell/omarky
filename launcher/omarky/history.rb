@@ -1,4 +1,4 @@
-module OmaRead
+module Omarky
   Version = Struct.new(:sha, :author, :email, :time, :subject, :body)
 
   # One file's git history, read through the git command.

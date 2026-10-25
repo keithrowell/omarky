@@ -1,4 +1,4 @@
-module OmaRead
+module Omarky
   # The JSON the window asks the launcher for: one resolved side of a
   # comparison (--resolve), or the file's history and shortcuts (--versions).
   # The window keeps the two sides itself; nothing is written to disk.
