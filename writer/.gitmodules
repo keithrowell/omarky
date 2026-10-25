@@ -1,0 +1,3 @@
+[submodule "vendor/omaread"]
+	path = vendor/omaread
+	url = https://github.com/keithrowell/omaread.git
