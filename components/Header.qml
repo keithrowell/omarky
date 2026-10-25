@@ -44,8 +44,12 @@ Rectangle {
   readonly property real listRight: right.x + (comparing ? pill.x + pill.width : versionsChip.x + versionsChip.width)
   readonly property real listBottom: right.y + right.height
 
+  // A narrow window keeps the file name readable: the pill drops the days
+  // and says "vs".
+  readonly property bool compact: width < Style.space(1100)
+
   function dayOf(side) {
-    if (!side || !side.when) return ""
+    if (!side || !side.when || compact) return ""
     return String(side.when).split(",")[0]
   }
 
@@ -71,7 +75,7 @@ Rectangle {
     Text {
       id: nameLabel
       anchors.verticalCenter: parent.verticalCenter
-      width: Math.min(implicitWidth, left.width * 0.55)
+      width: Math.min(implicitWidth, Math.max(left.width * 0.55, Math.min(left.width, Style.space(220))))
       elide: Text.ElideMiddle
       text: root.fileName || "OmaRead"
       textFormat: Text.PlainText
@@ -140,7 +144,7 @@ Rectangle {
         AuthorDisc { visible: !!root.to && root.to.who !== "Now"; who: root.to ? root.to.who || "" : ""; name: root.to ? root.to.name || "" : ""; size: Style.space(15); anchors.verticalCenter: parent.verticalCenter }
         Text { text: root.to ? root.to.label || "" : ""; textFormat: Text.PlainText; font.bold: true; color: Theme.text; font.family: Style.font.family; font.pixelSize: Style.font.bodySmall; anchors.verticalCenter: parent.verticalCenter }
         Text { visible: !!root.to && root.to.who !== "Now"; text: root.dayOf(root.to); textFormat: Text.PlainText; color: Theme.dim; font.family: Style.font.family; font.pixelSize: Style.font.bodySmall; anchors.verticalCenter: parent.verticalCenter }
-        Text { text: "compared with"; textFormat: Text.PlainText; color: Theme.dim; font.family: Style.font.family; font.pixelSize: Style.font.bodySmall; anchors.verticalCenter: parent.verticalCenter }
+        Text { text: root.compact ? "vs" : "compared with"; textFormat: Text.PlainText; color: Theme.dim; font.family: Style.font.family; font.pixelSize: Style.font.bodySmall; anchors.verticalCenter: parent.verticalCenter }
         AuthorDisc { who: root.from ? root.from.who || "" : ""; name: root.from ? root.from.name || "" : ""; size: Style.space(15); anchors.verticalCenter: parent.verticalCenter }
         Text { text: root.from ? root.from.label || "" : ""; textFormat: Text.PlainText; font.bold: true; color: Theme.text; font.family: Style.font.family; font.pixelSize: Style.font.bodySmall; anchors.verticalCenter: parent.verticalCenter }
         Text { visible: text !== ""; text: root.dayOf(root.from); textFormat: Text.PlainText; color: Theme.dim; font.family: Style.font.family; font.pixelSize: Style.font.bodySmall; anchors.verticalCenter: parent.verticalCenter }
