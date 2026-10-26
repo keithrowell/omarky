@@ -4,3 +4,4 @@ Header 1.0 Header.qml
 Outline 1.0 Outline.qml
 EmptyState 1.0 EmptyState.qml
 ShortcutSheet 1.0 ShortcutSheet.qml
+EditSheet 1.0 EditSheet.qml

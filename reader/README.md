@@ -146,6 +146,27 @@ A skill at `~/.claude/skills/omachanges/SKILL.md` turns "show me the diff betwee
 Danny's version" or "what changed in the proposal since yesterday" into the command above and
 opens the window on the session's workspace.
 
+## Editing a block
+
+![The edit sheet over a reworded paragraph](docs/screenshots/edit.png)
+
+Reading and finding a sentence to fix, press `E`. The block under the mouse (or the one holding
+your selection) opens in a sheet over the page, in [OmaWriter](https://github.com/keithrowell/omawriter)'s
+editor, with the blocks before and after it faint around it. `Shift+E` opens the whole section,
+heading to heading. Type, then Ctrl+Enter: the file is written and the page reloads under the
+sheet, keeping its place. `Esc` closes without writing, and asks once when there is unsaved text.
+
+The sheet edits the file's own lines, exactly, and writes the whole file atomically. It never
+writes over a change that landed while it was open; it says so and keeps your text. OmaRead
+stays a reader: this is the only way it changes text, one block or one section at a time, and it
+never holds the file open.
+
+In changes mode a reworded block shows its older wording above the editor with a "Use this"
+chip, so putting a sentence back the way it was is two keys. The editor paints Markdown live
+(faded marks, hanging list markers, spelling) when its native module is built, which the launcher
+does on the first run when cmake and the Qt headers are there; without it the sheet edits plain
+text. `omaread --build` builds it on its own.
+
 ## Keys
 
 | Key | Does |
@@ -157,6 +178,7 @@ opens the window on the session's workspace.
 | `V` | Choose the versions to compare (when the file has check-ins) |
 | `N` `P` | Next and previous change |
 | `F` | Only what changed, or everything |
+| `E` `Shift+E` | Edit the block under the mouse, or its section, in a sheet; `Ctrl+Enter` saves, `Esc` cancels |
 | `W` | Switch between the reading measure (68 characters) and a wide one (100) |
 | `Ctrl++` `Ctrl+-` `Ctrl+0` | Zoom the text (remembered) |
 | `Ctrl+F` or `/` | Find; `Enter` and `Shift+Enter` (or `n` and `N`) step through matches, `Esc` closes |
@@ -178,6 +200,7 @@ other Markdown files open in a new window at their anchor, and web links open in
 |---|---|
 | `tools/test` | Runs the library's tests (the renderer, the diff engine, the launcher) and then this app's |
 | `tools/check-changes` | Drives changes mode in an offscreen window over IPC on a sample history (`samples/changes/make-repo`) |
+| `tools/check-sheet [--plain]` | Drives the edit sheet offscreen: a block, a section, a discard, a refused save, the older wording; `--plain` without the native module |
 | `tools/screenshot [sample…] [--themes a,b]` | Renders samples under themes to `shots/`, offscreen, and fails on any warning in the log |
 | `tools/readme-shots` | Renders the screenshots in this README |
 | `tools/dev start FILE` | Starts a private offscreen instance to drive over IPC (`state`, `key`, `shot`) |
@@ -190,9 +213,9 @@ it, and `docs/REPORT.md` covers how it was checked and what is still missing. Th
 
 | Path | Holds |
 |---|---|
-| `vendor/omarky/` | [Omarky](https://github.com/keithrowell/omarky), the library OmaRead and OmaWriter share: the renderer, the diff engine, the chrome, the launcher's Ruby, the tests and the samples. `tools/vendor` moves it to the library checkout's HEAD |
-| `ui/shell.qml`, `ui/app/` | This app: the shell, the reader window, the header, the outline, the empty state and the shortcut sheet |
-| `bin/omaread`, `launcher/` | The command line: flags into targets for the window, on `Omarky::Instance` |
+| `vendor/omarky/` | [Omarky](https://github.com/keithrowell/omarky), the library OmaRead and OmaWriter share: the renderer, the diff engine, the editor and its native highlighter, the chrome, the launcher's Ruby, the tests and the samples. `tools/vendor` moves it to the library checkout's HEAD |
+| `ui/shell.qml`, `ui/app/` | This app: the shell, the reader window, the header, the outline, the edit sheet, the empty state and the shortcut sheet |
+| `bin/omaread`, `launcher/` | The command line: flags into targets for the window, on `Omarky::Instance`; the native module built by `Omarky::Native` into `build/` |
 
 ## Using the renderer in another app
 

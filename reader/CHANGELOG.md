@@ -1,7 +1,14 @@
 # Changelog
 
-## Unreleased
+## 0.5.0 (2026-10-26)
 
+- Editing a block: `E` opens the block under the mouse (or holding the selection) in a sheet over
+  the page, in OmaWriter's editor from the library, with the blocks around it faint; `Shift+E`
+  opens its whole section. Ctrl+Enter writes the file (whole, atomically, refusing if it changed
+  meanwhile) and the page reloads; Esc cancels, twice when there is unsaved text. In changes mode
+  a reworded block shows its older wording with a "Use this" chip. The editor's native
+  highlighter is built by the launcher when cmake is there (`omaread --build`) and the sheet edits
+  plain without it. `tools/check-sheet` drives it offscreen (decision 0015).
 - The renderer, the diff engine, the shared chrome, the launcher's Ruby, the tests and the samples
   moved to [Omarky](https://github.com/keithrowell/omarky), a library this app and OmaWriter both
   vendor as a submodule (decision 0014). The app is `ui/shell.qml` and `ui/app/`; the library is

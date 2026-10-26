@@ -13,6 +13,8 @@ OUT="$ROOT/docs/screenshots"
 THEMES="$HOME/.local/share/omarchy/themes"
 mkdir -p "$RAW" "$OUT"
 export XDG_DATA_DIRS="$HOME/.local/share/omaread/ksh:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+# The edit sheet's highlighter.
+"$ROOT/bin/omaread" --build >/dev/null && export QML_IMPORT_PATH="$ROOT/build/qml"
 
 # Changes scenes read a sample git history, built fresh each run.
 rm -rf "$RAW/.changes-repo"
@@ -32,6 +34,7 @@ SCENES=(
   "changes|kanagawa|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"outline\":true,\"anchor\":\"situation\"}"
   "changes-fold|rose-pine|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"fold\":true,\"outline\":true}"
   "changes-versions|tokyo-night|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"versions\":true}"
+  "edit|gruvbox|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"edit\":\"reworded\",\"outline\":true}"
 )
 GRID_THEMES="gruvbox tokyo-night matte-black catppuccin-latte rose-pine flexoki-light"
 

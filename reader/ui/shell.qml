@@ -137,6 +137,10 @@ ShellRoot {
     // Changes mode: compare against SPEC (the older end), or leave the mode.
     function pick(n: int, spec: string): void { var w = shell.win(n); if (w) w.resolveSpec(spec, "from") }
     function stop(n: int): void { var w = shell.win(n); if (w) w.stopComparing() }
+    // The edit sheet: type at the cursor, or replace its text.
+    function sheetType(n: int, s: string): void { var w = shell.win(n); if (w) w.sheetType(s) }
+    function sheetSet(n: int, s: string): void { var w = shell.win(n); if (w) w.sheetSet(s) }
+    function sheetUse(n: int): void { var w = shell.win(n); if (w) w.sheetUse() }
   }
 
   function win(n) {

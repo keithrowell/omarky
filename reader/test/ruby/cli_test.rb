@@ -56,6 +56,12 @@ class CliTest < Minitest::Test
     assert_equal out, run_cli("x.md", "-h").first
   end
 
+  def test_build_prints_the_import_path
+    out, _, st = run_cli("--build")
+    assert_equal 0, st.exitstatus
+    assert_equal File.join(ROOT, "build/qml"), out.strip
+  end
+
   def test_version
     out, _, st = run_cli("-V")
     assert st.success?

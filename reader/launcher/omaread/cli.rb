@@ -15,6 +15,7 @@ module OmaRead
       @root = root
       @name = name
       @app = Omarky::Instance.new(name: "omaread", root: root)
+      @native = Omarky::Native.new(root: root, source: File.join(root, "vendor/omarky/native"), state_dir: @app.state_dir)
     end
 
     def run
@@ -22,6 +23,7 @@ module OmaRead
       return version if @argv.include?("-V") || @argv.include?("--version")
       opts, files = parse(@argv)
       return opts if opts.is_a?(Integer)
+      return build if opts["--build"]
       # Run as omachanges, a bare FILE means "show me its changes".
       opts["--changes"] = true if @name == "omachanges" && !opts["--from"] && !opts["--to"]
       mode = MODE_FLAGS.find { opts[_1] }
@@ -32,7 +34,22 @@ module OmaRead
                 else
                   files.map { target_for(_1) }
                 end
-      @app.open(targets, foreground: opts["--foreground"])
+      @app.open(targets, foreground: opts["--foreground"], env: native_env)
+    end
+
+    # The editor's highlighter (the sheet) is built when it can be; a reader
+    # opens without it on a machine with no cmake or Qt headers.
+    def native_env
+      return {} if @app.running_pid
+      path = @native.ensure
+      path ? { "QML_IMPORT_PATH" => [path, ENV["QML_IMPORT_PATH"]].compact.reject(&:empty?).join(":") } : {}
+    end
+
+    def build
+      puts @native.ensure(required: true)
+      0
+    rescue Omarky::Native::BuildFailed => e
+      error(e.message)
     end
 
     private
@@ -46,7 +63,7 @@ module OmaRead
       until args.empty?
         a = args.shift
         case a
-        when "--foreground", "--changes", "--list", "--versions" then opts[a] = true
+        when "--foreground", "--changes", "--list", "--versions", "--build" then opts[a] = true
         when "--from", "--to", "--resolve"
           opts[a] = args.shift or return error("#{a} needs a SPEC")
         else files << a

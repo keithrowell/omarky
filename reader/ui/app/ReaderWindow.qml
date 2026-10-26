@@ -34,7 +34,9 @@ FloatingWindow {
   // from (a spec), fold, versions.
   property var shotOptions: ({})
   // The screenshot driver waits while a version is being resolved.
-  readonly property bool shotBusy: resolver.running || (fromSpec !== "" && !changes.active) || versionsProc.running
+  readonly property bool shotBusy: resolver.running || (fromSpec !== "" && !changes.active) || versionsProc.running || (shotEdit !== null && !sheet.shown)
+  // A block index, or "reworded" for the first reworded block, to open in the sheet.
+  property var shotEdit: null
 
   property bool wide: false
   property bool outlineWanted: width >= Style.space(1180)
@@ -52,7 +54,18 @@ FloatingWindow {
   property string picking: "from"
   readonly property bool comparing: changes.active
   property bool shotListAfter: false
-  onComparingChanged: if (comparing && shotListAfter) { shotListAfter = false; listShown = true }
+  onComparingChanged: {
+    if (comparing && shotListAfter) { shotListAfter = false; listShown = true }
+    if (comparing && shotEdit !== null) Qt.callLater(shotOpenEdit)
+  }
+  function shotOpenEdit() {
+    if (shotEdit === null || sheet.shown) return
+    var i = shotEdit
+    if (i === "reworded") for (var k = 0; k < doc.blocks.length; k++) if (doc.blocks[k].change === "reworded") { i = k; break }
+    view.hoveredIndex = Number(i)
+    editBlock(false)
+    shotEdit = null
+  }
 
   // Asks the shell to open another file in a new window, or to close this.
   signal openFile(string path, string anchor)
@@ -77,6 +90,7 @@ FloatingWindow {
     if (o.hover !== undefined) view.hoveredIndex = o.hover
     if (o.from) fromSpec = String(o.from)
     if (o.fold) changes.foldOn = true
+    if (o.edit !== undefined) { shotEdit = o.edit; if (!o.from) Qt.callLater(shotOpenEdit) }
     // The list opens once the comparison is in (a pick closes it).
     if (o.versions) { if (o.from) shotListAfter = true; else listShown = true }
     // Screenshots start with the anchored heading near the top.
@@ -101,11 +115,16 @@ FloatingWindow {
       hasHistory: hasHistory, dirty: versions.dirty, versions: versions.history.length, list: listShown, picking: picking,
       comparing: comparing, from: changes.from ? changes.from.label : "", to: changes.to ? changes.to.label : "",
       total: changes.total, fold: changes.foldOn, folds: doc.blocks.filter(function(b) { return b.type === "fold" }).length,
-      banner: changes.banner, compareMs: changes.compareMs
+      banner: changes.banner, compareMs: changes.compareMs,
+      sheet: { shown: sheet.shown, start: sheet.start, end: sheet.end, dirty: sheet.dirty, highlighted: sheet.highlighted,
+               problem: sheet.problem, older: sheet.older !== "", text: sheet.shown ? sheet.editorText() : "" }
     }
   }
 
   function debugLink(href) { ctx.openLink(href) }
+  function sheetType(s) { if (sheet.shown) sheet.type(s) }
+  function sheetSet(s) { if (sheet.shown) sheet.setText(s) }
+  function sheetUse() { if (sheet.shown && sheet.older !== "") sheet.useOlder() }
 
   // Scroll the whole document in 120 px steps, building delegates
   // synchronously; reports the slowest step (the delegate-creation cost a
@@ -129,8 +148,10 @@ FloatingWindow {
   }
   function debugHover(index) { view.hoveredIndex = index }
 
-  // "j", "G", "ctrl+f", "shift+space", "escape", "enter", "type:hello"
+  // "j", "G", "ctrl+f", "shift+space", "escape", "enter", "type:hello";
+  // with the sheet open, keys go to its editor.
   function sendKey(spec) {
+    if (sheet.shown) { sheet.sendKey(spec); return }
     if (spec.indexOf("type:") === 0) { findBar.query = spec.slice(5); return }
     var parts = spec.split("+"), name = parts.pop(), mods = 0
     parts.forEach(function(m) {
@@ -279,12 +300,68 @@ FloatingWindow {
     onDiskChanged: { header.pulse(); versionsDebounce.restart() }
   }
 
+  // ---- editing one block or one section in a sheet (EditSheet.qml)
+  // The block under the mouse, or holding the selection, or at the top.
+  function blockToEdit() {
+    var i = view.hoveredIndex
+    if (i < 0 && ctx.selectionOwner && ctx.selectionOwner.pid >= 0 && doc.pieces[ctx.selectionOwner.pid])
+      i = doc.pieces[ctx.selectionOwner.pid].block
+    if (i < 0) i = view.topIndex
+    return i
+  }
+
+  // The nearest block in direction `dir` that is in the file.
+  function neighbour(i, dir) {
+    for (var j = i + dir; j >= 0 && j < doc.blocks.length; j += dir) {
+      var b = doc.blocks[j]
+      if (b.type !== "fold" && b.change !== "removed") return b
+    }
+    return null
+  }
+
+  // The section holding source line `line`: from its heading to the line
+  // before the next heading of the same or a higher level, with the
+  // headings before and after it for context.
+  function sectionRange(line) {
+    var hs = doc.headings.filter(function(h) { var b = doc.blocks[h.index]; return b && b.change !== "removed" })
+    var cur = -1
+    for (var k = 0; k < hs.length; k++) { if (hs[k].srcStart <= line) cur = k; else break }
+    var last = null
+    for (var m = doc.blocks.length - 1; m >= 0 && !last; m--) if (doc.blocks[m].type !== "fold" && doc.blocks[m].change !== "removed") last = doc.blocks[m]
+    var endLine = last ? last.srcEnd : line + 1
+    if (cur < 0) return { start: 0, end: hs.length ? hs[0].srcStart : endLine, before: null, after: hs.length ? doc.blocks[hs[0].index] : null }
+    var next = null
+    for (var n = cur + 1; n < hs.length; n++) if (hs[n].level <= hs[cur].level) { next = hs[n]; break }
+    return { start: hs[cur].srcStart, end: next ? next.srcStart : endLine,
+             before: cur > 0 ? doc.blocks[hs[cur - 1].index] : null, after: next ? doc.blocks[next.index] : null }
+  }
+
+  function editBlock(section) {
+    if (!path || !doc.loaded || doc.missing) return
+    if (comparing && changes.to && changes.to.label !== "Now") { toast.show("Compare with Now to edit the file"); return }
+    var i = blockToEdit()
+    var b = doc.blocks[i]
+    if (!b) return
+    if (b.type === "fold") { toast.show("Open the fold to edit what is in it"); return }
+    if (b.change === "removed") { toast.show("That text is not in the file now"); return }
+    if (section) {
+      var r = sectionRange(b.srcStart)
+      sheet.open(r.start, r.end, r.before, r.after, "")
+      return
+    }
+    var older = ""
+    if (comparing && b.change === "reworded" && b.fromStart !== undefined)
+      older = changes.fromText.split("\n").slice(b.fromStart, b.fromEnd).join("\n")
+    sheet.open(b.srcStart, b.srcEnd, neighbour(i, -1), neighbour(i, 1), older)
+  }
+
   // ---- keys
   function handleKey(event) {
     var ctrl = event.modifiers & Qt.ControlModifier
     var shift = event.modifiers & Qt.ShiftModifier
     var k = event.key, t = event.text
 
+    if (sheet.shown) return
     if (helpShown) {
       if (k === Qt.Key_Escape || t === "?" || t === "q") helpShown = false
       event.accepted = true
@@ -336,6 +413,8 @@ FloatingWindow {
     else if (t === "q") win.closeRequested()
     else if (t === "w" || t === "W") wide = !wide
     else if (t === "o" || t === "O") outlineWanted = !outlineWanted
+    else if (t === "e") editBlock(false)
+    else if (t === "E") editBlock(true)
     else if (t === "v" || t === "V") { if (hasHistory) toggleList() }
     else if (t === "f" || t === "F") { if (comparing && changes.total > 0) changes.foldOn = !changes.foldOn }
     else if (t === "n" && finder.query) finder.go(finder.current + 1)
@@ -560,6 +639,18 @@ FloatingWindow {
       visible: win.helpShown
       changes: win.hasHistory
       onCloseRequested: win.helpShown = false
+    }
+
+    EditSheet {
+      id: sheet
+      doc: win.doc
+      ctx: win.ctx
+      path: win.path
+      fileName: win.fileName
+      zoom: Prefs.zoom
+      column: view.column
+      onSaved: toast.show("Saved")
+      onClosed: keySink.forceActiveFocus()
     }
 
     Toast { id: toast; z: 8 }

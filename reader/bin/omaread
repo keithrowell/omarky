@@ -8,6 +8,7 @@
 #   omaread FILE --list                    print FILE's versions
 #   omaread FILE --resolve SPEC            print one version of FILE as JSON
 #   omaread FILE --versions                print FILE's history and shortcuts as JSON
+#   omaread --build                        build the editor's native highlighter and exit
 #   omaread --foreground …                 run qs in this terminal (development)
 #   omaread --version
 #

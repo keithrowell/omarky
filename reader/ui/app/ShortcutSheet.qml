@@ -21,6 +21,8 @@ Rectangle {
     { title: "Find & copy", keys: [["Ctrl+F", "Find"], ["Enter  Shift+Enter", "Next / previous match"],
                                    ["Right-click", "Copy a block's Markdown"], ["Ctrl+Shift+C", "Copy the block under the mouse"],
                                    ["Ctrl+Shift+A", "Copy the whole file"]] },
+    { title: "Edit", keys: [["E", "Edit the block under the mouse"], ["Shift+E", "Edit its section"],
+                            ["Ctrl+Enter  Esc", "Save to the file / cancel"]] },
     { title: "File", keys: [["Ctrl+O", "Open a file"], ["Ctrl+R", "Reload"], ["Ctrl+W  q", "Close window"], ["?", "This sheet"]] }
   ])
 
