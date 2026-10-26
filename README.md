@@ -8,7 +8,7 @@ The site: [keithrowell.github.io/omarky](https://keithrowell.github.io/omarky/).
 
 ## Principles
 
-A printed page is the work of centuries of craft. Its measure, its margins, the space between its lines and the weight of its type were settled by people who cared how it read,. When a page is set well, you start reading and all of a sudden an hour has passed. Omarky sets a Markdown file the way a typesetter sets a page.
+A printed page is the work of centuries of craft. Its measure, its margins, the space between its lines and the weight of its type were settled by people who cared how it read. When a page is set well, you start reading and all of a sudden an hour has passed. Omarky sets a Markdown file the way a typesetter sets a page.
 
 - **The page:** one centred column, about 68 characters wide, the measure of a well-set book. Line height and paragraph spacing give the text room. Bullets, numbers, heading marks and quote marks hang in the left margin, in both apps, so the text keeps one straight edge. Headings sit on a scale from the body size, with space above and little below, so each binds to the text it introduces.
 - **The type:** iA Writer Quattro S for prose and its Mono S for code. The mono is lighter than a programmer's font, so a code block sits beside a paragraph without shouting, and it has no ligatures, because the reader's job is to show exactly what the file says. Headings are the same family in bold.
