@@ -8,7 +8,7 @@ The site: [keithrowell.github.io/omarky](https://keithrowell.github.io/omarky/).
 
 ## Principles
 
-Most of what we read on a screen was poured into whatever container was to hand: a line as wide as the window, a blank line between paragraphs because the markup produced one, headings big because big meant important. A printed page had centuries of tuning before it reached that shape. Omarky applies the old fixes to a Markdown file, one decision at a time, and then leaves them alone.
+A printed page is the work of centuries of craft. Its measure, its margins, the space between its lines and the weight of its type were settled by people who cared how it read, and when a page is set well you notice only that an hour has passed. Text on a screen is poured into whatever container is to hand: a line as wide as the window, headings big because big means important, a font chosen for the menus. Omarky sets a Markdown file the way a typesetter sets a page.
 
 - **The page:** one centred column, about 68 characters wide, the measure of a well-set book. Line height and paragraph spacing give the text room. Bullets, numbers, heading marks and quote marks hang in the left margin, in both apps, so the text keeps one straight edge. Headings sit on a scale from the body size, with space above and little below, so each binds to the text it introduces.
 - **The type:** iA Writer Quattro S for prose and its Mono S for code. The mono is lighter than a programmer's font, so a code block sits beside a paragraph without shouting, and it has no ligatures, because the reader's job is to show exactly what the file says. Headings are the same family in bold.
