@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# The library's tests: the JS suites (test/tst_*.qml) under Qt's V4 engine,
-# then the launcher's Ruby suites.
+# The library's tests: the QML suites (test/tst_*.qml) under Qt's V4 engine,
+# then the launcher's Ruby suites. The native highlighter is built into
+# build/ first (Omarky::Native) so tst_highlighter runs against it; without
+# cmake that one suite is skipped.
 #   tools/test                            everything
 #   tools/test -input test/tst_words.qml  one QML suite
 #   tools/test --ruby                     Ruby only
@@ -12,8 +14,22 @@ export QT_QPA_PLATFORM=offscreen QML_XHR_ALLOW_FILE_READ=1
 export QT_LOGGING_RULES="qt.qml.usedbeforedeclared=false"
 status=0
 if [ "${1:-}" != "--ruby" ]; then
-  # /usr/bin/qmltestrunner is the Qt 5 one; use Qt 6.
-  /usr/lib/qt6/bin/qmltestrunner -input test "$@" || status=1
+  import="$(/usr/bin/ruby -I launcher -e 'require "omarky"; p = Omarky::Native.new(root: ".", source: "native", state_dir: "build").ensure; puts p if p' 2>/dev/null || true)"
+  if [ -n "$import" ]; then
+    export QML_IMPORT_PATH="$ROOT/$import"
+    # /usr/bin/qmltestrunner is the Qt 5 one; use Qt 6.
+    /usr/lib/qt6/bin/qmltestrunner -input test "$@" || status=1
+  else
+    echo "tools/test: no native module (cmake missing or the build failed, see build/build.log); skipping tst_highlighter"
+    if [ $# -eq 0 ]; then
+      for f in test/tst_*.qml; do
+        [ "$f" = test/tst_highlighter.qml ] && continue
+        /usr/lib/qt6/bin/qmltestrunner -input "$f" || status=1
+      done
+    else
+      /usr/lib/qt6/bin/qmltestrunner "$@" || status=1
+    fi
+  fi
 fi
 [ "${1:-}" = "--ruby" ] && shift
 if [ $# -eq 0 ]; then

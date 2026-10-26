@@ -2,6 +2,14 @@
 
 Entries up to 0.4.0 are OmaRead's: this library was split out of it on 26 October 2026.
 
+## 0.2.0 (2026-10-26)
+
+- The editor comes in from OmaWriter: `components/Editor.qml` (its five settings are properties
+  the host binds), `Buffer`, `PopupMenu`, `lib/editing.js`, the native highlighter under `native/`
+  as the `Omarky.Native` QML module, and `Omarky::Native`, the Ruby that builds it into an app's
+  `build/`. The highlighter is optional: without the module on `QML_IMPORT_PATH` the editor runs
+  as a plain `TextEdit`. `tools/test` builds the module and runs the highlighter suite against it.
+
 ## 0.1.0 (2026-10-26)
 
 - Split from OmaRead 0.4.0: the renderer, the diff engine, the shared chrome, the launcher's
