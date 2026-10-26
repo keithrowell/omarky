@@ -2,6 +2,8 @@
 
 Markdown tools for [Omarchy](https://omarchy.org): a reader that makes a plain text file a pleasure to read, a writer in the spirit of Byword, and the changes between two versions of a document shown in the reading column. Built by [Keith Rowell](https://github.com/keithrowell) in QML on Quickshell, with Ruby for the command line.
 
+The site: [keithrowell.github.io/omarky](https://keithrowell.github.io/omarky/).
+
 ![OmarkyReader in tokyo-night](docs/screenshots/reader/hero.png)
 
 ## Principles
