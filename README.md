@@ -8,14 +8,14 @@ The site: [keithrowell.github.io/omarky](https://keithrowell.github.io/omarky/).
 
 ## Principles
 
-A beautiful printed page is the work of centuries of craft. Its measure, its margins, the space between its lines and the weight of its type were settled by people who cared how it read. When a page is set well, you start reading and all of a sudden an hour has passed. Omarky sets a Markdown file the way a typesetter sets a page.
+A beautiful printed page rests on the work of centuries of craft. Its measure, its margins, the space between its lines and the weight of its type were settled by people who cared how it read. When a page is set well, you start reading and all of a sudden an hour has passed. Omarky sets a Markdown file the way a typesetter sets a page.
 
 - **The page:** one centred column, about 68 characters wide, the measure of a well-set book. Line height and paragraph spacing give the text room. Bullets, numbers, heading marks and quote marks hang in the left margin, in both apps, so the text keeps one straight edge. Headings sit on a scale from the body size, with space above and little below, so each binds to the text it introduces.
 - **The type:** iA Writer Quattro S for prose and its Mono S for code. The mono is lighter than a programmer's font, so a code block sits beside a paragraph without shouting, and it has no ligatures, because the reader's job is to show exactly what the file says. Headings are the same family in bold.
-- **The colours:** the current Omarchy theme, read as you switch, light or dark. Code colours are generated from the theme's own `colors.toml`, so a code block matches the page around it. 
-- **The chrome:** a header with the file's name, an outline that follows you through the document, and the page. In the writer the header and the word count step aside while you type and come back when you move the mouse. Keys do the rest. ?` to show available shortcut keys.
-- **The file:** the Markdown file on disk is the document and the format. The reader reloads in place when another program changes the file, keeping your position. The writer saves exactly what you type. It shows bold as bold and a heading as a heading, and leaves the asterisks and hashes in the file as you wrote them.
-- **Versions:** When a document has a git history, you can pick any earlier version and see what changed since, marked on the page as you read.
+- **The colours:** the current Omarchy theme, read as you switch, light or dark. Code colours are generated from the theme's own `colors.toml`, so a code block matches the page around it.
+- **The chrome:** a header with the file's name, an outline that follows you through the document, and the page. In the writer the header and the word count step aside while you type and come back when you move the mouse. Keys do the rest. `?` shows the available shortcut keys.
+- **The file:** plain Markdown on disk. The reader reloads in place when another program changes the file, keeping your position. The writer formats the text on screen as you type and saves exactly what you typed.
+- **Versions:** when a document has a git history, you can pick any earlier version and see what changed since, marked on the page as you read.
 
 ## OmarkyReader
 
