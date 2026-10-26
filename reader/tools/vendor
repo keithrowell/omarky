@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Move the vendored Omarky (a submodule) to COMMIT, default ~/projects/omarky's HEAD.
+#   tools/vendor [COMMIT]
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+sub="$ROOT/vendor/omarky"
+commit="${1:-$(git -C "$HOME/projects/omarky" rev-parse HEAD)}"
+git -C "$sub" remote get-url local >/dev/null 2>&1 || git -C "$sub" remote add local "$HOME/projects/omarky"
+git -C "$sub" fetch -q local
+git -C "$sub" checkout -q "$commit"
+echo "vendor/omarky at $(git -C "$sub" rev-parse --short HEAD); commit the submodule pointer."

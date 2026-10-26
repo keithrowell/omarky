@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# End-to-end check of the edit sheet in a real (offscreen) OmaRead: E on a
+# block, typing, Ctrl+Enter writing the file and the page reloading; Shift+E
+# on a section; Esc discarding; a file changed under the sheet refused; in
+# changes mode the older wording restored with "Use this"; a clean log.
+#   tools/check-sheet           with the native highlighter (built first)
+#   tools/check-sheet --plain   without it: the sheet must edit plain
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+work="$(mktemp -d)"
+trap 'kill "${pid:-0}" 2>/dev/null || true; rm -rf "$work"' EXIT
+export OMAREAD_INSTANCE="sheet-$$" OMAREAD_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
+export OMAREAD_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
+file="$("$ROOT/vendor/omarky/samples/changes/make-repo" "$work/repo")"
+plain=0
+if [ "${1:-}" = "--plain" ]; then
+  plain=1
+  unset QML_IMPORT_PATH
+  export OMAREAD_OPEN="$file" OMAREAD_BIN="$ROOT/bin/omaread"
+  qs --log-rules "qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false" -p "$ROOT/ui/shell.qml" >"$work/qs.log" 2>&1 &
+else
+  "$ROOT/bin/omaread" --build >/dev/null
+  "$ROOT/bin/omaread" --foreground "$file" >"$work/qs.log" 2>&1 &
+fi
+pid=$!
+nap() { python3 -c "import time; time.sleep($1)"; }
+ipc() { qs ipc --pid "$pid" call omaread "$@"; }
+state() { ipc state -1; }
+field() { python3 -c "import json,sys; v=json.load(sys.stdin)$1; print(v if not isinstance(v, bool) else str(v).lower())"; }
+for i in $(seq 60); do ipc count 2>/dev/null | grep -q '^[1-9]' && break; nap 0.2; done
+for i in $(seq 40); do state 2>/dev/null | field '["loaded"]' | grep -q true && break; nap 0.2; done
+nap 0.5
+fail=0
+expect() { # name expected actual
+  if [ "$2" == "$3" ]; then echo "ok    $1"; else echo "FAIL  $1"; printf '  expected: %q\n  actual:   %q\n' "$2" "$3"; fail=1; fi
+}
+sheet() { state | field "[\"sheet\"]$1"; }
+
+# E on a block: the sheet holds exactly the block's lines.
+ipc hover -1 2; ipc key -1 e; nap 0.3
+expect "E opens the sheet" "true" "$(sheet '["shown"]')"
+start="$(sheet '["start"]')"; end="$(sheet '["end"]')"
+expect "the sheet holds the block's lines" "$(sed -n "$((start + 1)),${end}p" "$file")" "$(sheet '["text"]')"
+expect "the editor is painted as expected" "$([ $plain = 1 ] && echo false || echo true)" "$(sheet '["highlighted"]')"
+expect "nothing is dirty yet" "false" "$(sheet '["dirty"]')"
+reloads="$(state | field '["reloads"]')"
+ipc sheetType -1 "Edited here. "; nap 0.2
+expect "typing makes it dirty" "true" "$(sheet '["dirty"]')"
+ipc key -1 ctrl+enter; nap 1.0
+expect "Ctrl+Enter closes the sheet" "false" "$(sheet '["shown"]')"
+expect "the file has the edit at the block's first line" "Edited here. " "$(sed -n "$((start + 1))p" "$file" | cut -c1-13)"
+expect "the page reloaded" "$((reloads + 1))" "$(state | field '["reloads"]')"
+
+# Shift+E: a section, from its heading.
+ipc hover -1 3; ipc key -1 E; nap 0.3
+expect "Shift+E opens the sheet" "true" "$(sheet '["shown"]')"
+expect "a section starts at a heading" "#" "$(sheet '["text"]' | head -1 | cut -c1)"
+sstart="$(sheet '["start"]')"; send="$(sheet '["end"]')"
+[ "$((send - sstart))" -gt "$((end - start))" ] && echo "ok    a section is longer than the block ($((send - sstart)) lines)" || { echo "FAIL  section range"; fail=1; }
+ipc key -1 escape; nap 0.2
+expect "Esc closes a clean sheet" "false" "$(sheet '["shown"]')"
+
+# Esc on a dirty sheet asks once.
+before="$(cat "$file")"
+ipc hover -1 2; ipc key -1 e; nap 0.3; ipc sheetType -1 "zzz"; nap 0.1; ipc key -1 escape; nap 0.2
+expect "the first Esc keeps a dirty sheet" "true" "$(sheet '["shown"]')"
+ipc key -1 escape; nap 0.2
+expect "the second Esc discards" "false" "$(sheet '["shown"]')"
+expect "nothing was written" "$before" "$(cat "$file")"
+
+# A file that changed under the sheet is not written over.
+ipc hover -1 2; ipc key -1 e; nap 0.3
+printf '\nAppended by someone else.\n' >>"$file"; nap 0.8
+ipc sheetType -1 "mine "; ipc key -1 ctrl+enter; nap 0.5
+expect "the save is refused" "true" "$(sheet '["shown"]')"
+expect "the sheet says why" "The file changed" "$(sheet '["problem"]' | cut -c1-16)"
+expect "the other change stands" "Appended by someone else." "$(tail -1 "$file")"
+expect "the typed text is not in the file" "0" "$(grep -c '^mine ' "$file" || true)"
+ipc key -1 escape; ipc key -1 escape; nap 0.2
+
+# Changes mode: a reworded block offers its older wording.
+ipc pick -1 danny
+for i in $(seq 40); do state 2>/dev/null | field '["comparing"]' | grep -q true && break; nap 0.2; done
+nap 0.5
+total="$(state | field '["total"]')"
+blocks="$(state | field '["blocks"]')"
+found=""
+for i in $(seq 0 $((blocks - 1))); do
+  ipc hover -1 "$i"; ipc key -1 e; nap 0.2
+  if [ "$(sheet '["shown"]')" = true ]; then
+    if [ "$(sheet '["older"]')" = true ]; then found="$i"; break; fi
+    ipc key -1 escape; nap 0.1
+  fi
+done
+expect "a reworded block has its older wording" "yes" "$([ -n "$found" ] && echo yes || echo no)"
+ipc sheetUse -1; nap 0.2
+expect "Use this makes the sheet dirty" "true" "$(sheet '["dirty"]')"
+ipc key -1 ctrl+enter; nap 1.2
+expect "the restored block is saved" "false" "$(sheet '["shown"]')"
+after="$(state | field '["total"]')"
+[ "$after" -lt "$total" ] && echo "ok    the comparison has fewer changes ($total to $after)" || { echo "FAIL  changes did not drop ($total to $after)"; fail=1; }
+
+if grep -E 'WARN|ERROR|CRIT' "$work/qs.log" | grep -vE 'WAYLAND_DISPLAY|running wayland|--- WARNING ---|window masks|by-path'; then
+  echo "FAIL  the qs log is not clean"; fail=1
+else
+  echo "ok    clean log"
+fi
+exit $fail

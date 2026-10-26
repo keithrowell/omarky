@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Manual check for live theme following (spec §2): a fake Omarchy
+# current/ tree, switched the way `omarchy theme set` does it (rm -rf
+# current/theme; mv next-theme current/theme; rewrite theme.name), while a
+# tools/dev instance reads a scrolled document. Colours, the KSH theme and
+# the scroll position are printed after each switch. Never touches the
+# real theme.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+F="${TMPDIR:-/tmp}/omaread-fake-theme"
+THEMES="$HOME/.local/share/omarchy/themes"
+rm -rf "$F"; mkdir -p "$F/current"
+cp -r "$THEMES/gruvbox" "$F/current/theme"; echo gruvbox >"$F/current/theme.name"
+
+"$ROOT/tools/dev" stop; sleep 1
+OMAREAD_THEME_DIR="$F/current/theme" "$ROOT/tools/dev" start "$ROOT/vendor/omarky/samples/code.md"; sleep 1.5
+for _ in 1 2; do "$ROOT/tools/dev" key space; done; sleep 0.6
+
+st() {
+  "$ROOT/tools/dev" state | python3 -c "
+import json,sys; d=json.load(sys.stdin)
+print(sys.argv[1].ljust(18), 'theme=%-16s bg=%s ksh=%-22s top=%d y=%d' % (d['theme'], d['bg'], d['kshTheme'], d['topIndex'], d['contentY']))" "$1"
+}
+st "start"
+for next in catppuccin-latte tokyo-night rose-pine; do
+  cp -r "$THEMES/$next" "$F/next-theme"
+  rm -rf "$F/current/theme"; command mv -f "$F/next-theme" "$F/current/theme"; echo "$next" >"$F/current/theme.name"
+  sleep 0.8; st "-> $next"
+done

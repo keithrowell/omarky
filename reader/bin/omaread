@@ -1,0 +1,25 @@
+#!/usr/bin/ruby
+# OmaRead: a Markdown reader for Omarchy.
+#
+#   omaread [FILE.md[#anchor] …]           open files (each in its own window)
+#   omaread                                an empty window with recent files
+#   omaread FILE --changes                 FILE compared with its last differing version
+#   omaread FILE --from SPEC [--to SPEC]   FILE compared between two versions
+#   omaread FILE --list                    print FILE's versions
+#   omaread FILE --resolve SPEC            print one version of FILE as JSON
+#   omaread FILE --versions                print FILE's history and shortcuts as JSON
+#   omaread --build                        build the editor's native highlighter and exit
+#   omaread --foreground …                 run qs in this terminal (development)
+#   omaread --version
+#
+# A SPEC is a person ("danny", "me"), a day ("yesterday", "a week ago",
+# "fri", "23 oct"), both ("danny fri"), "sent" (the date in SENT.md),
+# "before X", "now", or anything git understands. Run as omachanges, a
+# bare FILE opens its changes.
+#
+# A running OmaRead gets the files over IPC and opens new windows; this
+# script exits at once. Otherwise it starts one detached qs process, logging
+# to ~/.local/state/omaread/qs.log.
+$LOAD_PATH.unshift(File.expand_path("../launcher", __dir__), File.expand_path("../vendor/omarky/launcher", __dir__))
+require "omaread"
+exit OmaRead::CLI.new(ARGV, root: File.expand_path("..", __dir__)).run

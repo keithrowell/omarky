@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+# Render the README screenshots into docs/screenshots/.
+#
+#   tools/readme-shots
+#
+# Each scene is rendered offscreen at 2x under its theme, then framed: rounded
+# corners, a hairline edge and a soft shadow, on a gradient made from that
+# theme's own background and accent. Needs ImageMagick (magick).
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+RAW="$ROOT/shots/readme"
+OUT="$ROOT/docs/screenshots"
+THEMES="$HOME/.local/share/omarchy/themes"
+mkdir -p "$RAW" "$OUT"
+export XDG_DATA_DIRS="$HOME/.local/share/omaread/ksh:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+# The edit sheet's highlighter.
+"$ROOT/bin/omaread" --build >/dev/null && export QML_IMPORT_PATH="$ROOT/build/qml"
+
+# Changes scenes read a sample git history, built fresh each run.
+rm -rf "$RAW/.changes-repo"
+CHANGES_FILE="$("$ROOT/vendor/omarky/samples/changes/make-repo" "$RAW/.changes-repo")"
+export OMAREAD_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
+
+# name|theme|sample (under samples/, or an absolute path)|width|height|options (JSON)
+SCENES=(
+  "hero-dark|tokyo-night|kitchen-sink|1240|800|{\"outline\":true}"
+  "hero-light|catppuccin-latte|code|1240|800|{\"anchor\":\"a-diff\",\"outline\":false}"
+  "reading|gruvbox|prose|1320|860|{\"anchor\":\"measure\",\"outline\":true}"
+  "code|rose-pine|code|1320|860|{\"anchor\":\"short-snippets\"}"
+  "tables|flexoki-light|tables|1320|860|{\"anchor\":\"aligned\"}"
+  "structure|tokyo-night|kitchen-sink|1320|860|{\"anchor\":\"lists\",\"outline\":true}"
+  "alerts|rose-pine|alerts|1320|860|{}"
+  "find|gruvbox|real/omaread-spec|1320|860|{\"find\":\"quickshell\",\"reloaded\":true,\"outline\":true}"
+  "changes|kanagawa|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"outline\":true,\"anchor\":\"situation\"}"
+  "changes-fold|rose-pine|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"fold\":true,\"outline\":true}"
+  "changes-versions|tokyo-night|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"versions\":true}"
+  "edit|gruvbox|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"edit\":\"reworded\",\"outline\":true}"
+)
+GRID_THEMES="gruvbox tokyo-night matte-black catppuccin-latte rose-pine flexoki-light"
+
+render() {   # theme jobs-json
+  local theme="$1" jobs="$2"
+  printf '%s' "$jobs" >"$RAW/.$theme.json"
+  OMAREAD_THEME_DIR="$THEMES/$theme" OMAREAD_SHOT="$RAW/.$theme.json" OMAREAD_STATE_DIR="$ROOT/shots/.state" \
+    QT_QPA_PLATFORM=offscreen QT_SCALE_FACTOR=2 \
+    timeout 120 qs --log-rules "qt.qml.usedbeforedeclared=false" -p "$ROOT/ui/shell.qml" >"$RAW/.$theme.log" 2>&1
+}
+
+job() {   # name sample w h opts
+  local file="$2"; [ "${file#/}" = "$file" ] && file="$ROOT/vendor/omarky/samples/$2.md"
+  printf '{"file":"%s","name":"%s","w":%s,"h":%s,"pages":1,"opts":%s}' "$file" "$1" "$3" "$4" "$5"
+}
+
+# ---- render every scene (one qs per theme)
+declare -A per_theme
+for s in "${SCENES[@]}"; do
+  IFS='|' read -r name theme sample w h opts <<<"$s"
+  per_theme[$theme]+="${per_theme[$theme]:+,}$(job "$name" "$sample" "$w" "$h" "$opts")"
+done
+for theme in $GRID_THEMES; do
+  per_theme[$theme]+="${per_theme[$theme]:+,}$(job "grid-$theme" kitchen-sink 1000 700 '{"anchor":"quotes","outline":false}')"
+done
+pids=()
+for theme in "${!per_theme[@]}"; do
+  render "$theme" "{\"out\":\"$RAW\",\"jobs\":[${per_theme[$theme]}]}" &
+  pids+=($!)
+  sleep 0.4   # simultaneous qs starts race on Quickshell's runtime symlinks
+done
+for p in "${pids[@]}"; do wait "$p"; done
+if grep -hE 'WARN|ERROR' "$RAW"/.*.log | grep -vE 'WAYLAND_DISPLAY|actually running|--- WARNING|window masks' | grep -q .; then
+  echo "qs logged warnings:" >&2
+  grep -hE 'WARN|ERROR' "$RAW"/.*.log | grep -vE 'WAYLAND_DISPLAY|actually running|--- WARNING|window masks' >&2
+  exit 1
+fi
+
+# ---- framing
+color() {   # theme key -> #rrggbb
+  sed -nE "s/^$2[[:space:]]*=[[:space:]]*[\"']?(#[0-9A-Fa-f]{6}).*/\1/p" "$THEMES/$1/colors.toml" | head -1
+}
+
+# Rounded corners, a hairline edge and a soft shadow; transparent around.
+frame() {   # in out radius
+  local in="$1" out="$2" r="$3" w h
+  w=$(magick identify -format %w "$in"); h=$(magick identify -format %h "$in")
+  magick -size "${w}x${h}" xc:black -fill white -draw "roundrectangle 0,0 $((w - 1)),$((h - 1)) $r,$r" "$out.mask.png"
+  magick "$in" "$out.mask.png" -alpha off -compose CopyOpacity -composite \
+    \( -size "${w}x${h}" xc:none -fill none -stroke 'rgba(255,255,255,0.14)' -strokewidth 2 \
+       -draw "roundrectangle 1,1 $((w - 2)),$((h - 2)) $r,$r" \) -compose Over -composite \
+    \( +clone -background 'rgba(0,0,0,0.6)' -shadow 100x36+0+28 \) +swap -background none -layers merge +repage \
+    "$out"
+  rm -f "$out.mask.png"
+}
+
+backdrop() {   # theme w h out
+  local bg accent mode glow shade
+  bg="$(color "$1" background)"; accent="$(color "$1" accent)"
+  mode="$(sed -nE 's/^mode[[:space:]]*=[[:space:]]*"(light|dark)".*/\1/p' "$THEMES/$1/colors.toml")"
+  if [ "$mode" = light ]; then glow=0.18; shade=0.06; else glow=0.38; shade=0.28; fi
+  magick -size "$2x$3" "xc:$bg" \
+    \( -size "$2x$3" "radial-gradient:${accent}-none" -channel A -evaluate multiply "$glow" +channel \) -compose Over -composite \
+    \( -size "$2x$3" "gradient:none-rgba(0,0,0,$shade)" \) -compose Over -composite "$4"
+}
+
+single() {   # name theme
+  local f="$RAW/.frame-$1.png"
+  frame "$RAW/$1-1.png" "$f" 28
+  local w h; w=$(magick identify -format %w "$f"); h=$(magick identify -format %h "$f")
+  backdrop "$2" $((w + 200)) $((h + 200)) "$RAW/.bg-$1.png"
+  magick "$RAW/.bg-$1.png" "$f" -gravity center -geometry +0-10 -compose Over -composite \
+    -resize 1600x -strip -define png:compression-level=9 "$OUT/$1.png"
+}
+
+for s in "${SCENES[@]}"; do
+  IFS='|' read -r name theme _ <<<"$s"
+  case "$name" in hero-*) continue ;; esac
+  single "$name" "$theme"
+done
+
+# Hero: the light window behind and to the left, the dark one in front.
+frame "$RAW/hero-light-1.png" "$RAW/.f-light.png" 28
+frame "$RAW/hero-dark-1.png" "$RAW/.f-dark.png" 28
+backdrop tokyo-night 3500 2340 "$RAW/.bg-hero.png"
+magick "$RAW/.bg-hero.png" \
+  "$RAW/.f-light.png" -geometry +80+60 -compose Over -composite \
+  "$RAW/.f-dark.png" -geometry +900+560 -compose Over -composite \
+  -resize 1600x -strip -define png:compression-level=9 "$OUT/hero.png"
+
+# Themes: the same page under six themes.
+tiles=()
+for theme in $GRID_THEMES; do
+  magick "$RAW/grid-$theme-1.png" -resize 50% "$RAW/.g-$theme.png"
+  frame "$RAW/.g-$theme.png" "$RAW/.gf-$theme.png" 16
+  tiles+=("$RAW/.gf-$theme.png")
+done
+montage "${tiles[@]}" -tile 3x2 -geometry +10+10 -background none "$RAW/.grid.png"
+w=$(magick identify -format %w "$RAW/.grid.png"); h=$(magick identify -format %h "$RAW/.grid.png")
+backdrop gruvbox $((w + 120)) $((h + 120)) "$RAW/.bg-grid.png"
+magick "$RAW/.bg-grid.png" "$RAW/.grid.png" -gravity center -compose Over -composite \
+  -resize 1600x -strip -define png:compression-level=9 "$OUT/themes.png"
+
+ls -1 "$OUT"

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Drive a private, offscreen OmaRead instance for behaviour checks.
+#
+#   tools/dev start [file…]     start it (instance "dev", state in /tmp)
+#   tools/dev open FILE[#a]     second launch: must hand off over IPC
+#   tools/dev state [n]         window n's state as JSON (-1 newest)
+#   tools/dev key SPEC [n]      j, G, ctrl+f, shift+space, escape, type:foo …
+#   tools/dev shot NAME [n]     grab window n to shots/dev/NAME.png
+#   tools/dev count | log | stop
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+export OMAREAD_INSTANCE=dev
+export OMAREAD_STATE_DIR="${OMAREAD_STATE_DIR:-${TMPDIR:-/tmp}/omaread-dev-state}"
+export XDG_STATE_HOME="${TMPDIR:-/tmp}/omaread-dev-xdgstate"
+export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-offscreen}"
+LOCK="${XDG_RUNTIME_DIR:-/tmp}/omaread/dev.lock"
+pid() { cat "$LOCK"; }
+call() { qs ipc --pid "$(pid)" call omaread "$@"; }
+
+case "${1:-}" in
+  # Wait on the log, not IPC: an IPC call during startup races Qt's portal
+  # registration and logs a harmless warning.
+  start) shift; "$ROOT/bin/omaread" "$@"
+    for _ in $(seq 50); do grep -q "Configuration Loaded" "$OMAREAD_STATE_DIR/qs.log" 2>/dev/null && break; sleep 0.1; done
+    sleep 0.3 ;;
+  open) shift; "$ROOT/bin/omaread" "$@" ;;
+  state) call state "${2:--1}" ;;
+  key) call key "${3:--1}" "$2" ;;
+  shot) mkdir -p "$ROOT/shots/dev"; call shot "${3:--1}" "$ROOT/shots/dev/$2.png"; sleep 0.3; echo "$ROOT/shots/dev/$2.png" ;;
+  count) call count ;;
+  log) cat "$OMAREAD_STATE_DIR/qs.log" ;;
+  stop) kill "$(pid)" 2>/dev/null || true ;;
+  *) sed -n '2,10p' "$0"; exit 1 ;;
+esac

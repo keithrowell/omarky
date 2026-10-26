@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Install OmaRead for this user: the launcher on PATH, the desktop entry and
+# the icon. Re-run after moving the repository. Does not change the default
+# Markdown app; see the README for the xdg-mime command.
+set -euo pipefail
+root="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+bin="$HOME/.local/bin"
+apps="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+icons="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/scalable/apps"
+mkdir -p "$bin" "$apps" "$icons"
+
+# Installing a text/markdown handler can silently change which app opens
+# Markdown when no default is set. Keep whatever opened it before; making
+# OmaRead the default stays a deliberate step (see the README).
+before="$(xdg-mime query default text/markdown 2>/dev/null || true)"
+
+# The library comes along as a submodule.
+git -C "$root" submodule update --init -q 2>/dev/null || true
+# The block editor's highlighter (optional: the sheet edits plain without it).
+"$root/bin/omaread" --build >/dev/null || echo "The native highlighter did not build; editing works without it. See ~/.local/state/omaread/build.log"
+ln -sfn "$root/bin/omaread" "$bin/omaread"
+# The same launcher under its old name opens straight into a comparison.
+ln -sfn "$root/bin/omaread" "$bin/omachanges"
+# OmaChanges was its own app until 0.4.0; its entry would open a repository that is gone.
+rm -f "$apps/omachanges.desktop" "$icons/omachanges.svg"
+sed -e "s|^Exec=.*|Exec=$root/bin/omaread %f|" -e "s|^Icon=.*|Icon=omaread|" \
+  "$root/ops/omaread.desktop" >"$apps/omaread.desktop"
+cp "$root/ops/omaread.svg" "$icons/omaread.svg"
+command -v update-desktop-database >/dev/null && update-desktop-database -q "$apps" || true
+command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -qtf "${icons%/scalable/apps}" 2>/dev/null || true
+
+after="$(xdg-mime query default text/markdown 2>/dev/null || true)"
+if [ -n "$before" ] && [ "$before" != "omaread.desktop" ] && [ "$after" != "$before" ]; then
+  xdg-mime default "$before" text/markdown
+  echo "Kept $before as the default for text/markdown."
+fi
+
+echo "Installed: $bin/omaread -> $root/bin/omaread"
+echo "           $bin/omachanges -> $root/bin/omaread"
+echo "           $apps/omaread.desktop"
+command -v syntax-highlighting >/dev/null 2>&1 || [ -f /usr/lib/qt6/qml/org/kde/syntaxhighlighting/qmldir ] \
+  || echo "Optional:  sudo pacman -S --needed syntax-highlighting   (code colours)"
+[ -x /usr/bin/ruby ] || echo "Needed:    sudo pacman -S --needed ruby   (the launcher runs on /usr/bin/ruby)"
+command -v git >/dev/null 2>&1 || echo "Optional:  sudo pacman -S --needed git   (changes mode)"
