@@ -26,8 +26,12 @@ Item {
   readonly property real measure: Math.min(width - gutter * 2, Math.round(metrics.averageCharacterWidth * 66))
   // Heading marks, list markers and quote marks hang in this gutter.
   readonly property real gutter: Math.round(size * 3.2)
-  readonly property real topPad: typewriter ? height / 2 : Math.max(Style.space(56), height * 0.12)
-  readonly property real bottomPad: height / 2
+  // A page's padding by default (half a window below, for typewriter
+  // scrolling); a host showing one block in a card sets smaller ones.
+  property real topPad: typewriter ? height / 2 : Math.max(Style.space(56), height * 0.12)
+  property real bottomPad: height / 2
+  // The text's height with the padding: what a card sizes itself to.
+  readonly property real contentHeight: flick.contentHeight
   readonly property bool typing: typingTimer.running
   readonly property real progress: flick.contentHeight > flick.height ? flick.contentY / (flick.contentHeight - flick.height) : 0
 
@@ -288,6 +292,8 @@ Item {
       if (root.apply(E.enter(t, edit.cursorPosition))) event.accepted = true
       return
     }
+    // Ctrl+Enter: "done" for a host that edits one piece of text (a sheet).
+    if ((k === Qt.Key_Return || k === Qt.Key_Enter) && ctrl) { root.command("submit"); event.accepted = true; return }
     if (k === Qt.Key_Tab && !ctrl && a === b) {
       if (!root.apply(E.indent(t, edit.cursorPosition, false))) edit.insert(edit.cursorPosition, "    ")
       event.accepted = true

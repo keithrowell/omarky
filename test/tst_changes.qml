@@ -27,6 +27,22 @@ TestCase {
     compare(added.insWords, 5)
   }
 
+  function test_paired_blocks_point_at_their_older_lines() {
+    var r = Changes.compare("# A\n\nold words here\n\nsame\n", "# A\n\nAn inserted paragraph.\n\nnew words here\n\nsame\n")
+    var reworded = r.blocks.filter(function(b) { return b.change === "reworded" })[0]
+    compare(reworded.fromStart, 2)
+    compare(reworded.fromEnd, 3)
+    compare(reworded.srcStart, 4)
+    var same = r.blocks[r.blocks.length - 1]
+    compare(same.change, "same")
+    compare(same.fromStart, 4)
+    var added = r.blocks.filter(function(b) { return b.change === "added" })[0]
+    compare(added.fromStart, undefined)
+    var rm = Changes.compare("# A\n\ngone\n", "# A\n").blocks.filter(function(b) { return b.change === "removed" })[0]
+    compare(rm.fromStart, 2)
+    compare(rm.fromEnd, 3)
+  }
+
   function test_identical_is_zero() {
     var r = Changes.compare("# A\n\nx y z\n", "# A\n\nx y z\n")
     compare(r.total, 0)

@@ -1,4 +1,4 @@
-# On Reading at Length
+A# On Reading at Length
 
 Most of what we read on a screen was never meant to be read slowly. It was meant to be scanned,
 skimmed, triaged and dismissed: the notification, the status line, the diff summary, the chat

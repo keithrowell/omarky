@@ -2,6 +2,12 @@
 
 Entries up to 0.4.0 are OmaRead's: this library was split out of it on 26 October 2026.
 
+## 0.2.1 (2026-10-26)
+
+- For OmaRead's block-editing sheet: the editor raises `submit` on Ctrl+Enter, its `topPad` and
+  `bottomPad` can be set by the host, and `contentHeight` says how tall its text is. Paired and
+  removed blocks from the diff engine carry `fromStart` and `fromEnd`, the older wording's lines.
+
 ## 0.2.0 (2026-10-26)
 
 - The editor comes in from OmaWriter: `components/Editor.qml` (its five settings are properties
