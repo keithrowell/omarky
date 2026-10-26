@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
-# Run the JS unit tests (ui/test/tst_*.qml) headless under Qt's V4 engine.
-#   tools/test [-functions name…]
+# The library's tests (vendor/omarky): the editor's text logic and the
+# native highlighter live there now, and this app has no QML tests of its
+# own. Arguments pass through, e.g. -input vendor/omarky/test/tst_editing.qml
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$ROOT/ui"
-export QT_QPA_PLATFORM=offscreen
-# /usr/bin/qmltestrunner is the Qt 5 one; use Qt 6.
-export QML_IMPORT_PATH="$ROOT/build/qml"
-exec /usr/lib/qt6/bin/qmltestrunner -input test "$@"
+exec "$ROOT/vendor/omarky/tools/test" "$@"

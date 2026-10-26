@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
 # End-to-end check of a real (offscreen) OmaWriter: typing, the editor's
 # keys, autosave to disk, a reload from disk, and a clean log.
+#   tools/check           with the native highlighter (built first if need be)
+#   tools/check --plain   without it: the editor must run as a plain TextEdit
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 work="$(mktemp -d)"
 trap 'kill "${pid:-0}" 2>/dev/null || true; rm -rf "$work"' EXIT
 export OMAWRITER_INSTANCE="check-$$" OMAWRITER_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
-export QML_IMPORT_PATH="$ROOT/build/qml"
+plain=0
+if [ "${1:-}" = "--plain" ]; then
+  plain=1; unset QML_IMPORT_PATH
+else
+  "$ROOT/bin/omawriter" --build
+  export QML_IMPORT_PATH="$ROOT/build/qml"
+fi
 file="$work/doc.md"
 OMAWRITER_OPEN="$file" qs --log-rules "qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false" \
   -p "$ROOT/ui/shell.qml" >"$work/qs.log" 2>&1 &
@@ -38,6 +46,12 @@ nap 0.8
 expect "a clean buffer takes a change on disk" "Rewritten by someone else." "$(ipc text -1)"
 state="$(ipc state -1)"
 echo "state $state"
+if [ $plain = 1 ]; then
+  expect "the editor runs plain without the module" '"highlighted":false' "$(printf '%s' "$state" | grep -o '"highlighted":[a-z]*')"
+  expect "the log says so" "1" "$(grep -c 'runs without the native highlighter' "$work/qs.log")"
+else
+  expect "the editor is painted by the module" '"highlighted":true' "$(printf '%s' "$state" | grep -o '"highlighted":[a-z]*')"
+fi
 if grep -E 'WARN|ERROR|CRIT' "$work/qs.log" | grep -vE 'WAYLAND_DISPLAY|running wayland|--- WARNING ---|window masks|by-path'; then
   echo "FAIL  the qs log is not clean"; fail=1
 else

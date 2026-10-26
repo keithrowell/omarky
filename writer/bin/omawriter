@@ -4,13 +4,15 @@
 #   omawriter [FILE.md …]   open files (each in its own window)
 #   omawriter               a new untitled document
 #   omawriter --end FILE.md open with the cursor at the end, ready to add
+#   omawriter --build       build the native highlighter and exit
 #   omawriter --foreground  run qs in this terminal (development)
 #   omawriter --version
 #
 # A running OmaWriter gets the files over IPC and opens new windows; this
 # script exits at once. Otherwise it starts one detached qs process, logging
-# to ~/.local/state/omawriter/qs.log. The native highlighter is built on
-# first run (or after a change to native/) into build/.
+# to ~/.local/state/omawriter/qs.log. The editor and its native highlighter
+# are Omarky's (vendor/omarky); the highlighter is built on first run, and
+# again after a change to its sources or a Qt upgrade, into build/.
 root = File.expand_path("..", __dir__)
 $LOAD_PATH.unshift(File.join(root, "vendor/omarky/launcher"))
 require "omarky"
@@ -20,6 +22,7 @@ argv = ARGV.dup
 exit app.help(__FILE__) if argv.include?("-h") || argv.include?("--help")
 exit app.version(File.join(root, "VERSION")) if argv.include?("-V") || argv.include?("--version")
 foreground = !argv.delete("--foreground").nil?
+build_only = !argv.delete("--build").nil?
 at_end = !argv.delete("--end").nil?
 # A tab and a flag after the path travel with it to the running instance.
 targets = argv.map do |a|
@@ -28,27 +31,18 @@ targets = argv.map do |a|
   at_end ? "#{path}\tend" : path
 end
 
-# The native module: rebuilt when a source in native/ is newer than it, or
-# when Qt has been upgraded (it uses one private Qt header, decision 0002).
-unless app.running_pid
-  mod = File.join(root, "build/qml/OmaWriter/Native/libomawriternative.so")
-  qt = `/usr/lib/qt6/bin/qtpaths --qt-version 2>/dev/null`.strip
-  stale = !File.file?(mod) ||
-          Dir.glob(File.join(root, "native/**/*")).any? { |f| File.file?(f) && File.mtime(f) > File.mtime(mod) } ||
-          qt != (File.read(File.join(root, "build/qt-version")).strip rescue "")
-  if stale
-    FileUtils.mkdir_p(app.state_dir)
-    log = File.join(app.state_dir, "build.log")
-    gen = system("which ninja >/dev/null 2>&1") ? ["-G", "Ninja"] : []
-    ok = system("cmake", "-S", File.join(root, "native"), "-B", File.join(root, "build"), *gen, "-DCMAKE_BUILD_TYPE=Release", out: log, err: log) &&
-         system("cmake", "--build", File.join(root, "build"), out: [log, "a"], err: [log, "a"])
-    unless ok
-      warn "omawriter: building the native highlighter failed; see #{log}"
-      system("notify-send", "OmaWriter", "Building the native highlighter failed: #{log}") if system("which notify-send >/dev/null 2>&1")
-      exit 1
-    end
-    File.write(File.join(root, "build/qt-version"), "#{qt}\n")
+native = Omarky::Native.new(root: root, source: File.join(root, "vendor/omarky/native"), state_dir: app.state_dir)
+import_path = nil
+if build_only || !app.running_pid
+  begin
+    import_path = native.ensure(required: true)
+  rescue Omarky::Native::BuildFailed => e
+    warn "omawriter: #{e.message}"
+    system("notify-send", "OmaWriter", e.message.sub(/\A./, &:upcase), out: File::NULL, err: File::NULL)
+    exit 1
   end
 end
-ENV["QML_IMPORT_PATH"] = [File.join(root, "build/qml"), ENV["QML_IMPORT_PATH"]].compact.reject(&:empty?).join(":")
-exit app.open(targets, foreground: foreground)
+exit 0 if build_only
+env = {}
+env["QML_IMPORT_PATH"] = [import_path, ENV["QML_IMPORT_PATH"]].compact.reject(&:empty?).join(":") if import_path
+exit app.open(targets, foreground: foreground, env: env)

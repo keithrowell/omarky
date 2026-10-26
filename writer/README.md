@@ -4,7 +4,7 @@ A Markdown editor for [Omarchy](https://omarchy.org), in the spirit of Byword. Y
 
 ![OmaWriter in tokyo-night](docs/screenshots/editor.png)
 
-Version 0.1.0. Built in QML on Quickshell, sharing OmaRead's theme handling and renderer, with one small native module for the live styling.
+Version 0.1.0. Built in QML on Quickshell on [Omarky](https://github.com/keithrowell/omarky), the library it shares with OmaRead: the editor, its one small native module for the live styling, the theme handling and the renderer all live there.
 
 ## Install
 
@@ -68,12 +68,11 @@ A file changed by another program while OmaWriter has it open is reloaded in pla
 
 | Path | Holds |
 |---|---|
-| `native/` | `MarkdownHighlighter`, the C++ QSyntaxHighlighter that paints the editor and sets its line layout |
-| `ui/app/` | The window, editor, file handling and settings, in QML |
-| `ui/app/editing.js` | The pure text logic behind the keys (tested) |
-| `vendor/omarky/` | [Omarky](https://github.com/keithrowell/omarky), the library shared with OmaRead: the renderer the preview uses, the theme and the chrome, as a submodule; `tools/vendor` moves it |
-| `tools/test` | Unit tests for `editing.js` and the native highlighter, headless |
-| `tools/check` | Drives an offscreen OmaWriter through IPC: keys, autosave, reload from disk, a clean log |
+| `ui/app/` | The window, the help sheet and the settings, in QML |
+| `vendor/omarky/` | [Omarky](https://github.com/keithrowell/omarky), the library shared with OmaRead, as a submodule: the editor (`Editor`, `Buffer`, `PopupMenu`, `lib/editing.js`), the native highlighter under `native/`, the renderer the preview uses, the theme and the chrome. `tools/vendor` moves it |
+| `bin/omawriter` | Ruby on `Omarky::Instance` and `Omarky::Native`: one background process, and the highlighter built into `build/` |
+| `tools/test` | The library's suites: `editing.js` and the native highlighter, headless |
+| `tools/check` | Drives an offscreen OmaWriter through IPC: keys, autosave, reload from disk, a clean log. `--plain` runs it without the native module |
 | `tools/shot` | Offscreen screenshot of a file under any Omarchy theme |
 
-The launcher rebuilds the native module when a file in `native/` changes or Qt is upgraded. `docs/decisions/` records why the highlighter is native and why its layout stays out of the undo history.
+The launcher rebuilds the native module when a file under `vendor/omarky/native/` changes or Qt is upgraded. The library's `docs/decisions/` (0014 to 0016) record why the highlighter is native, why its layout stays out of the undo history, and why the editor lives there.

@@ -4,12 +4,12 @@ import Quickshell
 import Quickshell.Io
 import qs.Commons
 import qs.services
-import qs.components as OmaRead
-import "editing.js" as E
+import qs.components
+import "../lib/editing.js" as E
 
 // One window per document: the editor, a header that steps aside while
 // you type, the word count, find, the preview (OmaRead's renderer), and
-// saving as you go.
+// saving as you go. The editor itself is Omarky's.
 FloatingWindow {
   id: win
 
@@ -297,6 +297,11 @@ FloatingWindow {
       id: editor
       anchors.fill: parent
       visible: !win.previewShown
+      focusMode: Settings.focus
+      typewriter: Settings.typewriter
+      spellCheck: Settings.spell
+      family: Settings.font
+      zoom: Settings.zoom
       onCommand: name => win.command(name)
       onContextMenu: (x, y, items) => menu.open(x, y, items)
       textEdit.onTextChanged: {
@@ -307,7 +312,7 @@ FloatingWindow {
       }
     }
 
-    OmaRead.MarkdownView {
+    MarkdownView {
       id: preview
       anchors.fill: parent
       anchors.topMargin: header.height
@@ -414,12 +419,12 @@ FloatingWindow {
         anchors.rightMargin: Style.space(10)
         anchors.verticalCenter: parent.verticalCenter
         spacing: Style.space(2)
-        OmaRead.ChipButton { icon: ""; size: Style.font.body; active: win.findShown; onClicked: win.command("find"); tip: "Find  Ctrl+F" }
-        OmaRead.ChipButton { icon: ""; size: Style.font.body; onClicked: win.command("font"); tip: "Font  Ctrl+Shift+M" }
-        OmaRead.ChipButton { icon: ""; size: Style.font.body; active: Settings.focus; onClicked: win.command("focus"); tip: "Focus  Ctrl+Shift+F" }
-        OmaRead.ChipButton { icon: ""; size: Style.font.body; active: Settings.typewriter; onClicked: win.command("typewriter"); tip: "Typewriter  Ctrl+Shift+T" }
-        OmaRead.ChipButton { icon: ""; size: Style.font.body; active: win.previewShown; onClicked: win.command("preview"); tip: "Preview  Ctrl+P" }
-        OmaRead.ChipButton { icon: ""; size: Style.font.body; active: win.helpShown; onClicked: win.command("help"); tip: "Shortcuts  Ctrl+/" }
+        ChipButton { icon: ""; size: Style.font.body; active: win.findShown; onClicked: win.command("find"); tip: "Find  Ctrl+F" }
+        ChipButton { icon: ""; size: Style.font.body; onClicked: win.command("font"); tip: "Font  Ctrl+Shift+M" }
+        ChipButton { icon: ""; size: Style.font.body; active: Settings.focus; onClicked: win.command("focus"); tip: "Focus  Ctrl+Shift+F" }
+        ChipButton { icon: ""; size: Style.font.body; active: Settings.typewriter; onClicked: win.command("typewriter"); tip: "Typewriter  Ctrl+Shift+T" }
+        ChipButton { icon: ""; size: Style.font.body; active: win.previewShown; onClicked: win.command("preview"); tip: "Preview  Ctrl+P" }
+        ChipButton { icon: ""; size: Style.font.body; active: win.helpShown; onClicked: win.command("help"); tip: "Shortcuts  Ctrl+/" }
       }
     }
 
@@ -442,7 +447,7 @@ FloatingWindow {
           font.family: Style.font.family
           font.pixelSize: Style.font.bodySmall
         }
-        OmaRead.ChipButton {
+        ChipButton {
           anchors.verticalCenter: parent.verticalCenter
           label: "Load theirs"
           size: Style.font.bodySmall
@@ -452,7 +457,7 @@ FloatingWindow {
             win.conflict = false
           }
         }
-        OmaRead.ChipButton {
+        ChipButton {
           anchors.verticalCenter: parent.verticalCenter
           label: "Keep mine"
           size: Style.font.bodySmall
@@ -475,7 +480,7 @@ FloatingWindow {
       border.width: 1
       border.color: Theme.hairline
 
-      OmaRead.Glyph {
+      Glyph {
         id: findIcon
         x: Style.space(12)
         anchors.verticalCenter: parent.verticalCenter
@@ -537,7 +542,7 @@ FloatingWindow {
       HoverHandler { id: countHover }
     }
 
-    // Progress along the top edge, as in OmaRead.
+    // Progress along the top edge, as in 
     Rectangle {
       height: 2
       width: parent.width * (win.previewShown ? preview.progress : editor.progress)
@@ -557,7 +562,7 @@ FloatingWindow {
       onClosed: editor.forceFocus()
     }
 
-    OmaRead.Toast { id: toast }
+    Toast { id: toast }
   }
 
   // Dev hooks for tools/ checks.
@@ -565,7 +570,8 @@ FloatingWindow {
     return {
       path: buffer.path, draft: draft, dirty: dirty, words: counts.words, preview: previewShown,
       focus: Settings.focus, typewriter: Settings.typewriter, font: Settings.font,
-      cursor: editor.textEdit.cursorPosition, length: editor.text.length, spell: editor.highlighter.spellAvailable
+      cursor: editor.textEdit.cursorPosition, length: editor.text.length, highlighted: editor.highlighted,
+      spell: editor.highlighter ? editor.highlighter.spellAvailable : false
     }
   }
   function debugType(s) { editor.textEdit.insert(editor.textEdit.cursorPosition, s) }

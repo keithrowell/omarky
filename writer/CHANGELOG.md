@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- The editor is Omarky's now: `Editor`, `Buffer`, `PopupMenu`, `editing.js` and the native
+  highlighter (the `Omarky.Native` module) moved into the library on 26 October so OmaRead can use
+  them too. OmaWriter binds its settings to the editor's properties and builds the module through
+  `Omarky::Native`; `omawriter --build` builds it on its own, and `tools/check --plain` proves the
+  editor still runs without it.
 - OmaRead's renderer comes from [Omarky](https://github.com/keithrowell/omarky), the library OmaRead and
   OmaWriter share, as a submodule at `vendor/omarky` in place of the copy taken on 17 October. The
   launcher is Ruby on `Omarky::Instance`, with the native build and `--end` as before.

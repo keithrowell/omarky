@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Install OmaWriter for this user: build the native highlighter, put the
-# launcher on PATH, add the desktop entry and the icon. Re-run after moving
+# Install OmaWriter for this user: fetch the library, build the native
+# highlighter, put the launcher on PATH, add the desktop entry and the icon. Re-run after moving
 # the repository. Does not change the default Markdown app; see the README.
 set -euo pipefail
 root="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
@@ -9,10 +9,8 @@ apps="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
 icons="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/scalable/apps"
 mkdir -p "$bin" "$apps" "$icons"
 
-gen=(); command -v ninja >/dev/null && gen=(-G Ninja)
-cmake -S "$root/native" -B "$root/build" "${gen[@]}" -DCMAKE_BUILD_TYPE=Release >/dev/null
-cmake --build "$root/build" >/dev/null
-/usr/lib/qt6/bin/qtpaths --qt-version >"$root/build/qt-version" 2>/dev/null || true
+git -C "$root" submodule update --init --quiet
+"$root/bin/omawriter" --build
 
 # A text/markdown handler can change which app opens Markdown when no
 # default is set; keep whatever opened it before.
