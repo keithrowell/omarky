@@ -1,12 +1,12 @@
 [Desktop Entry]
 Type=Application
-Name=OmaRead
+Name=OmarkyReader
 GenericName=Markdown Reader
 Comment=Read Markdown beautifully
-Exec=omaread %f
-Icon=omaread
+Exec=omarky read %f
+Icon=omarky-reader
 Terminal=false
 MimeType=text/markdown;
 Categories=Office;Viewer;
 Keywords=markdown;md;reader;viewer;diff;changes;
-StartupWMClass=omaread
+StartupWMClass=omarky-reader

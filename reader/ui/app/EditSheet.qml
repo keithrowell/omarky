@@ -4,7 +4,7 @@ import qs.Commons
 import qs.services
 import qs.components
 
-// `E` (a block) or `Shift+E` (a section): the file's own lines in OmaWriter's
+// `E` (a block) or `Shift+E` (a section): the file's own lines in OmarkyWriter's
 // editor, on a card over the page, with the blocks around them faint for
 // context. Ctrl+Enter splices the text back into the file and writes it
 // whole, atomically; Esc leaves the file alone. The reader never holds the

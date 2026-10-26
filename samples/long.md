@@ -1,6 +1,6 @@
 # A Very Long Document
 
-Five thousand lines and more, stitched from the other samples, to check that OmaRead opens big files quickly and scrolls them smoothly.
+Five thousand lines and more, stitched from the other samples, to check that OmarkyReader opens big files quickly and scrolls them smoothly.
 
 # Chapter 1: Prose
 
@@ -152,9 +152,9 @@ they never wrap.
 ### Short snippets
 
 ```bash
-## Open a file in OmaRead from anywhere
-omaread ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
-xdg-mime default omaread.desktop text/markdown
+## Open a file in OmarkyReader from anywhere
+omarky read ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
+xdg-mime default omarky-reader.desktop text/markdown
 ```
 
 ```ruby
@@ -199,7 +199,7 @@ ORDER BY calls DESC;
 ```
 
 ```json
-{ "name": "omaread", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
+{ "name": "omarky-reader", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
 ```
 
 ```yaml
@@ -232,7 +232,7 @@ TextEdit {
 ```
 
 ```lua
-hl.bind("SUPER + R", function() hl.exec("omaread ~/notes/today.md") end)
+hl.bind("SUPER + R", function() hl.exec("omarky read ~/notes/today.md") end)
 ```
 
 ```c
@@ -456,9 +456,9 @@ fade at the edge to show there is more.
 
 | Decision | Status | Owner | Date | Context | Consequence | Alternatives considered | Follow-up |
 |----------|--------|-------|------|---------|-------------|-------------------------|-----------|
-| Flat blocks in a ListView | accepted | OmaRead | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
-| Code colours from the theme | accepted | OmaRead | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
-| One reader, many windows | accepted | OmaRead | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
+| Flat blocks in a ListView | accepted | OmarkyReader | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
+| Code colours from the theme | accepted | OmarkyReader | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
+| One reader, many windows | accepted | OmarkyReader | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
 
 ### Ragged
 
@@ -481,7 +481,7 @@ fade at the edge to show there is more.
 
 ## Alerts
 
-GitHub's alert syntax turns a blockquote into a call-out. OmaRead draws each kind as a tinted card
+GitHub's alert syntax turns a blockquote into a call-out. OmarkyReader draws each kind as a tinted card
 in the matching theme colour, with an icon and a small mono title.
 
 > [!NOTE]
@@ -619,7 +619,7 @@ def reading_time(words, wpm=238):
 
 ### Image
 
-![A folded page with a reading line](../ops/omaread.svg)
+![A folded page with a reading line](../ops/omarky-reader.svg)
 
 ![A wide bitmap, scaled to the column with rounded corners](assets/dusk.png)
 
@@ -784,9 +784,9 @@ they never wrap.
 ### Short snippets
 
 ```bash
-## Open a file in OmaRead from anywhere
-omaread ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
-xdg-mime default omaread.desktop text/markdown
+## Open a file in OmarkyReader from anywhere
+omarky read ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
+xdg-mime default omarky-reader.desktop text/markdown
 ```
 
 ```ruby
@@ -831,7 +831,7 @@ ORDER BY calls DESC;
 ```
 
 ```json
-{ "name": "omaread", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
+{ "name": "omarky-reader", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
 ```
 
 ```yaml
@@ -864,7 +864,7 @@ TextEdit {
 ```
 
 ```lua
-hl.bind("SUPER + R", function() hl.exec("omaread ~/notes/today.md") end)
+hl.bind("SUPER + R", function() hl.exec("omarky read ~/notes/today.md") end)
 ```
 
 ```c
@@ -1088,9 +1088,9 @@ fade at the edge to show there is more.
 
 | Decision | Status | Owner | Date | Context | Consequence | Alternatives considered | Follow-up |
 |----------|--------|-------|------|---------|-------------|-------------------------|-----------|
-| Flat blocks in a ListView | accepted | OmaRead | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
-| Code colours from the theme | accepted | OmaRead | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
-| One reader, many windows | accepted | OmaRead | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
+| Flat blocks in a ListView | accepted | OmarkyReader | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
+| Code colours from the theme | accepted | OmarkyReader | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
+| One reader, many windows | accepted | OmarkyReader | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
 
 ### Ragged
 
@@ -1113,7 +1113,7 @@ fade at the edge to show there is more.
 
 ## Alerts
 
-GitHub's alert syntax turns a blockquote into a call-out. OmaRead draws each kind as a tinted card
+GitHub's alert syntax turns a blockquote into a call-out. OmarkyReader draws each kind as a tinted card
 in the matching theme colour, with an icon and a small mono title.
 
 > [!NOTE]
@@ -1251,7 +1251,7 @@ def reading_time(words, wpm=238):
 
 ### Image
 
-![A folded page with a reading line](../ops/omaread.svg)
+![A folded page with a reading line](../ops/omarky-reader.svg)
 
 ![A wide bitmap, scaled to the column with rounded corners](assets/dusk.png)
 
@@ -1416,9 +1416,9 @@ they never wrap.
 ### Short snippets
 
 ```bash
-## Open a file in OmaRead from anywhere
-omaread ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
-xdg-mime default omaread.desktop text/markdown
+## Open a file in OmarkyReader from anywhere
+omarky read ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
+xdg-mime default omarky-reader.desktop text/markdown
 ```
 
 ```ruby
@@ -1463,7 +1463,7 @@ ORDER BY calls DESC;
 ```
 
 ```json
-{ "name": "omaread", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
+{ "name": "omarky-reader", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
 ```
 
 ```yaml
@@ -1496,7 +1496,7 @@ TextEdit {
 ```
 
 ```lua
-hl.bind("SUPER + R", function() hl.exec("omaread ~/notes/today.md") end)
+hl.bind("SUPER + R", function() hl.exec("omarky read ~/notes/today.md") end)
 ```
 
 ```c
@@ -1720,9 +1720,9 @@ fade at the edge to show there is more.
 
 | Decision | Status | Owner | Date | Context | Consequence | Alternatives considered | Follow-up |
 |----------|--------|-------|------|---------|-------------|-------------------------|-----------|
-| Flat blocks in a ListView | accepted | OmaRead | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
-| Code colours from the theme | accepted | OmaRead | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
-| One reader, many windows | accepted | OmaRead | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
+| Flat blocks in a ListView | accepted | OmarkyReader | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
+| Code colours from the theme | accepted | OmarkyReader | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
+| One reader, many windows | accepted | OmarkyReader | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
 
 ### Ragged
 
@@ -1745,7 +1745,7 @@ fade at the edge to show there is more.
 
 ## Alerts
 
-GitHub's alert syntax turns a blockquote into a call-out. OmaRead draws each kind as a tinted card
+GitHub's alert syntax turns a blockquote into a call-out. OmarkyReader draws each kind as a tinted card
 in the matching theme colour, with an icon and a small mono title.
 
 > [!NOTE]
@@ -1883,7 +1883,7 @@ def reading_time(words, wpm=238):
 
 ### Image
 
-![A folded page with a reading line](../ops/omaread.svg)
+![A folded page with a reading line](../ops/omarky-reader.svg)
 
 ![A wide bitmap, scaled to the column with rounded corners](assets/dusk.png)
 
@@ -2048,9 +2048,9 @@ they never wrap.
 ### Short snippets
 
 ```bash
-## Open a file in OmaRead from anywhere
-omaread ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
-xdg-mime default omaread.desktop text/markdown
+## Open a file in OmarkyReader from anywhere
+omarky read ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
+xdg-mime default omarky-reader.desktop text/markdown
 ```
 
 ```ruby
@@ -2095,7 +2095,7 @@ ORDER BY calls DESC;
 ```
 
 ```json
-{ "name": "omaread", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
+{ "name": "omarky-reader", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
 ```
 
 ```yaml
@@ -2128,7 +2128,7 @@ TextEdit {
 ```
 
 ```lua
-hl.bind("SUPER + R", function() hl.exec("omaread ~/notes/today.md") end)
+hl.bind("SUPER + R", function() hl.exec("omarky read ~/notes/today.md") end)
 ```
 
 ```c
@@ -2352,9 +2352,9 @@ fade at the edge to show there is more.
 
 | Decision | Status | Owner | Date | Context | Consequence | Alternatives considered | Follow-up |
 |----------|--------|-------|------|---------|-------------|-------------------------|-----------|
-| Flat blocks in a ListView | accepted | OmaRead | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
-| Code colours from the theme | accepted | OmaRead | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
-| One reader, many windows | accepted | OmaRead | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
+| Flat blocks in a ListView | accepted | OmarkyReader | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
+| Code colours from the theme | accepted | OmarkyReader | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
+| One reader, many windows | accepted | OmarkyReader | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
 
 ### Ragged
 
@@ -2377,7 +2377,7 @@ fade at the edge to show there is more.
 
 ## Alerts
 
-GitHub's alert syntax turns a blockquote into a call-out. OmaRead draws each kind as a tinted card
+GitHub's alert syntax turns a blockquote into a call-out. OmarkyReader draws each kind as a tinted card
 in the matching theme colour, with an icon and a small mono title.
 
 > [!NOTE]
@@ -2515,7 +2515,7 @@ def reading_time(words, wpm=238):
 
 ### Image
 
-![A folded page with a reading line](../ops/omaread.svg)
+![A folded page with a reading line](../ops/omarky-reader.svg)
 
 ![A wide bitmap, scaled to the column with rounded corners](assets/dusk.png)
 
@@ -2680,9 +2680,9 @@ they never wrap.
 ### Short snippets
 
 ```bash
-## Open a file in OmaRead from anywhere
-omaread ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
-xdg-mime default omaread.desktop text/markdown
+## Open a file in OmarkyReader from anywhere
+omarky read ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
+xdg-mime default omarky-reader.desktop text/markdown
 ```
 
 ```ruby
@@ -2727,7 +2727,7 @@ ORDER BY calls DESC;
 ```
 
 ```json
-{ "name": "omaread", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
+{ "name": "omarky-reader", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
 ```
 
 ```yaml
@@ -2760,7 +2760,7 @@ TextEdit {
 ```
 
 ```lua
-hl.bind("SUPER + R", function() hl.exec("omaread ~/notes/today.md") end)
+hl.bind("SUPER + R", function() hl.exec("omarky read ~/notes/today.md") end)
 ```
 
 ```c
@@ -2984,9 +2984,9 @@ fade at the edge to show there is more.
 
 | Decision | Status | Owner | Date | Context | Consequence | Alternatives considered | Follow-up |
 |----------|--------|-------|------|---------|-------------|-------------------------|-----------|
-| Flat blocks in a ListView | accepted | OmaRead | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
-| Code colours from the theme | accepted | OmaRead | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
-| One reader, many windows | accepted | OmaRead | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
+| Flat blocks in a ListView | accepted | OmarkyReader | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
+| Code colours from the theme | accepted | OmarkyReader | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
+| One reader, many windows | accepted | OmarkyReader | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
 
 ### Ragged
 
@@ -3009,7 +3009,7 @@ fade at the edge to show there is more.
 
 ## Alerts
 
-GitHub's alert syntax turns a blockquote into a call-out. OmaRead draws each kind as a tinted card
+GitHub's alert syntax turns a blockquote into a call-out. OmarkyReader draws each kind as a tinted card
 in the matching theme colour, with an icon and a small mono title.
 
 > [!NOTE]
@@ -3147,7 +3147,7 @@ def reading_time(words, wpm=238):
 
 ### Image
 
-![A folded page with a reading line](../ops/omaread.svg)
+![A folded page with a reading line](../ops/omarky-reader.svg)
 
 ![A wide bitmap, scaled to the column with rounded corners](assets/dusk.png)
 
@@ -3312,9 +3312,9 @@ they never wrap.
 ### Short snippets
 
 ```bash
-## Open a file in OmaRead from anywhere
-omaread ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
-xdg-mime default omaread.desktop text/markdown
+## Open a file in OmarkyReader from anywhere
+omarky read ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
+xdg-mime default omarky-reader.desktop text/markdown
 ```
 
 ```ruby
@@ -3359,7 +3359,7 @@ ORDER BY calls DESC;
 ```
 
 ```json
-{ "name": "omaread", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
+{ "name": "omarky-reader", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
 ```
 
 ```yaml
@@ -3392,7 +3392,7 @@ TextEdit {
 ```
 
 ```lua
-hl.bind("SUPER + R", function() hl.exec("omaread ~/notes/today.md") end)
+hl.bind("SUPER + R", function() hl.exec("omarky read ~/notes/today.md") end)
 ```
 
 ```c
@@ -3616,9 +3616,9 @@ fade at the edge to show there is more.
 
 | Decision | Status | Owner | Date | Context | Consequence | Alternatives considered | Follow-up |
 |----------|--------|-------|------|---------|-------------|-------------------------|-----------|
-| Flat blocks in a ListView | accepted | OmaRead | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
-| Code colours from the theme | accepted | OmaRead | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
-| One reader, many windows | accepted | OmaRead | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
+| Flat blocks in a ListView | accepted | OmarkyReader | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
+| Code colours from the theme | accepted | OmarkyReader | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
+| One reader, many windows | accepted | OmarkyReader | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
 
 ### Ragged
 
@@ -3641,7 +3641,7 @@ fade at the edge to show there is more.
 
 ## Alerts
 
-GitHub's alert syntax turns a blockquote into a call-out. OmaRead draws each kind as a tinted card
+GitHub's alert syntax turns a blockquote into a call-out. OmarkyReader draws each kind as a tinted card
 in the matching theme colour, with an icon and a small mono title.
 
 > [!NOTE]
@@ -3779,7 +3779,7 @@ def reading_time(words, wpm=238):
 
 ### Image
 
-![A folded page with a reading line](../ops/omaread.svg)
+![A folded page with a reading line](../ops/omarky-reader.svg)
 
 ![A wide bitmap, scaled to the column with rounded corners](assets/dusk.png)
 
@@ -3944,9 +3944,9 @@ they never wrap.
 ### Short snippets
 
 ```bash
-## Open a file in OmaRead from anywhere
-omaread ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
-xdg-mime default omaread.desktop text/markdown
+## Open a file in OmarkyReader from anywhere
+omarky read ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
+xdg-mime default omarky-reader.desktop text/markdown
 ```
 
 ```ruby
@@ -3991,7 +3991,7 @@ ORDER BY calls DESC;
 ```
 
 ```json
-{ "name": "omaread", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
+{ "name": "omarky-reader", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
 ```
 
 ```yaml
@@ -4024,7 +4024,7 @@ TextEdit {
 ```
 
 ```lua
-hl.bind("SUPER + R", function() hl.exec("omaread ~/notes/today.md") end)
+hl.bind("SUPER + R", function() hl.exec("omarky read ~/notes/today.md") end)
 ```
 
 ```c
@@ -4248,9 +4248,9 @@ fade at the edge to show there is more.
 
 | Decision | Status | Owner | Date | Context | Consequence | Alternatives considered | Follow-up |
 |----------|--------|-------|------|---------|-------------|-------------------------|-----------|
-| Flat blocks in a ListView | accepted | OmaRead | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
-| Code colours from the theme | accepted | OmaRead | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
-| One reader, many windows | accepted | OmaRead | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
+| Flat blocks in a ListView | accepted | OmarkyReader | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
+| Code colours from the theme | accepted | OmarkyReader | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
+| One reader, many windows | accepted | OmarkyReader | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
 
 ### Ragged
 
@@ -4273,7 +4273,7 @@ fade at the edge to show there is more.
 
 ## Alerts
 
-GitHub's alert syntax turns a blockquote into a call-out. OmaRead draws each kind as a tinted card
+GitHub's alert syntax turns a blockquote into a call-out. OmarkyReader draws each kind as a tinted card
 in the matching theme colour, with an icon and a small mono title.
 
 > [!NOTE]
@@ -4411,7 +4411,7 @@ def reading_time(words, wpm=238):
 
 ### Image
 
-![A folded page with a reading line](../ops/omaread.svg)
+![A folded page with a reading line](../ops/omarky-reader.svg)
 
 ![A wide bitmap, scaled to the column with rounded corners](assets/dusk.png)
 
@@ -4576,9 +4576,9 @@ they never wrap.
 ### Short snippets
 
 ```bash
-## Open a file in OmaRead from anywhere
-omaread ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
-xdg-mime default omaread.desktop text/markdown
+## Open a file in OmarkyReader from anywhere
+omarky read ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
+xdg-mime default omarky-reader.desktop text/markdown
 ```
 
 ```ruby
@@ -4623,7 +4623,7 @@ ORDER BY calls DESC;
 ```
 
 ```json
-{ "name": "omaread", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
+{ "name": "omarky-reader", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
 ```
 
 ```yaml
@@ -4656,7 +4656,7 @@ TextEdit {
 ```
 
 ```lua
-hl.bind("SUPER + R", function() hl.exec("omaread ~/notes/today.md") end)
+hl.bind("SUPER + R", function() hl.exec("omarky read ~/notes/today.md") end)
 ```
 
 ```c
@@ -4880,9 +4880,9 @@ fade at the edge to show there is more.
 
 | Decision | Status | Owner | Date | Context | Consequence | Alternatives considered | Follow-up |
 |----------|--------|-------|------|---------|-------------|-------------------------|-----------|
-| Flat blocks in a ListView | accepted | OmaRead | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
-| Code colours from the theme | accepted | OmaRead | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
-| One reader, many windows | accepted | OmaRead | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
+| Flat blocks in a ListView | accepted | OmarkyReader | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
+| Code colours from the theme | accepted | OmarkyReader | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
+| One reader, many windows | accepted | OmarkyReader | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
 
 ### Ragged
 
@@ -4905,7 +4905,7 @@ fade at the edge to show there is more.
 
 ## Alerts
 
-GitHub's alert syntax turns a blockquote into a call-out. OmaRead draws each kind as a tinted card
+GitHub's alert syntax turns a blockquote into a call-out. OmarkyReader draws each kind as a tinted card
 in the matching theme colour, with an icon and a small mono title.
 
 > [!NOTE]
@@ -5043,7 +5043,7 @@ def reading_time(words, wpm=238):
 
 ### Image
 
-![A folded page with a reading line](../ops/omaread.svg)
+![A folded page with a reading line](../ops/omarky-reader.svg)
 
 ![A wide bitmap, scaled to the column with rounded corners](assets/dusk.png)
 
@@ -5208,9 +5208,9 @@ they never wrap.
 ### Short snippets
 
 ```bash
-## Open a file in OmaRead from anywhere
-omaread ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
-xdg-mime default omaread.desktop text/markdown
+## Open a file in OmarkyReader from anywhere
+omarky read ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
+xdg-mime default omarky-reader.desktop text/markdown
 ```
 
 ```ruby
@@ -5255,7 +5255,7 @@ ORDER BY calls DESC;
 ```
 
 ```json
-{ "name": "omaread", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
+{ "name": "omarky-reader", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
 ```
 
 ```yaml
@@ -5288,7 +5288,7 @@ TextEdit {
 ```
 
 ```lua
-hl.bind("SUPER + R", function() hl.exec("omaread ~/notes/today.md") end)
+hl.bind("SUPER + R", function() hl.exec("omarky read ~/notes/today.md") end)
 ```
 
 ```c

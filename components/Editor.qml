@@ -214,7 +214,7 @@ Item {
     }
   }
 
-  // ---- touchpad and wheel: OmaRead's Chromium-matched scrolling (its
+  // ---- touchpad and wheel: OmarkyReader's Chromium-matched scrolling (its
   // decision 0011), on the editor's Flickable.
   WheelHandler {
     target: null

@@ -7,13 +7,14 @@
 # real theme.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-F="${TMPDIR:-/tmp}/omaread-fake-theme"
+SUITE="$(cd "$ROOT/.." && pwd)"
+F="${TMPDIR:-/tmp}/omarky-reader-fake-theme"
 THEMES="$HOME/.local/share/omarchy/themes"
 rm -rf "$F"; mkdir -p "$F/current"
 cp -r "$THEMES/gruvbox" "$F/current/theme"; echo gruvbox >"$F/current/theme.name"
 
 "$ROOT/tools/dev" stop; sleep 1
-OMAREAD_THEME_DIR="$F/current/theme" "$ROOT/tools/dev" start "$ROOT/vendor/omarky/samples/code.md"; sleep 1.5
+OMARKY_THEME_DIR="$F/current/theme" "$ROOT/tools/dev" start "$SUITE/samples/code.md"; sleep 1.5
 for _ in 1 2; do "$ROOT/tools/dev" key space; done; sleep 0.6
 
 st() {

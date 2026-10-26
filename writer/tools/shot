@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# Screenshot OmaWriter offscreen: open FILE in a throwaway instance, run any
+# Screenshot OmarkyWriter offscreen: open FILE in a throwaway instance, run any
 # IPC commands, grab the window, quit. Never touches the real settings.
 #
 #   tools/shot FILE OUT.png [--theme NAME] [--size WxH] [--do "cmd args" …]
 #
-# --do runs `qs ipc call omawriter <cmd> -1 <args>` before the grab, e.g.
+# --do runs `qs ipc call omarky-writer <cmd> -1 <args>` before the grab, e.g.
 #   --do "command preview"  --do "cursor 120"  --do 'type hello'
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SUITE="$(cd "$ROOT/.." && pwd)"
 file="$(realpath "$1")"; out="$(realpath -m "$2")"; shift 2
 theme=""; size=""; actions=()
 while [ $# -gt 0 ]; do
@@ -21,31 +22,31 @@ done
 state="$(mktemp -d)"
 trap 'rm -rf "$state"; [ -n "${pid:-}" ] && kill "$pid" 2>/dev/null || true' EXIT
 [ -n "$size" ] && printf '{"shotSize":"%s"}' "$size" >/dev/null
-export OMAWRITER_INSTANCE="shot-$$" OMAWRITER_STATE_DIR="$state" QT_QPA_PLATFORM=offscreen
-export OMAWRITER_SIZE="$size"
+export OMARKY_WRITER_INSTANCE="shot-$$" OMARKY_WRITER_STATE_DIR="$state" QT_QPA_PLATFORM=offscreen
+export OMARKY_WRITER_SIZE="$size"
 if [ -n "$theme" ]; then
   for d in "$HOME/.config/omarchy/themes/$theme" "$HOME/.local/share/omarchy/themes/$theme"; do
-    [ -f "$d/colors.toml" ] && export OMAREAD_THEME_DIR="$d" && break
+    [ -f "$d/colors.toml" ] && export OMARKY_THEME_DIR="$d" && break
   done
 fi
-export QML_IMPORT_PATH="$ROOT/build/qml"
-export XDG_DATA_DIRS="$HOME/.local/share/omaread/ksh:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
-OMAWRITER_OPEN="$file" qs --log-rules "qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false" \
+export QML_IMPORT_PATH="$SUITE/build/qml"
+export XDG_DATA_DIRS="$HOME/.local/share/omarky/ksh:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+OMARKY_WRITER_OPEN="$file" qs --log-rules "qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false" \
   -p "$ROOT/ui/shell.qml" >"$state/qs.log" 2>&1 &
 pid=$!
-lock="${XDG_RUNTIME_DIR:-/tmp}/omawriter/$OMAWRITER_INSTANCE.lock"
+lock="${XDG_RUNTIME_DIR:-/tmp}/omarky-writer/$OMARKY_WRITER_INSTANCE.lock"
 for i in $(seq 50); do
-  qs ipc --pid "$pid" call omawriter count 2>/dev/null | grep -q '^[1-9]' && break
+  qs ipc --pid "$pid" call omarky-writer count 2>/dev/null | grep -q '^[1-9]' && break
   python3 -c 'import time; time.sleep(0.2)'
 done
 python3 -c 'import time; time.sleep(0.8)'
 for a in "${actions[@]+"${actions[@]}"}"; do
   read -r cmd rest <<<"$a"
-  qs ipc --pid "$pid" call omawriter "$cmd" -1 ${rest:+"$rest"} >/dev/null
+  qs ipc --pid "$pid" call omarky-writer "$cmd" -1 ${rest:+"$rest"} >/dev/null
   python3 -c 'import time; time.sleep(0.5)'
 done
 rm -f "$out"
-qs ipc --pid "$pid" call omawriter shot -1 "$out"
+qs ipc --pid "$pid" call omarky-writer shot -1 "$out"
 for i in $(seq 30); do [ -s "$out" ] && break; python3 -c 'import time; time.sleep(0.2)'; done
 grep -E 'WARN|ERROR|CRIT' "$state/qs.log" | grep -vE 'WAYLAND_DISPLAY|running wayland|--- WARNING ---|window masks' || true
 [ -s "$out" ] && echo "wrote $out" || { echo "no screenshot"; tail -20 "$state/qs.log"; exit 1; }

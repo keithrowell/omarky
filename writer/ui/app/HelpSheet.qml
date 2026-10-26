@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Io
 import qs.Commons
 import qs.services
-import qs.components as OmaRead
+import qs.components as OmarkyReader
 
 // Ctrl+/: every key on one quiet card over a scrim.
 Rectangle {
@@ -23,7 +23,7 @@ Rectangle {
 
   property string version: ""
   FileView {
-    path: Quickshell.shellDir + "/../VERSION"
+    path: Quickshell.shellDir + "/../../VERSION"
     printErrors: false
     onLoaded: root.version = text().trim()
   }
@@ -44,7 +44,7 @@ Rectangle {
       anchors.right: parent.right
       anchors.rightMargin: Style.space(24)
       y: Style.space(22)
-      text: "OmaWriter " + root.version
+      text: "OmarkyWriter " + root.version
       color: Theme.ghost
       font.family: Style.font.family
       font.pixelSize: Style.font.caption
@@ -75,7 +75,7 @@ Rectangle {
               required property var modelData
               width: column.width
               height: Style.space(26)
-              OmaRead.KeyCap { keys: modelData[0]; anchors.verticalCenter: parent.verticalCenter }
+              OmarkyReader.KeyCap { keys: modelData[0]; anchors.verticalCenter: parent.verticalCenter }
               Text {
                 x: Style.space(170)
                 anchors.verticalCenter: parent.verticalCenter

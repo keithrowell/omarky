@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
-# End-to-end check of changes mode in a real (offscreen) OmaRead: open the
+# End-to-end check of changes mode in a real (offscreen) OmarkyReader: open the
 # sample history compared with Danny, fold, step, pick a version, leave the
 # mode and come back from the list, a change on disk, and a clean log.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SUITE="$(cd "$ROOT/.." && pwd)"
 work="$(mktemp -d)"
 trap 'kill "${pid:-0}" 2>/dev/null || true; rm -rf "$work"' EXIT
-export OMAREAD_INSTANCE="check-$$" OMAREAD_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
-export OMAREAD_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
-file="$("$ROOT/vendor/omarky/samples/changes/make-repo" "$work/repo")"
-"$ROOT/bin/omaread" --foreground "$file" --from danny >"$work/qs.log" 2>&1 &
+export OMARKY_READER_INSTANCE="check-$$" OMARKY_READER_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
+export OMARKY_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
+file="$("$SUITE/samples/changes/make-repo" "$work/repo")"
+"$SUITE/bin/omarky" read --foreground "$file" --from danny >"$work/qs.log" 2>&1 &
 pid=$!
 nap() { python3 -c "import time; time.sleep($1)"; }
-ipc() { qs ipc --pid "$pid" call omaread "$@"; }
+ipc() { qs ipc --pid "$pid" call omarky-reader "$@"; }
 state() { ipc state -1; }
 field() { python3 -c "import json,sys; v=json.load(sys.stdin)$1; print(v if not isinstance(v, bool) else str(v).lower())"; }
 for i in $(seq 60); do ipc count 2>/dev/null | grep -q '^[1-9]' && break; nap 0.2; done
@@ -27,7 +28,7 @@ ge() { # name minimum actual
 }
 
 s="$(state)"
-expect "title is OmaRead's" "OmaRead — proposal.md" "$(echo "$s" | field '["title"]')"
+expect "title is OmarkyReader's" "OmarkyReader — proposal.md" "$(echo "$s" | field '["title"]')"
 expect "the file has history" "true" "$(echo "$s" | field '["hasHistory"]')"
 expect "compared with Danny" "Danny" "$(echo "$s" | field '["from"]')"
 expect "to is Now" "Now" "$(echo "$s" | field '["to"]')"

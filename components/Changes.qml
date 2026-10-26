@@ -6,7 +6,7 @@ import "../lib/diff/fold.js" as Fold
 
 // Changes mode for one window: the two sides being compared, the engine's
 // result as a prepared document for MarkdownView, and the fold. A side is
-// what `omaread FILE --resolve SPEC` prints: { label, who, name, when, long,
+// what `omarky read FILE --resolve SPEC` prints: { label, who, name, when, long,
 // sha, subject, body, text }, or { label: "Now", who: "Now" } for the file
 // on disk, whose text this item reads and watches itself.
 Item {

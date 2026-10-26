@@ -4,7 +4,7 @@ module Omarky
   # their targets to that process over IPC. Each app names itself and keeps
   # its own lock, state directory and environment prefix:
   #
-  #   app = Omarky::Instance.new(name: "omaread", root: ROOT, shell: "ui/shell.qml")
+  #   app = Omarky::Instance.new(name: "omarky-reader", root: ROOT, shell: "reader/ui/shell.qml", bin: "bin/omarky", prefix: "OMARKY_READER")
   #   app.open(["/abs/file.md"], foreground: false)
   #
   # The environment the window reads: <PREFIX>_OPEN (one target per line),
@@ -37,7 +37,7 @@ module Omarky
     # detached qs process, or exec it in the foreground. `env` is merged in
     # before qs starts, after the renderer's own XDG_DATA_DIRS entry.
     def open(targets, foreground: false, env: {})
-      ENV["XDG_DATA_DIRS"] = "#{Dir.home}/.local/share/omaread/ksh:#{ENV['XDG_DATA_DIRS'] || '/usr/local/share:/usr/share'}"
+      ENV["XDG_DATA_DIRS"] = "#{Dir.home}/.local/share/omarky/ksh:#{ENV['XDG_DATA_DIRS'] || '/usr/local/share:/usr/share'}"
       env.each { |k, v| ENV[k] = v }
       if (pid = running_pid)
         ok = (targets.empty? ? [""] : targets).all? do |t|

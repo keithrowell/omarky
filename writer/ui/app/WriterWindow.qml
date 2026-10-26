@@ -8,7 +8,7 @@ import qs.components
 import "../lib/editing.js" as E
 
 // One window per document: the editor, a header that steps aside while
-// you type, the word count, find, the preview (OmaRead's renderer), and
+// you type, the word count, find, the preview (OmarkyReader's renderer), and
 // saving as you go. The editor itself is Omarky's.
 FloatingWindow {
   id: win
@@ -40,7 +40,7 @@ FloatingWindow {
   signal newWindow()
   signal closeRequested()
 
-  title: "OmaWriter — " + fileName
+  title: "OmarkyWriter — " + fileName
   implicitWidth: Style.space(1100)
   implicitHeight: Style.space(900)
   color: Theme.bg

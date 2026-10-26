@@ -117,7 +117,7 @@ Item {
     }
 
     // http(s) and mailto open with xdg-open (or go to linkActivated);
-    // #anchors scroll; relative .md files open in a new OmaRead window;
+    // #anchors scroll; relative .md files open in a new OmarkyReader window;
     // other local files via xdg-open. With a web baseUrl, relative links
     // are web links; with a local one they are files beside it, as for a
     // path; a string with neither hands them to linkActivated as they are.

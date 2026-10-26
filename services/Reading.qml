@@ -17,9 +17,9 @@ Singleton {
   // the environment wins, so it stays a switch for comparing candidates
   // (docs/decisions/0005). A family that is not installed falls back to the
   // default, never to whatever Qt would substitute (lib/fonts.js).
-  //   OMAREAD_PROSE_FONT    prose, tables, lists (the measure follows it)
-  //   OMAREAD_HEADING_FONT  headings, "Family/Style"
-  //   OMAREAD_MONO_FONT     code and labels (OMAREAD_CODE_FONT still works)
+  //   OMARKY_PROSE_FONT    prose, tables, lists (the measure follows it)
+  //   OMARKY_HEADING_FONT  headings, "Family/Style"
+  //   OMARKY_MONO_FONT     code and labels (OMARKY_CODE_FONT still works)
   property string proseFamily: ""
   property string headingFamily: ""
   property string monoFamily: ""
@@ -33,12 +33,12 @@ Singleton {
   property var families: Qt.fontFamilies()
   function refreshFonts() { families = Qt.fontFamilies() }
 
-  readonly property string prose: Fonts.pick(Quickshell.env("OMAREAD_PROSE_FONT") || proseFamily, families, defaultProse)
-  readonly property string mono: Fonts.pick(Quickshell.env("OMAREAD_MONO_FONT") || Quickshell.env("OMAREAD_CODE_FONT") || monoFamily,
+  readonly property string prose: Fonts.pick(Quickshell.env("OMARKY_PROSE_FONT") || proseFamily, families, defaultProse)
+  readonly property string mono: Fonts.pick(Quickshell.env("OMARKY_MONO_FONT") || Quickshell.env("OMARKY_CODE_FONT") || monoFamily,
                                             families, defaultMono)
   readonly property var headingFont: {
     var d = defaultHeading.split("/")
-    return Fonts.pickStyled(Quickshell.env("OMAREAD_HEADING_FONT") || headingFamily || defaultHeading, families, d[0], d[1])
+    return Fonts.pickStyled(Quickshell.env("OMARKY_HEADING_FONT") || headingFamily || defaultHeading, families, d[0], d[1])
   }
   readonly property string heading: headingFont.family
   readonly property string headingStyle: headingFont.style
@@ -59,9 +59,9 @@ Singleton {
   readonly property real codeLeading: 1.5
 
   // Motion: durations collapse to zero under reduced motion, which is
-  // OMAREAD_REDUCED_MOTION=1 or Hyprland's animations switched off (Omarchy
+  // OMARKY_REDUCED_MOTION=1 or Hyprland's animations switched off (Omarchy
   // has no separate setting).
-  readonly property bool reducedMotion: Quickshell.env("OMAREAD_REDUCED_MOTION") === "1" || !hyprAnimations
+  readonly property bool reducedMotion: Quickshell.env("OMARKY_REDUCED_MOTION") === "1" || !hyprAnimations
   property bool hyprAnimations: true
   function motion(ms) { return reducedMotion ? 0 : ms }
   readonly property real ratio: 1.25

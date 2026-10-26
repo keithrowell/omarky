@@ -9,11 +9,11 @@ import "../lib/palette.js" as Palette
 // shell's Color singleton, and the reading tiers derived from them. Follows
 // theme switches live: the shell's own Color only reloads on shell IPC, so
 // this watches theme.name and feeds Color the new files itself (the
-// Factory's pattern). OMAREAD_THEME_DIR pins any theme directory instead.
+// Factory's pattern). OMARKY_THEME_DIR pins any theme directory instead.
 Singleton {
   id: root
 
-  readonly property string overrideDir: Quickshell.env("OMAREAD_THEME_DIR") || ""
+  readonly property string overrideDir: Quickshell.env("OMARKY_THEME_DIR") || ""
   readonly property string themeDir: Color.currentThemePath
   property var named: ({})
   property string currentName: ""

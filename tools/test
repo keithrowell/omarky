@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# The library's tests: the QML suites (test/tst_*.qml) under Qt's V4 engine,
-# then the launcher's Ruby suites. The native highlighter is built into
-# build/ first (Omarky::Native) so tst_highlighter runs against it; without
-# cmake that one suite is skipped.
+# Every test in the suite: the library's QML suites (test/tst_*.qml) under
+# Qt's V4 engine with the native highlighter built into build/ first, the
+# library's Ruby suites, then OmarkyReader's command-line suite.
 #   tools/test                            everything
 #   tools/test -input test/tst_words.qml  one QML suite
 #   tools/test --ruby                     Ruby only
@@ -34,5 +33,6 @@ fi
 [ "${1:-}" = "--ruby" ] && shift
 if [ $# -eq 0 ]; then
   for t in test/ruby/*_test.rb; do /usr/bin/ruby -I launcher -I test/ruby "$t" || status=1; done
+  reader/tools/test || status=1
 fi
 exit $status

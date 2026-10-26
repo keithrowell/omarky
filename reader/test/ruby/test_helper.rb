@@ -3,5 +3,5 @@ ENV["TZ"] = "Australia/Brisbane"
 require "minitest/autorun"
 require "tmpdir"
 require "fileutils"
-require "omaread"
-require "fixture_repo"   # the library's sample history (vendor/omarky/test/ruby)
+require "omarky_reader"
+require "fixture_repo"   # the library's sample history (test/ruby)

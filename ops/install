@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Install Omarky for this user: the `omarky` command on PATH, the desktop
+# entries and icons for OmarkyReader and OmarkyWriter, and the editor's
+# native highlighter (optional: the apps run without it). Re-run after
+# moving the repository or pulling. Does not change the default Markdown
+# app; see the README for the xdg-mime command.
+#
+# Where the earlier OmaRead and OmaWriter were installed, their commands
+# (omaread, omachanges, omawriter) become shims onto the subcommands, their
+# desktop entries are replaced, and their state (recent files, settings,
+# drafts) is copied to the new state directories once.
+set -euo pipefail
+root="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+bin="$HOME/.local/bin"
+apps="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+icons="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/scalable/apps"
+state="${XDG_STATE_HOME:-$HOME/.local/state}"
+mkdir -p "$bin" "$apps" "$icons"
+
+# Installing a text/markdown handler can silently change which app opens
+# Markdown when no default is set. Keep whatever opened it before.
+before="$(xdg-mime query default text/markdown 2>/dev/null || true)"
+
+ln -sfn "$root/bin/omarky" "$bin/omarky"
+
+# State from the earlier apps, before anything here creates the new directories.
+migrate() {   # old-dir new-dir
+  [ -d "$state/$1" ] && [ ! -d "$state/$2" ] || return 0
+  cp -r "$state/$1" "$state/$2"
+  rm -f "$state/$2/qs.log" "$state/$2/build.log"
+  echo "           $state/$1 copied to $state/$2"
+}
+migrate omaread omarky-reader
+migrate omawriter omarky-writer
+
+# The editor's highlighter: built when cmake and the Qt headers are there.
+"$root/bin/omarky" build >/dev/null \
+  || echo "The native highlighter did not build; the editor runs plain without it. See $state/omarky-reader/build.log"
+
+for app in reader writer; do
+  sed -e "s|^Exec=omarky|Exec=$root/bin/omarky|" -e "s|^Icon=.*|Icon=omarky-$app|" \
+    "$root/ops/omarky-$app.desktop" >"$apps/omarky-$app.desktop"
+  cp "$root/ops/omarky-$app.svg" "$icons/omarky-$app.svg"
+done
+
+# ---- the earlier apps, if they were here
+shim() {   # name subcommand
+  [ -e "$bin/$1" ] || [ -L "$bin/$1" ] || return 0
+  rm -f "$bin/$1"   # a symlink into the old checkout, never written through
+  printf '#!/bin/sh\nexec "%s" %s "$@"\n' "$root/bin/omarky" "$2" >"$bin/$1"
+  chmod +x "$bin/$1"
+  echo "           $bin/$1 -> omarky $2"
+}
+rm -f "$apps/omaread.desktop" "$apps/omawriter.desktop" "$apps/omachanges.desktop" \
+      "$icons/omaread.svg" "$icons/omawriter.svg" "$icons/omachanges.svg"
+if [ "$before" = "omaread.desktop" ]; then before="omarky-reader.desktop"; fi
+if [ "$before" = "omawriter.desktop" ]; then before="omarky-writer.desktop"; fi
+
+command -v update-desktop-database >/dev/null && update-desktop-database -q "$apps" || true
+command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -qtf "${icons%/scalable/apps}" 2>/dev/null || true
+
+after="$(xdg-mime query default text/markdown 2>/dev/null || true)"
+if [ -n "$before" ] && [ "$after" != "$before" ]; then
+  xdg-mime default "$before" text/markdown
+  echo "Kept $before as the default for text/markdown."
+fi
+
+echo "Installed: $bin/omarky -> $root/bin/omarky"
+echo "           $apps/omarky-reader.desktop, $apps/omarky-writer.desktop"
+shim omaread read
+shim omachanges changes
+shim omawriter write
+command -v syntax-highlighting >/dev/null 2>&1 || [ -f /usr/lib/qt6/qml/org/kde/syntaxhighlighting/qmldir ] \
+  || echo "Optional:  sudo pacman -S --needed syntax-highlighting   (code colours)"
+[ -x /usr/bin/ruby ] || echo "Needed:    sudo pacman -S --needed ruby   (the launcher runs on /usr/bin/ruby)"
+command -v git >/dev/null 2>&1 || echo "Optional:  sudo pacman -S --needed git   (changes mode)"

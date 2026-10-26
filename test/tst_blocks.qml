@@ -64,7 +64,7 @@ TestCase {
     compare(byKey.date.kind, "pill")
     compare(byKey.number.value, "0001")
     compare(byKey.deciders.kind, "list")
-    compare(byKey.deciders.items, ["OmaRead maintainers"])
+    compare(byKey.deciders.items, ["OmarkyReader maintainers"])
     compare(byKey.tags.items, ["rendering", "performance", "typography"])
     compare(byKey.summary.kind, "text")
     verify(byKey.summary.value.indexOf("The document is a flat list") === 0)
@@ -91,7 +91,7 @@ TestCase {
     compare(byKey.published_at.kind, "pill")
     compare(byKey.published_at.value, "2026-10-04 09:30")
     compare(byKey.teaser.kind, "text")
-    compare(byKey.author.value, "OmaRead maintainers")
+    compare(byKey.author.value, "OmarkyReader maintainers")
     // The heading after the metadata keeps its real source line.
     compare(doc.blocks[1].type, "heading")
     compare(doc.blocks[1].srcStart, 9)
@@ -317,7 +317,7 @@ TestCase {
 
   function test_every_sample_builds() {
     var names = ["kitchen-sink.md", "prose.md", "code.md", "tables.md", "alerts.md", "frontmatter.md", "bare-frontmatter.md",
-                 "malformed.md", "empty.md", "real/omaread-spec.md"]
+                 "malformed.md", "empty.md", "real/reader-spec.md"]
     for (var i = 0; i < names.length; i++) {
       var doc = Blocks.build(readSample(names[i]))
       verify(doc.blocks instanceof Array, names[i])

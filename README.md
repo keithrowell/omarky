@@ -1,8 +1,8 @@
 # Omarky
 
-The shared library behind [OmaRead](https://github.com/keithrowell/omaread) and [OmaWriter](https://github.com/keithrowell/omawriter), Keith Rowell's Markdown apps for [Omarchy](https://omarchy.org). It holds everything both apps draw on, so code can flow from either app into the other: the renderer, the diff engine, the chrome, the launcher, the tests and the samples. The apps are thin: a shell, a window, a header, and a launcher of a few lines.
+The shared library behind [OmarkyReader](https://github.com/keithrowell/omaread) and [OmarkyWriter](https://github.com/keithrowell/omawriter), Keith Rowell's Markdown apps for [Omarchy](https://omarchy.org). It holds everything both apps draw on, so code can flow from either app into the other: the renderer, the diff engine, the chrome, the launcher, the tests and the samples. The apps are thin: a shell, a window, a header, and a launcher of a few lines.
 
-Version 0.2.0. Split out of OmaRead 0.4.0 on 26 October 2026, and took in OmaWriter's editor the same day. QML on Quickshell, plain JavaScript, and Ruby for the launcher.
+Version 0.2.0. Split out of OmarkyReader 0.4.0 on 26 October 2026, and took in OmarkyWriter's editor the same day. QML on Quickshell, plain JavaScript, and Ruby for the launcher.
 
 ## What is here
 

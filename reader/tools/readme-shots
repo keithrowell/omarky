@@ -8,18 +8,19 @@
 # theme's own background and accent. Needs ImageMagick (magick).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SUITE="$(cd "$ROOT/.." && pwd)"
 RAW="$ROOT/shots/readme"
-OUT="$ROOT/docs/screenshots"
+OUT="$SUITE/docs/screenshots/reader"
 THEMES="$HOME/.local/share/omarchy/themes"
 mkdir -p "$RAW" "$OUT"
-export XDG_DATA_DIRS="$HOME/.local/share/omaread/ksh:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+export XDG_DATA_DIRS="$HOME/.local/share/omarky/ksh:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
 # The edit sheet's highlighter.
-"$ROOT/bin/omaread" --build >/dev/null && export QML_IMPORT_PATH="$ROOT/build/qml"
+"$SUITE/bin/omarky" read --build >/dev/null && export QML_IMPORT_PATH="$SUITE/build/qml"
 
 # Changes scenes read a sample git history, built fresh each run.
 rm -rf "$RAW/.changes-repo"
-CHANGES_FILE="$("$ROOT/vendor/omarky/samples/changes/make-repo" "$RAW/.changes-repo")"
-export OMAREAD_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
+CHANGES_FILE="$("$SUITE/samples/changes/make-repo" "$RAW/.changes-repo")"
+export OMARKY_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
 
 # name|theme|sample (under samples/, or an absolute path)|width|height|options (JSON)
 SCENES=(
@@ -30,7 +31,7 @@ SCENES=(
   "tables|flexoki-light|tables|1320|860|{\"anchor\":\"aligned\"}"
   "structure|tokyo-night|kitchen-sink|1320|860|{\"anchor\":\"lists\",\"outline\":true}"
   "alerts|rose-pine|alerts|1320|860|{}"
-  "find|gruvbox|real/omaread-spec|1320|860|{\"find\":\"quickshell\",\"reloaded\":true,\"outline\":true}"
+  "find|gruvbox|real/reader-spec|1320|860|{\"find\":\"quickshell\",\"reloaded\":true,\"outline\":true}"
   "changes|kanagawa|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"outline\":true,\"anchor\":\"situation\"}"
   "changes-fold|rose-pine|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"fold\":true,\"outline\":true}"
   "changes-versions|tokyo-night|$CHANGES_FILE|1320|860|{\"from\":\"danny\",\"versions\":true}"
@@ -41,13 +42,13 @@ GRID_THEMES="gruvbox tokyo-night matte-black catppuccin-latte rose-pine flexoki-
 render() {   # theme jobs-json
   local theme="$1" jobs="$2"
   printf '%s' "$jobs" >"$RAW/.$theme.json"
-  OMAREAD_THEME_DIR="$THEMES/$theme" OMAREAD_SHOT="$RAW/.$theme.json" OMAREAD_STATE_DIR="$ROOT/shots/.state" \
+  OMARKY_THEME_DIR="$THEMES/$theme" OMARKY_SHOT="$RAW/.$theme.json" OMARKY_READER_STATE_DIR="$ROOT/shots/.state" \
     QT_QPA_PLATFORM=offscreen QT_SCALE_FACTOR=2 \
     timeout 120 qs --log-rules "qt.qml.usedbeforedeclared=false" -p "$ROOT/ui/shell.qml" >"$RAW/.$theme.log" 2>&1
 }
 
 job() {   # name sample w h opts
-  local file="$2"; [ "${file#/}" = "$file" ] && file="$ROOT/vendor/omarky/samples/$2.md"
+  local file="$2"; [ "${file#/}" = "$file" ] && file="$SUITE/samples/$2.md"
   printf '{"file":"%s","name":"%s","w":%s,"h":%s,"pages":1,"opts":%s}' "$file" "$1" "$3" "$4" "$5"
 }
 

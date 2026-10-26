@@ -1,31 +1,32 @@
-module OmaRead
+module OmarkyReader
   # The command line. Turns each argument into a target the window
   # understands, then hands the targets to the running window process over
-  # IPC, or starts one with them in OMAREAD_OPEN.
+  # IPC, or starts one with them in OMARKY_READER_OPEN.
   #
   # A target is "PATH[#anchor]" to read a file, or "PATH[#anchor]\tFROM\tTO"
   # to read it compared with an earlier version. FROM and TO are the raw
-  # specs; the window resolves them by running `omaread PATH --resolve SPEC`.
+  # specs; the window resolves them by running `omarky read PATH --resolve SPEC`.
   # An empty TO means now; `--changes` sends "before now" as FROM.
+  #
+  # `omarky read …` and `omarky changes …` (changes: true, where a bare FILE
+  # means "show me its changes") both come here from bin/omarky.
   class CLI
     MODE_FLAGS = %w[--from --to --changes --list --resolve --versions]
 
-    def initialize(argv, root:, name: File.basename($0))
+    def initialize(argv, root:, changes: false)
       @argv = argv.dup
       @root = root
-      @name = name
-      @app = Omarky::Instance.new(name: "omaread", root: root)
-      @native = Omarky::Native.new(root: root, source: File.join(root, "vendor/omarky/native"), state_dir: @app.state_dir)
+      @changes = changes
+      @app = Omarky::Instance.new(name: "omarky-reader", root: root, shell: "reader/ui/shell.qml", bin: "bin/omarky", prefix: "OMARKY_READER")
+      @native = Omarky::Native.new(root: root, source: File.join(root, "native"), state_dir: @app.state_dir)
     end
 
     def run
       return help if @argv.include?("-h") || @argv.include?("--help")
-      return version if @argv.include?("-V") || @argv.include?("--version")
       opts, files = parse(@argv)
       return opts if opts.is_a?(Integer)
       return build if opts["--build"]
-      # Run as omachanges, a bare FILE means "show me its changes".
-      opts["--changes"] = true if @name == "omachanges" && !opts["--from"] && !opts["--to"]
+      opts["--changes"] = true if @changes && !opts["--from"] && !opts["--to"]
       mode = MODE_FLAGS.find { opts[_1] }
       targets = if mode
                   result = changes_target(opts, files, mode)
@@ -95,13 +96,13 @@ module OmaRead
     # The comparison flags: validate FILE, answer --list/--resolve/--versions,
     # or encode the FROM and TO specs for the window.
     def changes_target(opts, files, mode)
-      label = @name == "omachanges" && mode == "--changes" && !@argv.include?("--changes") ? "omachanges" : mode
+      label = @changes && mode == "--changes" && !@argv.include?("--changes") ? "changes" : mode
       return error("#{label} needs one FILE") unless files.size == 1
       file = files.first
       path, anchor = split_target(file)
       return error("#{file}: no such file") unless File.file?(path)
       history = Omarky::History.new(path)
-      now = ENV["OMAREAD_NOW"] ? Time.parse(ENV["OMAREAD_NOW"]) : Time.now
+      now = ENV["OMARKY_NOW"] ? Time.parse(ENV["OMARKY_NOW"]) : Time.now
       resolver = Omarky::Resolver.new(history, now: now)
       return print_json(Omarky::Versions.summary(history, resolver)) if opts["--versions"]
       to = opts["--to"]
@@ -144,11 +145,10 @@ module OmaRead
       0
     end
 
-    def help = @app.help(File.join(@root, "bin/omaread"))
-    def version = @app.version(File.join(@root, "VERSION"))
+    def help = @app.help(File.join(@root, "bin/omarky"))
 
     def error(msg)
-      warn "omaread: #{msg}"
+      warn "omarky: #{msg}"
       2
     end
   end

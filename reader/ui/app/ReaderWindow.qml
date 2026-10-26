@@ -15,7 +15,7 @@ FloatingWindow {
   id: win
   property string path: ""
   property string initialAnchor: ""
-  // Open comparing straight away: specs for `omaread FILE --resolve`.
+  // Open comparing straight away: specs for `omarky read FILE --resolve`.
   property string fromSpec: ""
   property string toSpec: ""
   readonly property string fileName: path ? path.split("/").pop() : ""
@@ -71,7 +71,7 @@ FloatingWindow {
   signal openFile(string path, string anchor)
   signal closeRequested()
 
-  title: fileName ? "OmaRead — " + fileName : "OmaRead"
+  title: fileName ? "OmarkyReader — " + fileName : "OmarkyReader"
   implicitWidth: Style.space(1180)
   implicitHeight: Style.space(900)
   color: Theme.bg
@@ -194,21 +194,21 @@ FloatingWindow {
   }
 
   // ---- the launcher answers questions about git; the window never runs it
-  // The launcher sets OMAREAD_BIN; the shell directory is ui/, one below the repository.
-  readonly property string launcher: Quickshell.env("OMAREAD_BIN") || (Quickshell.shellDir.replace(/\/ui$/, "") + "/bin/omaread")
+  // The launcher sets OMARKY_READER_BIN; the shell directory is reader/ui/, two below the suite.
+  readonly property string launcher: Quickshell.env("OMARKY_READER_BIN") || (Quickshell.shellDir.replace(/\/reader\/ui$/, "") + "/bin/omarky")
 
   Process {
     id: versionsProc
     stdout: StdioCollector {
       onStreamFinished: {
         if (!text.trim()) return
-        try { win.versions = JSON.parse(text) } catch (e) { console.warn("OmaRead: bad --versions output: " + e) }
+        try { win.versions = JSON.parse(text) } catch (e) { console.warn("OmarkyReader: bad --versions output: " + e) }
       }
     }
   }
   function refreshVersions() {
     if (!path) return
-    versionsProc.command = [launcher, path, "--versions"]
+    versionsProc.command = [launcher, "read", path, "--versions"]
     versionsProc.running = true
   }
   onPathChanged: { changes.clear(); refreshVersions() }
@@ -224,7 +224,7 @@ FloatingWindow {
   function resolveSpec(spec, side) {
     if (!path || !spec) return
     resolver.side = side || "from"
-    var cmd = [launcher, path, "--resolve", String(spec)]
+    var cmd = [launcher, "read", path, "--resolve", String(spec)]
     // The older end is found among the versions before the newer one.
     if (resolver.side === "from" && changes.to && changes.to.sha) cmd.push("--to", changes.to.sha)
     resolver.command = cmd

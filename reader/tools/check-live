@@ -5,9 +5,10 @@
 # state after each step: the top block should stay the same block.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-T="${TMPDIR:-/tmp}/omaread-live"
+SUITE="$(cd "$ROOT/.." && pwd)"
+T="${TMPDIR:-/tmp}/omarky-reader-live"
 mkdir -p "$T"
-cp "$ROOT/vendor/omarky/samples/prose.md" "$T/live.md"
+cp "$SUITE/samples/prose.md" "$T/live.md"
 "$ROOT/tools/dev" stop; sleep 1
 "$ROOT/tools/dev" start "$T/live.md"; sleep 1
 

@@ -28,7 +28,7 @@ Rectangle {
 
   property string version: ""
   FileView {
-    path: Qt.resolvedUrl("../../VERSION").toString().replace("file://", "")
+    path: Qt.resolvedUrl("../../../VERSION").toString().replace("file://", "")
     printErrors: false
     onLoaded: root.version = text().trim()
   }
@@ -50,7 +50,7 @@ Rectangle {
       anchors.right: parent.right
       anchors.rightMargin: Style.space(24)
       y: Style.space(22)
-      text: "OmaRead " + root.version
+      text: "OmarkyReader " + root.version
       color: Theme.ghost
       font.family: Style.font.family
       font.pixelSize: Style.font.caption

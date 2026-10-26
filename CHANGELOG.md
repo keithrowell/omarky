@@ -1,6 +1,18 @@
 # Changelog
 
-Entries up to 0.4.0 are OmaRead's: this library was split out of it on 26 October 2026.
+One version for the suite since 0.6.0. Before that: 0.1.0 to 0.2.1 are the library's, 0.4.0 and
+earlier are OmaRead's, and OmaRead 0.5.0 and OmaWriter 0.1.0 are in `docs/reader/CHANGELOG.md` and
+`docs/writer/CHANGELOG.md`.
+
+## 0.6.0 (2026-10-26)
+
+- Omarky is the suite: OmaRead is OmarkyReader, OmaWriter is OmarkyWriter, and both live in this
+  repository beside the library they share, with their histories. One command, `omarky`, with
+  `read`, `changes`, `write` and `build`; one `ops/install`; one version. Window classes are
+  `omarky-reader` and `omarky-writer`, state lives in `~/.local/state/omarky-reader` and
+  `omarky-writer`, and the environment is `OMARKY_READER_*`, `OMARKY_WRITER_*` and `OMARKY_*`.
+  The installer turns an earlier `omaread`, `omachanges` or `omawriter` into a shim and copies
+  their state across once.
 
 ## 0.2.1 (2026-10-26)
 

@@ -10,7 +10,7 @@ import "../lib/kshtheme.js" as Ksh
 // KSyntaxHighlighting reads themes only from disk, once, when its Repository
 // first loads, and QML cannot ask it to reload. So at startup this writes a
 // KSH theme generated from every Omarchy theme's colors.toml into
-// ~/.local/share/omaread/ksh (which bin/omaread puts on XDG_DATA_DIRS), and
+// ~/.local/share/omarky/ksh (which the launcher puts on XDG_DATA_DIRS), and
 // only then lets code blocks load the highlighter. A live theme switch just
 // picks another pre-generated theme; a theme KSH never saw falls back to
 // KSH's own light or dark default.
@@ -18,7 +18,7 @@ Singleton {
   id: root
 
   readonly property string home: Quickshell.env("HOME")
-  readonly property string dataDir: home + "/.local/share/omaread/ksh"
+  readonly property string dataDir: home + "/.local/share/omarky/ksh"
   readonly property string themesDir: dataDir + "/org.kde.syntax-highlighting/themes"
   // The generated themes are only visible when the launcher set this up.
   readonly property bool themesVisible: (Quickshell.env("XDG_DATA_DIRS") || "").split(":").indexOf(dataDir) >= 0
@@ -54,8 +54,8 @@ Singleton {
   }
 
   function start() {
-    // OMAREAD_NO_KSH=1 behaves as if the package were missing (for checks).
-    if (Quickshell.env("OMAREAD_NO_KSH") === "1") { ready = true; return }
+    // OMARKY_NO_KSH=1 behaves as if the package were missing (for checks).
+    if (Quickshell.env("OMARKY_NO_KSH") === "1") { ready = true; return }
     probe.running = true
   }
 
@@ -75,13 +75,13 @@ Singleton {
     }
   }
 
-  // Every Omarchy theme's colors.toml, plus an OMAREAD_THEME_DIR override.
+  // Every Omarchy theme's colors.toml, plus an OMARKY_THEME_DIR override.
   Process {
     id: collect
     command: ["sh", "-c",
       'for d in "$HOME/.local/share/omarchy/themes"/* "$HOME/.config/omarchy/themes"/* "$1"; do ' +
       '[ -f "$d/colors.toml" ] || continue; echo "@@THEME $(basename "$d")"; cat "$d/colors.toml"; echo; done',
-      "sh", Quickshell.env("OMAREAD_THEME_DIR") || "/nonexistent"]
+      "sh", Quickshell.env("OMARKY_THEME_DIR") || "/nonexistent"]
     stdout: StdioCollector {
       onStreamFinished: {
         var parts = text.split(/^@@THEME /m)
@@ -98,7 +98,7 @@ Singleton {
         }
         root.pending = made
         write.command = ["sh", "-c",
-          // Atomic (temp + rename) and only when changed: another OmaRead
+          // Atomic (temp + rename) and only when changed: another OmarkyReader
           // starting at the same moment may be reading these files.
           'd=$1; shift; mkdir -p "$d" || exit 1; while [ $# -gt 1 ]; do t="$d/.$1.$$"; printf "%s\\n" "$2" > "$t" && ' +
           '{ if cmp -s "$t" "$d/$1"; then rm -f "$t"; else mv -f "$t" "$d/$1"; fi; }; shift 2; done',
@@ -114,7 +114,7 @@ Singleton {
     id: write
     onExited: code => {
       if (code === 0) root.generated = root.pending
-      else console.warn("OmaRead: could not write KSH themes to " + root.themesDir)
+      else console.warn("OmarkyReader: could not write KSH themes to " + root.themesDir)
       root.ready = true
     }
   }

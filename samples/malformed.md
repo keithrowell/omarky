@@ -1,6 +1,6 @@
 # Malformed input
 
-Nothing here may crash OmaRead or leave a blank block.
+Nothing here may crash OmarkyReader or leave a blank block.
 
 ## Unclosed emphasis and links
 
@@ -65,8 +65,10 @@ supercalifragilistic supercalifragilistic supercalifragilistic supercalifragilis
 
 ## Binary junk
 
-Só'f§Ó^é7
-pl>mÔ ó:¢¡ófú9Ü#Kl%OÑ¯/¤1`·5¯nÇQxíu]M@Ì/³È?MáX»sJûl+ÂX'ï~l÷¬ÄËáÒQX²ZÍuØòFz³«¼´P¦ÿ¯ÓsI¸cä¬Yñw[,8ÅJ"¾@feëà+sgHã$ÒoÞHµký\¯ãbö<'.'<©<}Õ/DI&l_Rô!±Üô¨®¾uçßÈôà¯Íefge|£g1ý6q*X'ó^à6a'£AõY^z Ú}ÿûx{|P%ÀX¾D{Õ²*5ôô]&±ëÃMû¥Þ³ÙC^é+\Æ:ÈU£:ÐÊýÃÛ2Ï>Òg¾Î;4\¼þËHyC2²õYsÏðºýZõú^9;y3W5| ýçØ{é¨YÍ¥
+Só'f§
+Ó^é7
+pl>mÔ ó:¢¡óf
+ú9Ü#Kl%OÑ¯/¤1`·5¯nÇQxíu]M@Ì/³È?MáX»sJûl+ÂX'ï~l÷¬ÄËáÒQX²ZÍuØòFz³«¼´P¦ÿ¯ÓsI¸cä¬Yñw[,8ÅJ"¾@feëà+sgHã$ÒoÞHµký\¯ãbö<'.'<©<}Õ/DI&l_Rô!±Üô¨®¾uçßÈôà¯Íefge|£g1ý6q*X'ó^à6a'£AõY^z Ú}ÿûx{|P%ÀX¾D{Õ²*5ôô]&±ëÃMû¥Þ³ÙC^é+\Æ:ÈU£:ÐÊýÃÛ2Ï>Òg¾Î;4\¼þËHyC2²õYsÏðºýZõú^9;y3W5| ýçØ{é¨YÍ¥
 
 ## Stray HTML
 

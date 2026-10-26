@@ -39,9 +39,9 @@ fade at the edge to show there is more.
 
 | Decision | Status | Owner | Date | Context | Consequence | Alternatives considered | Follow-up |
 |----------|--------|-------|------|---------|-------------|-------------------------|-----------|
-| Flat blocks in a ListView | accepted | OmaRead | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
-| Code colours from the theme | accepted | OmaRead | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
-| One reader, many windows | accepted | OmaRead | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
+| Flat blocks in a ListView | accepted | OmarkyReader | 2026-09-30 | A 5,000-line document must open in under a second and scroll without dropped frames | Only the blocks on screen are built; nested structure lives inside each block | One rich-text document; a Flickable with every block built up front | Measure the worst scroll step on every release |
+| Code colours from the theme | accepted | OmarkyReader | 2026-09-30 | Built-in highlighting themes almost match the page, which looks worse than not matching at all | A highlighting theme is generated from each Omarchy colors.toml at start-up | The nearest built-in light or dark theme | Regenerate when a new theme appears |
+| One reader, many windows | accepted | OmarkyReader | 2026-09-30 | Several documents are open side by side while an agent works | A single process owns every window; a second launch hands its file over | One process per window | Measure memory with ten windows open |
 
 ## Ragged
 

@@ -18,12 +18,12 @@ than editing them, and keep the one local change below.
 Omarchy revision at copy time: `f632d26b` (2026-08-23).
 
 `Util.qml` is Omarchy's version. The Factory's copy (`~/lab/factory/ui/Commons/Util.qml`)
-adds an `execArgv()` helper; OmaRead does not need it, so it keeps the upstream file.
+adds an `execArgv()` helper; OmarkyReader does not need it, so it keeps the upstream file.
 
-`Ui/qmldir` is trimmed to the three components OmaRead uses.
+`Ui/qmldir` is trimmed to the three components OmarkyReader uses.
 
 ## Local change
 
-`Color.qml` line 18: `currentThemePath` reads `OMAREAD_THEME_DIR` first, so the app
+`Color.qml` line 18: `currentThemePath` reads `OMARKY_THEME_DIR` first, so the app
 (and `tools/screenshot`) can render under any theme directory without touching the
 real theme. Re-apply this one line after a refresh.

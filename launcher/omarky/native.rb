@@ -2,7 +2,7 @@ module Omarky
   # The library's one native piece, the editor's highlighter (native/), built
   # with CMake into an app's build/ directory:
   #
-  #   native = Omarky::Native.new(root: ROOT, source: "#{ROOT}/vendor/omarky/native", state_dir: app.state_dir)
+  #   native = Omarky::Native.new(root: ROOT, source: "#{ROOT}/native", state_dir: app.state_dir)
   #   path = native.ensure            # the import path, or nil when it cannot be built
   #   app.open(targets, env: { "QML_IMPORT_PATH" => path })
   #

@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-# The library's tests (vendor/omarky), then this app's Ruby tests.
-#   tools/test            everything
-#   tools/test --app      this app only
+# OmarkyReader's own tests: the command line, in Ruby. The library's suites
+# are the suite's tools/test, which runs these too.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SUITE="$(cd "$ROOT/.." && pwd)"
 cd "$ROOT"
 status=0
-[ "${1:-}" = "--app" ] || "$ROOT/vendor/omarky/tools/test" || status=1
 for t in test/ruby/*_test.rb; do
-  /usr/bin/ruby -I launcher -I vendor/omarky/launcher -I test/ruby -I vendor/omarky/test/ruby "$t" || status=1
+  /usr/bin/ruby -I launcher -I "$SUITE/launcher" -I test/ruby -I "$SUITE/test/ruby" "$t" || status=1
 done
 exit $status

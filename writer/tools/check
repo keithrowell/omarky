@@ -1,26 +1,27 @@
 #!/usr/bin/env bash
-# End-to-end check of a real (offscreen) OmaWriter: typing, the editor's
+# End-to-end check of a real (offscreen) OmarkyWriter: typing, the editor's
 # keys, autosave to disk, a reload from disk, and a clean log.
 #   tools/check           with the native highlighter (built first if need be)
 #   tools/check --plain   without it: the editor must run as a plain TextEdit
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SUITE="$(cd "$ROOT/.." && pwd)"
 work="$(mktemp -d)"
 trap 'kill "${pid:-0}" 2>/dev/null || true; rm -rf "$work"' EXIT
-export OMAWRITER_INSTANCE="check-$$" OMAWRITER_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
+export OMARKY_WRITER_INSTANCE="check-$$" OMARKY_WRITER_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
 plain=0
 if [ "${1:-}" = "--plain" ]; then
   plain=1; unset QML_IMPORT_PATH
 else
-  "$ROOT/bin/omawriter" --build
-  export QML_IMPORT_PATH="$ROOT/build/qml"
+  "$SUITE/bin/omarky" build
+  export QML_IMPORT_PATH="$SUITE/build/qml"
 fi
 file="$work/doc.md"
-OMAWRITER_OPEN="$file" qs --log-rules "qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false" \
+OMARKY_WRITER_OPEN="$file" qs --log-rules "qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false" \
   -p "$ROOT/ui/shell.qml" >"$work/qs.log" 2>&1 &
 pid=$!
 nap() { python3 -c "import time; time.sleep($1)"; }
-ipc() { qs ipc --pid "$pid" call omawriter "$@"; }
+ipc() { qs ipc --pid "$pid" call omarky-writer "$@"; }
 for i in $(seq 50); do ipc count 2>/dev/null | grep -q '^[1-9]' && break; nap 0.2; done
 nap 0.5
 fail=0

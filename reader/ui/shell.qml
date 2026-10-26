@@ -1,4 +1,4 @@
-//@ pragma AppId omaread
+//@ pragma AppId omarky-reader
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -7,13 +7,13 @@ import qs.services
 import qs.components
 import qs.app
 
-// OmaRead — a Markdown reader for Omarchy.
-//   bin/omaread [file.md …]   (or: OMAREAD_OPEN=/abs/file.md qs -p ui/shell.qml)
+// OmarkyReader — a Markdown reader for Omarchy.
+//   omarky read [file.md …]   (or: OMARKY_READER_OPEN=/abs/file.md qs -p reader/ui/shell.qml)
 //
 // Single instance, the Factory's way: the first copy holds a flock and
 // writes its pid into the lock file; a later copy finds the lock taken,
 // asks that pid over IPC to open its files in new windows, and exits.
-// bin/omaread takes the same shortcut before even starting qs.
+// bin/omarky takes the same shortcut before even starting qs.
 ShellRoot {
   id: shell
 
@@ -22,16 +22,16 @@ ShellRoot {
   readonly property color _palette: Theme.green
   readonly property bool _highlight: Highlight.ready
 
-  readonly property string shotSpec: Quickshell.env("OMAREAD_SHOT") || ""
-  readonly property string lockPath: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/omaread/"
-                                     + (Quickshell.env("OMAREAD_INSTANCE") || "omaread") + ".lock"
+  readonly property string shotSpec: Quickshell.env("OMARKY_SHOT") || ""
+  readonly property string lockPath: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/omarky-reader/"
+                                     + (Quickshell.env("OMARKY_READER_INSTANCE") || "omarky-reader") + ".lock"
   // "path" or "path#anchor", one per line.
-  readonly property var requested: (Quickshell.env("OMAREAD_OPEN") || "").split("\n").filter(function(l) { return l.trim() !== "" })
+  readonly property var requested: (Quickshell.env("OMARKY_READER_OPEN") || "").split("\n").filter(function(l) { return l.trim() !== "" })
   property bool primary: false
   property int nextId: 1
 
   // "path", "path#anchor", or "path[#anchor]<TAB>FROM<TAB>TO" to open
-  // comparing two versions (FROM and TO are specs for `omaread --resolve`;
+  // comparing two versions (FROM and TO are specs for `omarky read --resolve`;
   // an empty TO is the file on disk).
   function splitTarget(target) {
     var parts = String(target).split("\t")
@@ -87,11 +87,11 @@ ShellRoot {
     id: handOff
     command: ["sh", "-c",
       'lock=$1; shift; pid=$(cat "$lock" 2>/dev/null); [ -n "$pid" ] || exit 1; ' +
-      'if [ $# -eq 0 ]; then qs ipc --pid "$pid" call omaread open ""; fi; ' +
-      'for f in "$@"; do qs ipc --pid "$pid" call omaread open "$f"; done',
+      'if [ $# -eq 0 ]; then qs ipc --pid "$pid" call omarky-reader open ""; fi; ' +
+      'for f in "$@"; do qs ipc --pid "$pid" call omarky-reader open "$f"; done',
       "sh", shell.lockPath].concat(shell.requested)
     onExited: {
-      console.info("OmaRead is already running; opened the file there.")
+      console.info("OmarkyReader is already running; opened the file there.")
       Qt.quit()
     }
   }
@@ -114,9 +114,9 @@ ShellRoot {
     }
   }
 
-  // qs ipc --pid <pid> call omaread <fn> [args]
+  // qs ipc --pid <pid> call omarky-reader <fn> [args]
   IpcHandler {
-    target: "omaread"
+    target: "omarky-reader"
     enabled: shell.primary
     // "path", "path#anchor" or "path<TAB>FROM<TAB>TO"; "" opens an empty window.
     function open(target: string): void {

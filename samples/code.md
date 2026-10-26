@@ -7,9 +7,9 @@ they never wrap.
 ## Short snippets
 
 ```bash
-# Open a file in OmaRead from anywhere
-omaread ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
-xdg-mime default omaread.desktop text/markdown
+# Open a file in OmarkyReader from anywhere
+omarky read ~/notes/plans/2026-q4-roadmap-and-open-questions-for-the-reading-app.md
+xdg-mime default omarky-reader.desktop text/markdown
 ```
 
 ```ruby
@@ -54,7 +54,7 @@ ORDER BY calls DESC;
 ```
 
 ```json
-{ "name": "omaread", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
+{ "name": "omarky-reader", "version": "1.0.0", "recent": ["~/notes/plan.md", "~/specs/spec.md"], "zoom": 1.1 }
 ```
 
 ```yaml
@@ -87,7 +87,7 @@ TextEdit {
 ```
 
 ```lua
-hl.bind("SUPER + R", function() hl.exec("omaread ~/notes/today.md") end)
+hl.bind("SUPER + R", function() hl.exec("omarky read ~/notes/today.md") end)
 ```
 
 ```c

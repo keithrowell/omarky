@@ -1,4 +1,4 @@
-//@ pragma AppId omawriter
+//@ pragma AppId omarky-writer
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -7,12 +7,12 @@ import qs.services
 import qs.components
 import qs.app
 
-// OmaWriter — a Markdown editor for Omarchy.
-//   bin/omawriter [file.md …]   (or: OMAWRITER_OPEN=/abs/file.md qs -p ui/shell.qml)
+// OmarkyWriter — a Markdown editor for Omarchy.
+//   omarky write [file.md …]   (or: OMARKY_WRITER_OPEN=/abs/file.md qs -p writer/ui/shell.qml)
 //
-// Single instance, OmaRead's way: the first copy holds a flock and writes
+// Single instance, OmarkyReader's way: the first copy holds a flock and writes
 // its pid into the lock file; a later copy finds the lock taken, asks that
-// pid over IPC to open its files in new windows, and exits. bin/omawriter
+// pid over IPC to open its files in new windows, and exits. bin/omarky
 // takes the same shortcut before even starting qs.
 ShellRoot {
   id: shell
@@ -23,10 +23,10 @@ ShellRoot {
   readonly property bool _highlight: Highlight.ready
   readonly property bool _settings: Settings.loaded
 
-  readonly property string lockPath: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/omawriter/"
-                                     + (Quickshell.env("OMAWRITER_INSTANCE") || "omawriter") + ".lock"
+  readonly property string lockPath: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/omarky-writer/"
+                                     + (Quickshell.env("OMARKY_WRITER_INSTANCE") || "omarky-writer") + ".lock"
   // One path per line.
-  readonly property var requested: (Quickshell.env("OMAWRITER_OPEN") || "").split("\n").filter(function(l) { return l.trim() !== "" })
+  readonly property var requested: (Quickshell.env("OMARKY_WRITER_OPEN") || "").split("\n").filter(function(l) { return l.trim() !== "" })
   property bool primary: false
   property int nextId: 1
 
@@ -89,11 +89,11 @@ ShellRoot {
     id: handOff
     command: ["sh", "-c",
       'lock=$1; shift; pid=$(cat "$lock" 2>/dev/null); [ -n "$pid" ] || exit 1; ' +
-      'if [ $# -eq 0 ]; then qs ipc --pid "$pid" call omawriter open ""; fi; ' +
-      'for f in "$@"; do qs ipc --pid "$pid" call omawriter open "$f"; done',
+      'if [ $# -eq 0 ]; then qs ipc --pid "$pid" call omarky-writer open ""; fi; ' +
+      'for f in "$@"; do qs ipc --pid "$pid" call omarky-writer open "$f"; done',
       "sh", shell.lockPath].concat(shell.requested)
     onExited: {
-      console.info("OmaWriter is already running; opened the file there.")
+      console.info("OmarkyWriter is already running; opened the file there.")
       Qt.quit()
     }
   }
@@ -113,9 +113,9 @@ ShellRoot {
     }
   }
 
-  // qs ipc --pid <pid> call omawriter <fn> [args]
+  // qs ipc --pid <pid> call omarky-writer <fn> [args]
   IpcHandler {
-    target: "omawriter"
+    target: "omarky-writer"
     enabled: shell.primary
     // "" opens a new untitled document.
     function open(target: string): void { shell.open(target) }

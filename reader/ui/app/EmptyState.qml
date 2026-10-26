@@ -21,7 +21,7 @@ Item {
 
     Image {
       anchors.horizontalCenter: parent.horizontalCenter
-      source: "omaread.svg"
+      source: "omarky-reader.svg"
       sourceSize.width: Style.space(64)
       sourceSize.height: Style.space(64)
       opacity: 0.9

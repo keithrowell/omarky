@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Io
 
 // Screenshot driver (tools/screenshot). Reads a job list from the JSON file
-// named by OMAREAD_SHOT, opens each file in a fresh window at a fixed size,
+// named by OMARKY_SHOT, opens each file in a fresh window at a fixed size,
 // grabs the top and further pages by scrolling, then quits.
 //   { "out": dir, "jobs": [ { "file", "name", "w", "h", "pages", "opts": {} } ] }
 Item {

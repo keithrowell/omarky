@@ -3,18 +3,18 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// What OmaRead remembers across launches, under ~/.local/state/omaread:
+// What OmarkyReader remembers across launches, under ~/.local/state/omarky-reader:
 //   settings.json  { zoom }
 //   recent.json    [ "/abs/path.md", … ]  newest first, at most 20
-// Screenshot runs (OMAREAD_SHOT) neither read nor write it.
+// Screenshot runs (OMARKY_SHOT) neither read nor write it.
 Singleton {
   id: root
 
   // Screenshot runs never write, and only read a state dir named for them.
-  readonly property bool ephemeral: (Quickshell.env("OMAREAD_SHOT") || "") !== ""
-  readonly property bool readable: !ephemeral || (Quickshell.env("OMAREAD_STATE_DIR") || "") !== ""
-  readonly property string dir: (Quickshell.env("OMAREAD_STATE_DIR")
-    || (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/omaread")
+  readonly property bool ephemeral: (Quickshell.env("OMARKY_SHOT") || "") !== ""
+  readonly property bool readable: !ephemeral || (Quickshell.env("OMARKY_READER_STATE_DIR") || "") !== ""
+  readonly property string dir: (Quickshell.env("OMARKY_READER_STATE_DIR")
+    || (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/omarky-reader")
   property real zoom: 1.0
   property var recent: []
   readonly property int maxRecent: 20
@@ -61,7 +61,7 @@ Singleton {
         var s = JSON.parse(text())
         if (typeof s.zoom === "number" && isFinite(s.zoom)) root.zoom = Math.max(0.6, Math.min(2.2, s.zoom))
       } catch (e) {
-        console.warn("OmaRead: ignoring unreadable settings.json")
+        console.warn("OmarkyReader: ignoring unreadable settings.json")
       }
     }
   }
@@ -76,7 +76,7 @@ Singleton {
         var r = JSON.parse(text())
         if (r instanceof Array) root.recent = r.filter(function(p) { return typeof p === "string" }).slice(0, root.maxRecent)
       } catch (e) {
-        console.warn("OmaRead: ignoring unreadable recent.json")
+        console.warn("OmarkyReader: ignoring unreadable recent.json")
       }
     }
   }

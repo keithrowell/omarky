@@ -3,20 +3,20 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// What OmaWriter remembers across launches, under ~/.local/state/omawriter:
+// What OmarkyWriter remembers across launches, under ~/.local/state/omarky-writer:
 //   settings.json  { zoom, font, focus, typewriter, spell }
 //   recent.json    [ "/abs/path.md", … ]  newest first, at most 20
 //   drafts/        untitled documents, saved as you type
-// OMAWRITER_STATE_DIR moves all of it (screenshots and checks use one).
+// OMARKY_WRITER_STATE_DIR moves all of it (screenshots and checks use one).
 Singleton {
   id: root
 
-  readonly property string dir: Quickshell.env("OMAWRITER_STATE_DIR")
-    || (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/omawriter"
+  readonly property string dir: Quickshell.env("OMARKY_WRITER_STATE_DIR")
+    || (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/omarky-writer"
   readonly property string draftsDir: dir + "/drafts"
 
   property real zoom: 1.0
-  // The editor's family; the preview keeps OmaRead's.
+  // The editor's family; the preview keeps OmarkyReader's.
   property string font: "iA Writer Quattro S"
   readonly property var fonts: ["iA Writer Quattro S", "iA Writer Duospace", "iA Writer Mono S"]
   property bool focus: false
@@ -79,7 +79,7 @@ Singleton {
         if (typeof s.typewriter === "boolean") root.typewriter = s.typewriter
         if (typeof s.spell === "boolean") root.spell = s.spell
       } catch (e) {
-        console.warn("OmaWriter: ignoring unreadable settings.json")
+        console.warn("OmarkyWriter: ignoring unreadable settings.json")
       }
       root.loaded = true
     }
@@ -95,7 +95,7 @@ Singleton {
         var r = JSON.parse(text())
         if (r instanceof Array) root.recent = r.filter(function(p) { return typeof p === "string" }).slice(0, root.maxRecent)
       } catch (e) {
-        console.warn("OmaWriter: ignoring unreadable recent.json")
+        console.warn("OmarkyWriter: ignoring unreadable recent.json")
       }
     }
   }

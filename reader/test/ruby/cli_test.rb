@@ -1,17 +1,17 @@
 require_relative "test_helper"
 require "open3"
 
-# bin/omaread end to end. The window process is a fake `qs` on PATH that
+# `omarky read` end to end. The window process is a fake `qs` on PATH that
 # records its arguments and the environment it was started with.
 class CliTest < Minitest::Test
-  ROOT = File.expand_path("../..", __dir__)
-  BIN = File.join(ROOT, "bin/omaread")
+  ROOT = File.expand_path("../../..", __dir__)
+  BIN = File.join(ROOT, "bin/omarky")
   FAKE_QS = <<~'SH'
     #!/bin/sh
     out="${FAKE_QS_OUT:-/dev/stdout}"
     {
       printf 'argv:'; for a in "$@"; do printf ' [%s]' "$a"; done; printf '\n'
-      printf 'open<<%s>>\n' "$OMAREAD_OPEN"
+      printf 'open<<%s>>\n' "$OMARKY_READER_OPEN"
       printf 'data<<%s>>\n' "$XDG_DATA_DIRS"
     } >>"$out"
   SH
@@ -31,18 +31,18 @@ class CliTest < Minitest::Test
 
   # NOW is Sunday 25 Oct 2026, 10:00 +10:00. The fake qs is first on PATH,
   # the lock lives under a private runtime dir and the log under a private
-  # state dir, so a real OmaRead on this machine is never touched.
+  # state dir, so a real OmarkyReader on this machine is never touched.
   def env(extra = {})
-    { "OMAREAD_NOW" => "2026-10-25T10:00:00+10:00", "PATH" => "#{@bin}:#{ENV['PATH']}",
-      "XDG_RUNTIME_DIR" => @runtime, "OMAREAD_INSTANCE" => "test", "OMAREAD_STATE_DIR" => @state,
+    { "OMARKY_NOW" => "2026-10-25T10:00:00+10:00", "PATH" => "#{@bin}:#{ENV['PATH']}",
+      "XDG_RUNTIME_DIR" => @runtime, "OMARKY_READER_INSTANCE" => "test", "OMARKY_READER_STATE_DIR" => @state,
       "XDG_DATA_DIRS" => "/usr/share" }.merge(extra)
   end
 
   def run_cli(*args, env: {})
-    Open3.capture3(env(env), BIN, *args)
+    Open3.capture3(env(env), BIN, "read", *args)
   end
 
-  # The target lines the fake qs saw in OMAREAD_OPEN.
+  # The target lines the fake qs saw in OMARKY_READER_OPEN.
   def opened(out) = out[/^open<<(.*?)>>\n/m, 1]
 
   # --- reading --------------------------------------------------------------
@@ -50,8 +50,8 @@ class CliTest < Minitest::Test
   def test_help_prints_the_header_comment
     out, _, st = run_cli("--help")
     assert st.success?
-    assert_match(/\AOmaRead: a Markdown reader for Omarchy\.\n\n  omaread \[FILE\.md\[#anchor\] …\]/, out)
-    assert_includes out, "omaread FILE --changes"
+    assert_match(/\AOmarky: Markdown tools for Omarchy\.\n\n  omarky read FILE\.md\[#anchor\] …/, out)
+    assert_includes out, "omarky read FILE --changes"
     refute_match(/LOAD_PATH|^#!/, out)
     assert_equal out, run_cli("x.md", "-h").first
   end
@@ -65,16 +65,16 @@ class CliTest < Minitest::Test
   def test_version
     out, _, st = run_cli("-V")
     assert st.success?
-    assert_equal "omaread #{File.read(File.join(ROOT, 'VERSION')).strip}\n", out
+    assert_equal "omarky #{File.read(File.join(ROOT, 'VERSION')).strip}\n", out
   end
 
   def test_foreground_opens_each_file_in_order
     other = File.join(@dir, "other.md"); File.write(other, "# Other\n")
     out, _, st = run_cli("--foreground", @path, "#{other}#intro", env: { "HOME" => @dir })
     assert st.success?, out
-    assert_includes out, "argv: [--log-rules] [qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false] [-p] [#{ROOT}/ui/shell.qml]\n"
+    assert_includes out, "argv: [--log-rules] [qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false] [-p] [#{ROOT}/reader/ui/shell.qml]\n"
     assert_equal "#{@path}\n#{other}#intro", opened(out)
-    assert_includes out, "data<<#{@dir}/.local/share/omaread/ksh:/usr/share>>\n"
+    assert_includes out, "data<<#{@dir}/.local/share/omarky/ksh:/usr/share>>\n"
   end
 
   def test_no_args_opens_an_empty_window
@@ -84,7 +84,7 @@ class CliTest < Minitest::Test
   end
 
   def test_relative_paths_file_urls_and_missing_files
-    out, _, _ = Open3.capture3(env, BIN, "--foreground", "notes.md", "file://#{@path}", "missing.md#top", chdir: @dir)
+    out, _, _ = Open3.capture3(env, BIN, "read", "--foreground", "notes.md", "file://#{@path}", "missing.md#top", chdir: @dir)
     assert_equal "#{@dir}/notes.md\n#{@path}\n#{@dir}/missing.md#top", opened(out)
   end
 
@@ -100,13 +100,13 @@ class CliTest < Minitest::Test
     log = File.join(@state, "qs.log")
     20.times { break if File.file?(log) && File.read(log).include?("data<<"); sleep 0.1 }
     text = File.read(log)
-    assert_includes text, "[-p] [#{ROOT}/ui/shell.qml]"
+    assert_includes text, "[-p] [#{ROOT}/reader/ui/shell.qml]"
     assert_equal @path, opened(text)
   end
 
   def test_running_instance_gets_the_targets_over_ipc
-    FileUtils.mkdir_p(File.join(@runtime, "omaread"))
-    lock = File.join(@runtime, "omaread", "test.lock")
+    FileUtils.mkdir_p(File.join(@runtime, "omarky-reader"))
+    lock = File.join(@runtime, "omarky-reader", "test.lock")
     File.write(lock, "#{Process.pid}\n")
     record = File.join(@dir, "ipc.txt")
     File.open(lock) do |held|
@@ -114,22 +114,22 @@ class CliTest < Minitest::Test
       _, _, st = run_cli(@path, "#{@path}#team", env: { "FAKE_QS_OUT" => record })
       assert st.success?
       calls = File.read(record).lines.grep(/^argv:/)
-      assert_equal ["argv: [ipc] [--pid] [#{Process.pid}] [call] [omaread] [open] [#{@path}]\n",
-                    "argv: [ipc] [--pid] [#{Process.pid}] [call] [omaread] [open] [#{@path}#team]\n"], calls
+      assert_equal ["argv: [ipc] [--pid] [#{Process.pid}] [call] [omarky-reader] [open] [#{@path}]\n",
+                    "argv: [ipc] [--pid] [#{Process.pid}] [call] [omarky-reader] [open] [#{@path}#team]\n"], calls
       refute File.exist?(File.join(@state, "qs.log")), "must not start a second qs"
       File.delete(record)
       _, _, st = run_cli(env: { "FAKE_QS_OUT" => record })
       assert st.success?
-      assert_equal "argv: [ipc] [--pid] [#{Process.pid}] [call] [omaread] [open] []\n", File.read(record).lines.first
+      assert_equal "argv: [ipc] [--pid] [#{Process.pid}] [call] [omarky-reader] [open] []\n", File.read(record).lines.first
     end
   end
 
   def test_stale_lock_starts_a_new_instance
-    FileUtils.mkdir_p(File.join(@runtime, "omaread"))
-    File.write(File.join(@runtime, "omaread", "test.lock"), "#{Process.pid}\n")   # alive, but nobody holds the lock
+    FileUtils.mkdir_p(File.join(@runtime, "omarky-reader"))
+    File.write(File.join(@runtime, "omarky-reader", "test.lock"), "#{Process.pid}\n")   # alive, but nobody holds the lock
     out, _, st = run_cli("--foreground", @path)
     assert st.success?
-    assert_includes out, "[-p] [#{ROOT}/ui/shell.qml]"
+    assert_includes out, "[-p] [#{ROOT}/reader/ui/shell.qml]"
     assert_equal @path, opened(out)
   end
 
@@ -151,31 +151,31 @@ class CliTest < Minitest::Test
   end
 
   def test_changes_over_ipc
-    FileUtils.mkdir_p(File.join(@runtime, "omaread"))
-    lock = File.join(@runtime, "omaread", "test.lock")
+    FileUtils.mkdir_p(File.join(@runtime, "omarky-reader"))
+    lock = File.join(@runtime, "omarky-reader", "test.lock")
     File.write(lock, "#{Process.pid}\n")
     record = File.join(@dir, "ipc.txt")
     File.open(lock) do |held|
       held.flock(File::LOCK_EX | File::LOCK_NB)
       _, _, st = run_cli(@path, "--from", "danny", env: { "FAKE_QS_OUT" => record })
       assert st.success?
-      assert_equal "argv: [ipc] [--pid] [#{Process.pid}] [call] [omaread] [open] [#{@path}\tdanny\t]\n", File.read(record).lines.first
+      assert_equal "argv: [ipc] [--pid] [#{Process.pid}] [call] [omarky-reader] [open] [#{@path}\tdanny\t]\n", File.read(record).lines.first
     end
   end
 
   def test_changes_flags_need_one_existing_file
     _, err, st = run_cli("--changes")
     assert_equal 2, st.exitstatus
-    assert_equal "omaread: --changes needs one FILE\n", err
+    assert_equal "omarky: --changes needs one FILE\n", err
     _, err, st = run_cli("--from", "danny", @path, File.join(@dir, "SENT.md"))
     assert_equal 2, st.exitstatus
-    assert_equal "omaread: --from needs one FILE\n", err
+    assert_equal "omarky: --from needs one FILE\n", err
     _, err, st = run_cli("missing.md", "--changes")
     assert_equal 2, st.exitstatus
-    assert_equal "omaread: missing.md: no such file\n", err
+    assert_equal "omarky: missing.md: no such file\n", err
     _, err, st = run_cli(@path, "--from")
     assert_equal 2, st.exitstatus
-    assert_equal "omaread: --from needs a SPEC\n", err
+    assert_equal "omarky: --from needs a SPEC\n", err
   end
 
   def test_outside_a_repo
@@ -184,11 +184,11 @@ class CliTest < Minitest::Test
       %w[--changes --list].each do |flag|
         _, err, st = run_cli(f, flag)
         assert_equal 2, st.exitstatus, flag
-        assert_equal "omaread: #{f} is not in a git repository\n", err
+        assert_equal "omarky: #{f} is not in a git repository\n", err
       end
-      _, err, st = Open3.capture3(env, BIN, "x.md", "--from", "danny", chdir: d)
+      _, err, st = Open3.capture3(env, BIN, "read", "x.md", "--from", "danny", chdir: d)
       assert_equal 2, st.exitstatus
-      assert_equal "omaread: x.md is not in a git repository\n", err
+      assert_equal "omarky: x.md is not in a git repository\n", err
       out, _, st = run_cli("--foreground", f, "--to", "now")      # "now" is fine anywhere
       assert st.success?
       assert_equal "#{f}\tbefore now\tnow", opened(out)
@@ -277,22 +277,26 @@ class CliTest < Minitest::Test
     assert_equal 6, j["history"].size
   end
 
-  # --- run as omachanges ----------------------------------------------------
+  # --- omarky changes --------------------------------------------------------
 
-  def test_as_omachanges_a_bare_file_opens_its_changes
-    link = File.join(@bin, "omachanges")
-    File.symlink(BIN, link)
-    out, _, st = Open3.capture3(env, link, "--foreground", @path)
+  def test_changes_with_a_bare_file_opens_its_changes
+    out, _, st = Open3.capture3(env, BIN, "changes", "--foreground", @path)
     assert st.success?
     assert_equal "#{@path}\tbefore now\t", opened(out)
-    out, _, _ = Open3.capture3(env, link, "--foreground", @path, "--from", "danny")
+    out, _, _ = Open3.capture3(env, BIN, "changes", "--foreground", @path, "--from", "danny")
     assert_equal "#{@path}\tdanny\t", opened(out)
-    out, _, _ = Open3.capture3(env, link, "--foreground", @path, "--to", "danny")
+    out, _, _ = Open3.capture3(env, BIN, "changes", "--foreground", @path, "--to", "danny")
     assert_equal "#{@path}\tbefore danny\tdanny", opened(out)
-    _, err, st = Open3.capture3(env, link)
+    _, err, st = Open3.capture3(env, BIN, "changes")
     assert_equal 2, st.exitstatus
-    assert_equal "omaread: omachanges needs one FILE\n", err
-    out, _, _ = Open3.capture3(env, link, @path, "--list")
+    assert_equal "omarky: changes needs one FILE\n", err
+    out, _, _ = Open3.capture3(env, BIN, "changes", @path, "--list")
     assert_equal 6, out.lines.size
+  end
+
+  def test_unknown_command
+    _, err, st = Open3.capture3(env, BIN, "frobnicate")
+    assert_equal 2, st.exitstatus
+    assert_match(/unknown command/, err)
   end
 end

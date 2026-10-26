@@ -1,11 +1,11 @@
 # The quiet page
 
-Writing is easier when the page gets out of the way. **OmaWriter** keeps the Markdown you type exactly as it is, and paints it so it reads well: *emphasis* leans, `code` sits in a chip, and the marks that make it happen step back.
+Writing is easier when the page gets out of the way. **OmarkyWriter** keeps the Markdown you type exactly as it is, and paints it so it reads well: *emphasis* leans, `code` sits in a chip, and the marks that make it happen step back.
 
 ## What it does
 
 - Heading marks, list markers and quote marks hang in the margin.
-- Links read as links: see [OmaRead](https://github.com/keithrowell/omaread) for the reader.
+- Links read as links: see [OmarkyReader](https://github.com/keithrowell/omarky) for the reader.
 - Tasks look like tasks:
   - [x] Write the highlighter
   - [ ] Write the rest of the essay

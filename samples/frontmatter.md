@@ -3,7 +3,7 @@ title: Render each Markdown block as its own native component
 number: 0001
 status: accepted
 date: 2026-09-30
-deciders: [OmaRead maintainers]
+deciders: [OmarkyReader maintainers]
 tags:
   - rendering
   - performance
@@ -13,7 +13,7 @@ summary: >
   The document is a flat list of blocks, and each block type gets its own QML component,
   instead of one rich-text document or a web view. Tables, code and alerts can then be drawn
   the way a designer would draw them, and a long file only builds what is on screen.
-links: https://github.com/keithrowell/omaread/blob/main/docs/decisions/0001-flat-blocks-in-a-listview.md
+links: https://github.com/keithrowell/omarky/blob/main/docs/decisions/0001-flat-blocks-in-a-listview.md
 draft: false
 ---
 

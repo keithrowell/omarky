@@ -14,8 +14,8 @@ QtObject {
 
   readonly property string home: Quickshell.env("HOME")
   readonly property string stateHome: home + "/.local/state"
-  // OmaRead: OMAREAD_THEME_DIR points the app at any theme directory (screenshots, previews).
-  readonly property string currentThemePath: Quickshell.env("OMAREAD_THEME_DIR") || (stateHome + "/omarchy/current/theme")
+  // OmarkyReader: OMARKY_THEME_DIR points the app at any theme directory (screenshots, previews).
+  readonly property string currentThemePath: Quickshell.env("OMARKY_THEME_DIR") || (stateHome + "/omarchy/current/theme")
 
   property color foreground: "#cacccc"
   property color background: "#101315"

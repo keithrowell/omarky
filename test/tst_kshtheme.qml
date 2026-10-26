@@ -8,8 +8,8 @@ TestCase {
   function test_maps_palette_roles() {
     var t = Ksh.theme({ foreground: "#d4be98", background: "#282828", red: "#ea6962", green: "#a9b665",
                         yellow: "#d8a657", blue: "#7daea3", magenta: "#d3869b", cyan: "#89b482", orange: "#e1875c" },
-                      "OmaRead gruvbox")
-    compare(t.metadata.name, "OmaRead gruvbox")
+                      "OmarkyReader gruvbox")
+    compare(t.metadata.name, "OmarkyReader gruvbox")
     compare(t["text-styles"].Normal["text-color"], "#d4be98")
     compare(t["text-styles"].String["text-color"], "#a9b665")
     compare(t["text-styles"].Keyword["text-color"], "#d3869b")
@@ -29,7 +29,7 @@ TestCase {
   }
 
   function test_names() {
-    compare(Ksh.themeName("tokyo-night"), "OmaRead tokyo-night")
-    compare(Ksh.fileName("my theme/x"), "omaread-my_theme_x.theme")
+    compare(Ksh.themeName("tokyo-night"), "OmarkyReader tokyo-night")
+    compare(Ksh.fileName("my theme/x"), "omarky-my_theme_x.theme")
   }
 }

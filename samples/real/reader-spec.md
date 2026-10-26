@@ -1,11 +1,11 @@
-# OmaRead: a beautiful Markdown reader for Omarchy
+# OmarkyReader: a beautiful Markdown reader for Omarchy
 
 Status: approved design, 30 Sep 2026. Build from this document alone. The conversation that
 produced it is gone; everything you need is here or in the files it points to.
 
 ## 1. What and why
 
-OmaRead is a desktop app that **opens a Markdown file and renders it beautifully**. It is a
+OmarkyReader is a desktop app that **opens a Markdown file and renders it beautifully**. It is a
 reader only. The owner (Keith) reads a lot of Markdown every day: specs, ADRs and plans, much of it
 written by agents. He wants reading it to feel as good as Byword or iA Writer's preview, only more
 polished, and native to his Omarchy (Hyprland) desktop.
@@ -18,7 +18,7 @@ loves. It is built the same way, a native Quickshell QML app on Omarchy's own sh
 Take its visual language (spacing, hairlines, tinted surfaces, live theme colours, the diff look)
 and push it further for long-form reading. Don't copy its screens.
 
-Omarchy already ships an editor, **Omawrite**. OmaRead is not an editor, and it does not compete
+Omarchy already ships an editor, **Omawrite**. OmarkyReader is not an editor, and it does not compete
 with it.
 
 ### Non-goals (v1)
@@ -91,7 +91,7 @@ with it.
     `colors.toml`/`shell.toml`, feed `Color`, and call `Style.scheduleRefresh()`. Colours must
     change live, with no reload and without losing the scroll position.
   - Other themes live under `~/.local/share/omarchy/themes/<name>/colors.toml`. Use them for
-    screenshots (§8). **Never switch Keith's real theme.** Provide an `OMAREAD_THEME_DIR` env
+    screenshots (§8). **Never switch Keith's real theme.** Provide an `OMARKY_THEME_DIR` env
     override instead.
 
 ## 3. Repository layout (suggested; improve it if you find a better one)
@@ -100,7 +100,7 @@ with it.
 shell.qml            ShellRoot: single instance, IPC, one window per open file
 bin/omaread          launcher: resolves the file path, hands it to a running instance or starts qs
 Commons/ Ui/         copied from the Omarchy shell (see §2)
-services/Theme.qml   palette + live theme following (+ OMAREAD_THEME_DIR override)
+services/Theme.qml   palette + live theme following (+ OMARKY_THEME_DIR override)
 services/Doc.qml     loads a file, watches it, parses it, exposes the block model
 lib/blocks.js        markdown-it tokens → a flat array of block objects (pure JS, unit-tested)
 lib/inline.js        inline tokens → Qt rich-text (StyledText/HTML subset) with theme colours
@@ -170,7 +170,7 @@ the theme's tiers: `text`, `dim`, `faint`, `raised`, `sunken`, `hairline` as in 
     needed.
 - **Single instance.** Copy the Factory `shell.qml` pattern: a flock plus an `IpcHandler`. A second
   `omaread file.md` asks the running instance to open that file in a **new window**, then exits.
-  One `FloatingWindow` per file; Hyprland tiles it. The window title is `OmaRead — file.md`. Set a
+  One `FloatingWindow` per file; Hyprland tiles it. The window title is `OmarkyReader — file.md`. Set a
   stable class/app id so Hyprland rules can target it.
 - **Header.**
   - A slim bar: file name, a dim parent path, and a small "reloaded" pulse after a live reload.
@@ -190,7 +190,7 @@ the theme's tiers: `text`, `dim`, `faint`, `raised`, `sunken`, `hairline` as in 
   - Esc closes the bar.
 - **Links.**
   - `http(s)` and `mailto` links open with `xdg-open`.
-  - Relative `.md` links open in OmaRead in a new window, honouring any `#anchor`.
+  - Relative `.md` links open in OmarkyReader in a new window, honouring any `#anchor`.
   - `#anchor` links scroll within the document.
   - Other local files open with `xdg-open`.
 - **Copy.**
@@ -207,7 +207,7 @@ the theme's tiers: `text`, `dim`, `faint`, `raised`, `sunken`, `hairline` as in 
   - Ctrl+W closes the window, q closes it too.
   - Ctrl+R reloads.
   - `?` shows a small shortcut sheet.
-- **Recent files.** Keep the last 20 in `~/.local/state/omaread/recent.json`.
+- **Recent files.** Keep the last 20 in `~/.local/state/omarky-reader/recent.json`.
 - **Motion.**
   - Content fades in on open (about 150 ms).
   - Scrolling to a heading is smooth.
@@ -280,7 +280,7 @@ Stop and ask only if something is **impossible** as specified. In that case writ
   a narrow 800×1000), capturing the top and further pages by scrolling. Use `Item.grabToImage`
   inside the app behind a `--screenshot` env/flag. Try `QT_QPA_PLATFORM=offscreen` first; if
   Quickshell misbehaves offscreen, show real windows briefly and close them. Use
-  `OMAREAD_THEME_DIR`, never Keith's real theme switch.
+  `OMARKY_THEME_DIR`, never Keith's real theme switch.
 - Review shots with your own eyes (Read the PNGs) at every step. That review is the real test of
   this project.
 
@@ -288,7 +288,7 @@ Stop and ask only if something is **impossible** as specified. In that case writ
 
 - `bin/omaread` must work from anywhere: symlink it into `~/.local/bin`.
 - `ops/omaread.desktop` contains:
-  - `Name=OmaRead`
+  - `Name=OmarkyReader`
   - `Exec=<repo>/bin/omaread %f`
   - `MimeType=text/markdown;`
   - `Categories=Office;Viewer;`

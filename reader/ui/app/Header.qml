@@ -78,7 +78,7 @@ Rectangle {
       anchors.verticalCenter: parent.verticalCenter
       width: Math.min(implicitWidth, Math.max(left.width * 0.55, Math.min(left.width, Style.space(220))))
       elide: Text.ElideMiddle
-      text: root.fileName || "OmaRead"
+      text: root.fileName || "OmarkyReader"
       textFormat: Text.PlainText
       color: Theme.text
       font.family: Style.font.family

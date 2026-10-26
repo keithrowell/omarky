@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# End-to-end check of the edit sheet in a real (offscreen) OmaRead: E on a
+# End-to-end check of the edit sheet in a real (offscreen) OmarkyReader: E on a
 # block, typing, Ctrl+Enter writing the file and the page reloading; Shift+E
 # on a section; Esc discarding; a file changed under the sheet refused; in
 # changes mode the older wording restored with "Use this"; a clean log.
@@ -7,24 +7,25 @@
 #   tools/check-sheet --plain   without it: the sheet must edit plain
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SUITE="$(cd "$ROOT/.." && pwd)"
 work="$(mktemp -d)"
 trap 'kill "${pid:-0}" 2>/dev/null || true; rm -rf "$work"' EXIT
-export OMAREAD_INSTANCE="sheet-$$" OMAREAD_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
-export OMAREAD_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
-file="$("$ROOT/vendor/omarky/samples/changes/make-repo" "$work/repo")"
+export OMARKY_READER_INSTANCE="sheet-$$" OMARKY_READER_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
+export OMARKY_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
+file="$("$SUITE/samples/changes/make-repo" "$work/repo")"
 plain=0
 if [ "${1:-}" = "--plain" ]; then
   plain=1
   unset QML_IMPORT_PATH
-  export OMAREAD_OPEN="$file" OMAREAD_BIN="$ROOT/bin/omaread"
+  export OMARKY_READER_OPEN="$file" OMARKY_READER_BIN="$SUITE/bin/omarky" read
   qs --log-rules "qt.qml.usedbeforedeclared=false;qt.qpa.services.warning=false" -p "$ROOT/ui/shell.qml" >"$work/qs.log" 2>&1 &
 else
-  "$ROOT/bin/omaread" --build >/dev/null
-  "$ROOT/bin/omaread" --foreground "$file" >"$work/qs.log" 2>&1 &
+  "$SUITE/bin/omarky" read --build >/dev/null
+  "$SUITE/bin/omarky" read --foreground "$file" >"$work/qs.log" 2>&1 &
 fi
 pid=$!
 nap() { python3 -c "import time; time.sleep($1)"; }
-ipc() { qs ipc --pid "$pid" call omaread "$@"; }
+ipc() { qs ipc --pid "$pid" call omarky-reader "$@"; }
 state() { ipc state -1; }
 field() { python3 -c "import json,sys; v=json.load(sys.stdin)$1; print(v if not isinstance(v, bool) else str(v).lower())"; }
 for i in $(seq 60); do ipc count 2>/dev/null | grep -q '^[1-9]' && break; nap 0.2; done

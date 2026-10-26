@@ -1,0 +1,52 @@
+#!/usr/bin/ruby
+# Omarky: Markdown tools for Omarchy.
+#
+#   omarky read FILE.md[#anchor] …           OmarkyReader: each file in its own window
+#   omarky read                              an empty window with recent files
+#   omarky read FILE --changes               FILE compared with its last differing version
+#   omarky read FILE --from SPEC [--to SPEC] FILE compared between two versions
+#   omarky read FILE --list                  print FILE's versions
+#   omarky read FILE --resolve SPEC          print one version of FILE as JSON
+#   omarky read FILE --versions              print FILE's history and shortcuts as JSON
+#   omarky changes FILE                      the same as read --changes
+#   omarky write [FILE.md …]                 OmarkyWriter: each file in its own window, or a new draft
+#   omarky write --end FILE.md               open with the cursor at the end, ready to add
+#   omarky build                             build the editor's native highlighter and exit
+#   omarky … --foreground                    run qs in this terminal (development)
+#   omarky --version
+#
+# A SPEC is a person ("danny", "me"), a day ("yesterday", "a week ago",
+# "fri", "23 oct"), both ("danny fri"), "sent" (the date in SENT.md),
+# "before X", "now", or anything git understands.
+#
+# Each app runs as one background process; a later launch hands its files
+# to that process over IPC and exits at once. Logs go to
+# ~/.local/state/omarky-reader/qs.log and ~/.local/state/omarky-writer/qs.log.
+root = File.expand_path("..", __dir__)
+$LOAD_PATH.unshift(File.join(root, "launcher"), File.join(root, "reader/launcher"), File.join(root, "writer/launcher"))
+require "omarky"
+require "omarky_reader"
+require "omarky_writer"
+
+def usage(script)
+  lines = File.readlines(script).drop(1).take_while { _1.start_with?("#") }
+  puts lines.map { _1.sub(/\A# ?/, "") }
+  0
+end
+
+argv = ARGV.dup
+if argv.include?("-V") || argv.include?("--version")
+  puts "omarky #{File.read(File.join(root, 'VERSION')).strip}"
+  exit 0
+end
+command = argv.shift
+case command
+when "read" then exit OmarkyReader::CLI.new(argv, root: root).run
+when "changes" then exit OmarkyReader::CLI.new(argv, root: root, changes: true).run
+when "write" then exit OmarkyWriter::CLI.new(argv, root: root).run
+when "build" then exit OmarkyReader::CLI.new(["--build"], root: root).run
+when nil, "-h", "--help" then exit usage(__FILE__)
+else
+  warn "omarky: unknown command '#{command}' (read, changes, write, build)"
+  exit 2
+end

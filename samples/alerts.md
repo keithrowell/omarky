@@ -1,6 +1,6 @@
 # Alerts
 
-GitHub's alert syntax turns a blockquote into a call-out. OmaRead draws each kind as a tinted card
+GitHub's alert syntax turns a blockquote into a call-out. OmarkyReader draws each kind as a tinted card
 in the matching theme colour, with an icon and a small mono title.
 
 > [!NOTE]

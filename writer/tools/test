@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# The library's tests (vendor/omarky): the editor's text logic and the
-# native highlighter live there now, and this app has no QML tests of its
-# own. Arguments pass through, e.g. -input vendor/omarky/test/tst_editing.qml
-set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-exec "$ROOT/vendor/omarky/tools/test" "$@"
