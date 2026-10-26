@@ -8,8 +8,8 @@ The site: [keithrowell.github.io/omarky](https://keithrowell.github.io/omarky/).
 
 ## Principles
 
-- **The file is the document.** Both apps open the Markdown file as it is on disk and never keep a copy of their own. The writer saves the text exactly as you typed it; the reader reloads in place when another program changes the file. There is no database, no export step and no format of ours.
-- **Reading deserves its own app.** A preview pane in an editor is a second-class view. OmarkyReader has one job, and everything in it (the measure, the type, the outline, the keys) is chosen for reading a document from start to finish.
+- **The file is the document.** Both apps open the Markdown file as it is on disk and never keep a copy of their own. The writer saves the text exactly as you typed it, and the reader reloads in place when another program changes the file. The Markdown file is the only format, with no database behind it and no export step.
+- **Reading deserves its own app.** A preview pane in an editor is a second-class view. OmarkyReader has one job, and everything in it is chosen for reading a document from start to finish: the measure, the type, the outline and the keys.
 - **The desktop decides how it looks.** Colours come from the current Omarchy theme and follow it as you switch, light or dark. There is no theme picker in either app.
 - **Nothing to configure.** One background process per app, one window per file, keys you can read in a sheet with `?`. Preferences are the few things that change as you read: the zoom and the recent files.
 - **Versions are people and times.** When a document lives in git, its history is "Danny, Friday 23 October" and "me, yesterday", never a commit hash. The reader shows what changed between two of them in the same column you read in.

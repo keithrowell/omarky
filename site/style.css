@@ -123,8 +123,7 @@ figure.tight { margin-top: 20px; }
 /* ---- sections */
 section { padding: 64px 0 24px; }
 section + section { border-top: 1px solid var(--hair); }
-.eyebrow { color: var(--dim); font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
-.eyebrow svg { width: 18px; height: 18px; }
+h2 img { width: 0.8em; height: 0.8em; vertical-align: -0.06em; margin-right: 0.4em; }
 section > .wrap > h2 { margin-bottom: 18px; }
 .lead { font-size: 18px; color: var(--body); }
 

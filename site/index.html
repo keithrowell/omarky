@@ -21,7 +21,7 @@
       <a href="#reader">Reader</a>
       <a href="#changes" class="hide-sm">Changes</a>
       <a href="#writer">Writer</a>
-      <a href="#how" class="hide-sm">How it works</a>
+      <a href="#how" class="hide-sm">Architecture</a>
       <a href="#install">Install</a>
       <a href="https://github.com/keithrowell/omarky">GitHub</a>
     </nav>
@@ -51,11 +51,10 @@
 
 <section id="principles">
   <div class="wrap">
-    <div class="eyebrow">Principles</div>
-    <h2>Plain files, read and written with care.</h2>
+    <h2>Principles</h2>
     <div class="principles">
-      <p><strong>The file is the document.</strong> Both apps open the Markdown file as it is on disk and never keep a copy of their own. The writer saves the text exactly as you typed it; the reader reloads in place when another program changes the file. No database, no export step, no format of ours.</p>
-      <p><strong>Reading deserves its own app.</strong> A preview pane in an editor is a second-class view. OmarkyReader has one job, and everything in it, the measure, the type, the outline, the keys, is chosen for reading a document from start to finish.</p>
+      <p><strong>The file is the document.</strong> Both apps open the Markdown file as it is on disk and never keep a copy of their own. The writer saves the text exactly as you typed it, and the reader reloads in place when another program changes the file. The Markdown file is the only format, with no database behind it and no export step.</p>
+      <p><strong>Reading deserves its own app.</strong> A preview pane in an editor is a second-class view. OmarkyReader has one job, and everything in it is chosen for reading a document from start to finish: the measure, the type, the outline and the keys.</p>
       <p><strong>The desktop decides how it looks.</strong> Colours come from the current Omarchy theme and follow it as you switch, light or dark. Code blocks take their colours from the theme's own file. There is no theme picker in either app.</p>
       <p><strong>Nothing to configure.</strong> One background process per app, one window per file, keys you can read in a sheet with <kbd>?</kbd>. The preferences are the few things that change as you read: the zoom and the recent files.</p>
       <p><strong>Versions are people and times.</strong> When a document lives in git, its history is "Danny, Friday 23 October" and "me, yesterday", never a commit hash. The reader shows what changed between two of them in the same column.</p>
@@ -66,9 +65,8 @@
 
 <section id="reader">
   <div class="wrap">
-    <div class="eyebrow"><img src="img/reader.svg" alt="" width="18" height="18">OmarkyReader</div>
-    <h2>A reading column, set like a book.</h2>
-    <p class="lead">A measure of about 68 characters in the prose font the theme suggests. Headings, lists, quotes, tables, code, images, footnotes, task lists and alerts set the way a typesetter would. An outline that follows you and jumps on a click.</p>
+    <h2><img src="img/reader.svg" alt="" width="18" height="18">OmarkyReader</h2>
+    <p class="lead">A reading column at a measure of about 68 characters, in the prose font the theme suggests. Headings, lists, quotes, tables, code, images, footnotes, task lists and alerts are set the way a typesetter would set them. The outline follows you through the document and jumps on a click.</p>
     <pre><code>omarky read notes/plan.md
 omarky read docs/spec.md#window-and-behaviour</code></pre>
     <figure class="tight">
@@ -94,8 +92,7 @@ omarky read docs/spec.md#window-and-behaviour</code></pre>
 
 <section id="changes">
   <div class="wrap">
-    <div class="eyebrow">Changes</div>
-    <h2>What changed, in the column you read in.</h2>
+    <h2>Changes between versions</h2>
     <p class="lead">When the file has check-ins in git, a branching chip joins the header. Pick a version and the window compares the file as it is now with that version: added words on a wash in the theme's green, removed words faded under a strike in its red, a tag in the margin for each paragraph that changed.</p>
     <pre><code>omarky read proposal.md --from danny
 omarky read proposal.md --from yesterday --to "danny fri"
@@ -123,9 +120,8 @@ omarky changes proposal.md</code></pre>
 
 <section id="writer">
   <div class="wrap">
-    <div class="eyebrow"><img src="img/writer.svg" alt="" width="18" height="18">OmarkyWriter</div>
-    <h2>Type Markdown. See it finished.</h2>
-    <p class="lead">Emphasis leans, code sits in a chip, links read as links, and the marks that make it happen fade back. Heading marks, list markers and quote marks hang in the left margin, so the text keeps one clean edge. The text in the window is always exactly the file's Markdown.</p>
+    <h2><img src="img/writer.svg" alt="" width="18" height="18">OmarkyWriter</h2>
+    <p class="lead">You type plain Markdown and it looks finished as you write: emphasis leans, code sits in a chip, links read as links, and the marks that make it happen fade back. Heading marks, list markers and quote marks hang in the left margin, so the text keeps one clean edge. The text in the window is always exactly the file's Markdown.</p>
     <pre><code>omarky write notes/essay.md
 omarky write
 omarky write --end journal.md</code></pre>
@@ -158,8 +154,7 @@ omarky write --end journal.md</code></pre>
 
 <section id="how">
   <div class="wrap">
-    <div class="eyebrow">How it works</div>
-    <h2>Native windows, one library, a little Ruby.</h2>
+    <h2>Architecture</h2>
     <div class="how">
       <p><strong>QML on Quickshell.</strong> Both apps are built with the toolkit Omarchy's own shell uses, so they are native Wayland windows with no web view and no Electron. The parser is markdown-it; the blocks are rendered as a flat list, one delegate per block, which is what keeps a 5,000-line document scrolling smoothly.</p>
       <p><strong>One library, two thin apps.</strong> The renderer, the diff engine, the editor and the chrome live in one library at the root of the repository. Each app is a shell, a window and a command line on top of it. That is how the reader can borrow the writer's editor for one block.</p>
@@ -172,8 +167,7 @@ omarky write --end journal.md</code></pre>
 
 <section id="install" class="install">
   <div class="wrap">
-    <div class="eyebrow">Install</div>
-    <h2>Two lines on Omarchy.</h2>
+    <h2>Install</h2>
     <p>With <code>quickshell</code>, <code>ruby</code>, <code>ttf-ia-writer</code>, <code>sonnet</code> and <code>hunspell-en_au</code> installed, and <code>cmake</code> with the Qt 6 headers if you want the writer's native module:</p>
     <pre><code>git clone https://github.com/keithrowell/omarky.git ~/.local/src/omarky
 ~/.local/src/omarky/ops/install</code></pre>
