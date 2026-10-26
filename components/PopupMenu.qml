@@ -31,7 +31,7 @@ Item {
     width: Math.max(Style.space(200), col.implicitWidth + Style.space(12))
     height: col.implicitHeight + Style.space(12)
     radius: Math.max(6, Style.cornerRadius)
-    color: Color.popups.background
+    color: ShellColor.popups.background
     border.width: 1
     border.color: Theme.hairline
     MouseArea { anchors.fill: parent }

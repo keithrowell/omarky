@@ -7,7 +7,7 @@ than editing them, and keep the one local change below.
 |---|---|---|
 | `Commons/Border.qml` | `~/.local/share/omarchy/shell/Commons/Border.qml` | 2026-09-30 |
 | `Commons/BorderGeometry.js` | `~/.local/share/omarchy/shell/Commons/BorderGeometry.js` | 2026-09-30 |
-| `Commons/Color.qml` | `~/.local/share/omarchy/shell/Commons/Color.qml` | 2026-09-30 |
+| `Commons/ShellColor.qml` | `~/.local/share/omarchy/shell/Commons/Color.qml`, renamed because Qt 6.12 adds a `Color` object to QtQuick that hides a singleton of that name | 2026-09-30 |
 | `Commons/Style.qml` | `~/.local/share/omarchy/shell/Commons/Style.qml` | 2026-09-30 |
 | `Commons/Util.qml` | `~/.local/share/omarchy/shell/Commons/Util.qml` | 2026-09-30 |
 | `Commons/qmldir` | `~/.local/share/omarchy/shell/Commons/qmldir` | 2026-09-30 |
@@ -24,6 +24,6 @@ adds an `execArgv()` helper; OmarkyReader does not need it, so it keeps the upst
 
 ## Local change
 
-`Color.qml` line 18: `currentThemePath` reads `OMARKY_THEME_DIR` first, so the app
+`ShellColor.qml` line 18: `currentThemePath` reads `OMARKY_THEME_DIR` first, so the app
 (and `tools/screenshot`) can render under any theme directory without touching the
 real theme. Re-apply this one line after a refresh.

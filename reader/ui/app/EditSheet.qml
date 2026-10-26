@@ -130,7 +130,7 @@ Item {
     width: Math.min(parent.width - Style.space(48), root.column + editor.gutter * 2 + root.pad * 2)
     height: root.chrome + root.editorHeight
     radius: Math.max(6, Style.cornerRadius)
-    color: Color.popups.background
+    color: ShellColor.popups.background
     border.width: 1
     border.color: Theme.hairline
     MouseArea { anchors.fill: parent }
@@ -191,8 +191,8 @@ Item {
           width: parent.width; height: Style.space(28)
           visible: beforeStack.height > root.contextMax
           gradient: Gradient {
-            GradientStop { position: 0; color: Color.popups.background }
-            GradientStop { position: 1; color: Util.alpha(Color.popups.background, 0) }
+            GradientStop { position: 0; color: ShellColor.popups.background }
+            GradientStop { position: 1; color: Util.alpha(ShellColor.popups.background, 0) }
           }
         }
         opacity: 0.55
@@ -265,8 +265,8 @@ Item {
           width: parent.width; height: Style.space(28)
           visible: afterStack.height > root.contextMax
           gradient: Gradient {
-            GradientStop { position: 0; color: Util.alpha(Color.popups.background, 0) }
-            GradientStop { position: 1; color: Color.popups.background }
+            GradientStop { position: 0; color: Util.alpha(ShellColor.popups.background, 0) }
+            GradientStop { position: 1; color: ShellColor.popups.background }
           }
         }
         opacity: 0.55

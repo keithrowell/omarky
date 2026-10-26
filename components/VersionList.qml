@@ -23,7 +23,7 @@ Rectangle {
   implicitWidth: Style.space(600)
   implicitHeight: body.implicitHeight + Style.space(16)
   radius: Math.max(6, Style.cornerRadius)
-  color: Color.popups.background
+  color: ShellColor.popups.background
   border.width: 1
   border.color: Theme.hairline
 

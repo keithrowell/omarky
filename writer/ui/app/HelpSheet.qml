@@ -35,7 +35,7 @@ Rectangle {
     width: Math.min(parent.width - Style.space(48), Style.space(560))
     height: column.implicitHeight + Style.space(44)
     radius: Math.max(6, Style.cornerRadius)
-    color: Color.popups.background
+    color: ShellColor.popups.background
     border.width: 1
     border.color: Theme.hairline
     MouseArea { anchors.fill: parent }
