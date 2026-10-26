@@ -1,0 +1,155 @@
+@font-face { font-family: "Quattro"; src: url("fonts/iAWriterQuattroS-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Quattro"; src: url("fonts/iAWriterQuattroS-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Quattro"; src: url("fonts/iAWriterQuattroS-Italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "Quattro"; src: url("fonts/iAWriterQuattroS-BoldItalic.woff2") format("woff2"); font-weight: 700; font-style: italic; font-display: swap; }
+
+:root {
+  --bg: #1a1b26;
+  --surface: #1f2130;
+  --raised: #262a3d;
+  --text: #c0caf5;
+  --body: #a9b1d6;
+  --dim: #787fa6;
+  --faint: #565f89;
+  --hair: rgba(169, 177, 214, 0.14);
+  --accent: #7aa2f7;
+  --accent-ink: #1a1b26;
+  --green: #9ece6a;
+  --red: #f7768e;
+  --radius: 10px;
+  --measure: 64ch;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #eff1f5;
+    --surface: #e6e9ef;
+    --raised: #dce0e8;
+    --text: #4c4f69;
+    --body: #5c5f77;
+    --dim: #7c7f93;
+    --faint: #9ca0b0;
+    --hair: rgba(76, 79, 105, 0.14);
+    --accent: #1e66f5;
+    --accent-ink: #eff1f5;
+    --green: #40a02b;
+    --red: #d20f39;
+    color-scheme: light;
+  }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--body);
+  font-family: "Quattro", "iA Writer Quattro S", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 17px;
+  line-height: 1.65;
+  font-feature-settings: "kern", "liga";
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+h1, h2, h3 { color: var(--text); font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(34px, 5.2vw, 58px); }
+h2 { font-size: clamp(26px, 3.4vw, 36px); }
+h3 { font-size: 20px; margin-top: 2.2em; }
+p { margin: 0 0 1.1em; max-width: var(--measure); }
+strong { color: var(--text); font-weight: 700; }
+code, pre { font-family: "Quattro", ui-monospace, "SF Mono", Menlo, monospace; }
+code { background: var(--surface); border-radius: 5px; padding: 0.08em 0.4em; color: var(--text); font-size: 0.94em; }
+pre {
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  overflow-x: auto;
+  margin: 0 0 1.4em;
+  color: var(--text);
+  line-height: 1.55;
+  max-width: 100%;
+}
+pre code { background: none; padding: 0; font-size: 15px; }
+kbd {
+  font-family: inherit;
+  font-size: 0.85em;
+  color: var(--text);
+  background: var(--raised);
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  padding: 0.1em 0.5em;
+  white-space: nowrap;
+}
+
+.wrap { width: min(1160px, 100% - 32px); margin: 0 auto; }
+
+/* ---- nav */
+.nav {
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hair);
+}
+.nav .wrap { display: flex; align-items: center; gap: 28px; height: 58px; }
+.brand { color: var(--text); font-weight: 700; font-size: 18px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 10px; }
+.brand:hover { text-decoration: none; }
+.brand svg { width: 22px; height: 22px; }
+.nav nav { display: flex; gap: 22px; margin-left: auto; font-size: 15px; }
+.nav nav a { color: var(--dim); }
+.nav nav a:hover { color: var(--text); text-decoration: none; }
+@media (max-width: 640px) { .nav nav a.hide-sm { display: none; } }
+
+/* ---- hero */
+.hero { padding: 72px 0 32px; }
+.hero h1 { max-width: 20ch; }
+.hero .lede { font-size: clamp(18px, 2vw, 21px); color: var(--body); max-width: 56ch; margin: 22px 0 28px; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.button {
+  display: inline-block; padding: 10px 18px; border-radius: 8px;
+  background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 15px;
+}
+.button:hover { text-decoration: none; filter: brightness(1.08); }
+.button.quiet { background: var(--surface); color: var(--text); border: 1px solid var(--hair); }
+.hero .apps { display: flex; gap: 28px; margin-top: 34px; color: var(--dim); font-size: 15px; flex-wrap: wrap; }
+.hero .apps span { display: inline-flex; align-items: center; gap: 8px; }
+.hero .apps svg { width: 18px; height: 18px; }
+
+figure { margin: 36px 0 12px; }
+figure img { width: 100%; height: auto; display: block; border-radius: 14px; }
+figcaption { color: var(--faint); font-size: 14px; margin-top: 10px; }
+figure.tight { margin-top: 20px; }
+
+/* ---- sections */
+section { padding: 64px 0 24px; }
+section + section { border-top: 1px solid var(--hair); }
+.eyebrow { color: var(--dim); font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.eyebrow svg { width: 18px; height: 18px; }
+section > .wrap > h2 { margin-bottom: 18px; }
+.lead { font-size: 18px; color: var(--body); }
+
+.principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px 40px; margin-top: 34px; }
+.principles p { margin: 0; max-width: none; }
+.principles strong { display: block; margin-bottom: 6px; }
+@media (max-width: 900px) { .principles { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .principles { grid-template-columns: 1fr; } }
+
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; margin-top: 28px; }
+@media (max-width: 820px) { .cols { grid-template-columns: 1fr; } }
+.cols figure { margin: 0; }
+
+.keys { border-collapse: collapse; width: 100%; max-width: 720px; margin: 10px 0 28px; font-size: 15px; }
+.keys td { padding: 8px 12px 8px 0; border-bottom: 1px solid var(--hair); vertical-align: top; }
+.keys td:first-child { white-space: nowrap; color: var(--text); width: 1%; padding-right: 22px; }
+
+.how { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px 40px; margin-top: 28px; }
+.how p { margin: 0; max-width: none; }
+.how strong { display: block; margin-bottom: 6px; }
+@media (max-width: 700px) { .how { grid-template-columns: 1fr; } }
+
+.install pre { max-width: 720px; }
+.note { color: var(--dim); font-size: 15px; }
+
+footer { border-top: 1px solid var(--hair); padding: 36px 0 60px; color: var(--faint); font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: center; }
+footer a { color: var(--dim); }

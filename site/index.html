@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Omarky: Markdown tools for Omarchy</title>
+  <meta name="description" content="OmarkyReader and OmarkyWriter: a Markdown reader that makes a plain text file a pleasure to read, a writer in the spirit of Byword, and the changes between two versions shown in the reading column. Native Wayland apps for Omarchy, following its theme.">
+  <meta property="og:title" content="Omarky: Markdown tools for Omarchy">
+  <meta property="og:description" content="A reader, a writer, and the changes between versions of a document. Native, themed, nothing to configure.">
+  <meta property="og:image" content="https://keithrowell.github.io/omarky/img/og.jpg">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="img/reader.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="img/reader.svg" alt="" width="22" height="22">Omarky</a>
+    <nav>
+      <a href="#reader">Reader</a>
+      <a href="#changes" class="hide-sm">Changes</a>
+      <a href="#writer">Writer</a>
+      <a href="#how" class="hide-sm">How it works</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/keithrowell/omarky">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Markdown tools for Omarchy.</h1>
+    <p class="lede">A reader that makes a plain text file a pleasure to read, a writer in the spirit of Byword, and the changes between two versions of a document, shown in the column you read in. Native Wayland windows that take their colours from your theme.</p>
+    <div class="actions">
+      <a class="button" href="#install">Install</a>
+      <a class="button quiet" href="https://github.com/keithrowell/omarky">Source on GitHub</a>
+    </div>
+    <div class="apps">
+      <span><img src="img/reader.svg" alt="" width="18" height="18">OmarkyReader</span>
+      <span><img src="img/writer.svg" alt="" width="18" height="18">OmarkyWriter</span>
+      <span>MIT, by Keith Rowell</span>
+    </div>
+    <figure>
+      <img src="img/reader-hero.webp" alt="Two OmarkyReader windows, one in a light theme showing a diff block, one in tokyo-night showing front matter and a contents outline" width="1600" height="1070">
+    </figure>
+  </div>
+</section>
+
+<section id="principles">
+  <div class="wrap">
+    <div class="eyebrow">Principles</div>
+    <h2>Plain files, read and written with care.</h2>
+    <div class="principles">
+      <p><strong>The file is the document.</strong> Both apps open the Markdown file as it is on disk and never keep a copy of their own. The writer saves the text exactly as you typed it; the reader reloads in place when another program changes the file. No database, no export step, no format of ours.</p>
+      <p><strong>Reading deserves its own app.</strong> A preview pane in an editor is a second-class view. OmarkyReader has one job, and everything in it, the measure, the type, the outline, the keys, is chosen for reading a document from start to finish.</p>
+      <p><strong>The desktop decides how it looks.</strong> Colours come from the current Omarchy theme and follow it as you switch, light or dark. Code blocks take their colours from the theme's own file. There is no theme picker in either app.</p>
+      <p><strong>Nothing to configure.</strong> One background process per app, one window per file, keys you can read in a sheet with <kbd>?</kbd>. The preferences are the few things that change as you read: the zoom and the recent files.</p>
+      <p><strong>Versions are people and times.</strong> When a document lives in git, its history is "Danny, Friday 23 October" and "me, yesterday", never a commit hash. The reader shows what changed between two of them in the same column.</p>
+      <p><strong>Editing from the reader stays small.</strong> A block or a section at a time, in the writer's editor, over the page. For a document, use the writer.</p>
+    </div>
+  </div>
+</section>
+
+<section id="reader">
+  <div class="wrap">
+    <div class="eyebrow"><img src="img/reader.svg" alt="" width="18" height="18">OmarkyReader</div>
+    <h2>A reading column, set like a book.</h2>
+    <p class="lead">A measure of about 68 characters in the prose font the theme suggests. Headings, lists, quotes, tables, code, images, footnotes, task lists and alerts set the way a typesetter would. An outline that follows you and jumps on a click.</p>
+    <pre><code>omarky read notes/plan.md
+omarky read docs/spec.md#window-and-behaviour</code></pre>
+    <figure class="tight">
+      <img src="img/reader-reading.webp" alt="An essay in OmarkyReader under the gruvbox theme, with the contents outline on the left" width="1600" height="1107" loading="lazy">
+    </figure>
+    <div class="cols">
+      <figure>
+        <img src="img/reader-code.webp" alt="Code blocks coloured from the rose-pine theme" width="1600" height="1107" loading="lazy">
+        <figcaption>Code takes its colours from the theme's own <code>colors.toml</code>.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/reader-tables.webp" alt="Aligned tables in the flexoki-light theme" width="1600" height="1107" loading="lazy">
+        <figcaption>Tables, with <kbd>W</kbd> for a wider measure when they need it.</figcaption>
+      </figure>
+    </div>
+    <p style="margin-top:28px">Find (<kbd>Ctrl+F</kbd> or <kbd>/</kbd>) steps through matches across the whole document. Links to other Markdown files open in a new window at their heading; web links open in your browser. Right-click any block to copy its Markdown source. The file is watched, so an edit in another program shows up in place, with the page kept on the same paragraph.</p>
+    <figure>
+      <img src="img/reader-themes.webp" alt="The same page under six Omarchy themes" width="1600" height="819" loading="lazy">
+      <figcaption>The same page under six Omarchy themes. Switch the theme and every open window follows.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="changes">
+  <div class="wrap">
+    <div class="eyebrow">Changes</div>
+    <h2>What changed, in the column you read in.</h2>
+    <p class="lead">When the file has check-ins in git, a branching chip joins the header. Pick a version and the window compares the file as it is now with that version: added words on a wash in the theme's green, removed words faded under a strike in its red, a tag in the margin for each paragraph that changed.</p>
+    <pre><code>omarky read proposal.md --from danny
+omarky read proposal.md --from yesterday --to "danny fri"
+omarky changes proposal.md</code></pre>
+    <figure class="tight">
+      <img src="img/reader-changes.webp" alt="A proposal compared with Danny's version: added words on a green wash, removed words struck in red, counts per section in the outline" width="1600" height="1107" loading="lazy">
+    </figure>
+    <div class="cols">
+      <figure>
+        <img src="img/reader-changes-fold.webp" alt="The fold: unchanged paragraphs collapsed to hairlines" width="1600" height="1107" loading="lazy">
+        <figcaption><kbd>F</kbd> folds everything that did not change. <kbd>N</kbd> and <kbd>P</kbd> step between changes.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/reader-changes-versions.webp" alt="The version list: shortcuts, then every check-in as a person and a time" width="1600" height="1107" loading="lazy">
+        <figcaption>Versions are people and times. <code>danny</code>, <code>me</code>, <code>yesterday</code>, <code>a week ago</code>, <code>fri</code>, <code>23 oct</code>, <code>sent</code>, <code>before danny</code>.</figcaption>
+      </figure>
+    </div>
+    <h3>Editing a block</h3>
+    <p>Reading and finding a sentence to fix, press <kbd>E</kbd>. The block under the mouse opens in a sheet over the page, in OmarkyWriter's editor, with the blocks before and after it faint around it. <kbd>Shift+E</kbd> opens the whole section. Type, then <kbd>Ctrl+Enter</kbd>: the file is written and the page reloads under the sheet. <kbd>Esc</kbd> closes without writing. The sheet never writes over a change that landed while it was open, and in changes mode a reworded block offers its older wording with one chip.</p>
+    <figure class="tight">
+      <img src="img/reader-edit.webp" alt="The edit sheet over a reworded paragraph, the older wording above it with a Use this chip" width="1600" height="1107" loading="lazy">
+    </figure>
+  </div>
+</section>
+
+<section id="writer">
+  <div class="wrap">
+    <div class="eyebrow"><img src="img/writer.svg" alt="" width="18" height="18">OmarkyWriter</div>
+    <h2>Type Markdown. See it finished.</h2>
+    <p class="lead">Emphasis leans, code sits in a chip, links read as links, and the marks that make it happen fade back. Heading marks, list markers and quote marks hang in the left margin, so the text keeps one clean edge. The text in the window is always exactly the file's Markdown.</p>
+    <pre><code>omarky write notes/essay.md
+omarky write
+omarky write --end journal.md</code></pre>
+    <figure class="tight">
+      <img src="img/writer-editor.webp" alt="OmarkyWriter in tokyo-night: a heading, a paragraph with bold and code, a list with tasks, a quote and a code block" width="1600" height="1344" loading="lazy">
+    </figure>
+    <table class="keys">
+      <tr><td><kbd>Enter</kbd></td><td>Continues a list, a numbered list (counting up), a task list or a quote. On an empty item, ends the list.</td></tr>
+      <tr><td><kbd>Tab</kbd> <kbd>Shift+Tab</kbd></td><td>Indents or outdents a list item.</td></tr>
+      <tr><td><kbd>Ctrl+B</kbd> <kbd>Ctrl+I</kbd> <kbd>Ctrl+E</kbd></td><td>Bold, italic, inline code. Again to remove.</td></tr>
+      <tr><td><kbd>Ctrl+K</kbd></td><td>A link around the selection, cursor in the URL.</td></tr>
+      <tr><td><kbd>Ctrl+1</kbd> to <kbd>Ctrl+6</kbd>, <kbd>Ctrl+0</kbd></td><td>Heading level, or back to a paragraph.</td></tr>
+    </table>
+    <div class="cols">
+      <figure>
+        <img src="img/writer-focus.webp" alt="Focus mode: every paragraph but the current one faded" width="1600" height="1344" loading="lazy">
+        <figcaption>Focus (<kbd>Ctrl+Shift+F</kbd>) fades everything but the paragraph you are in. Typewriter scrolling keeps your line in the middle.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/writer-preview.webp" alt="The preview: the document rendered by OmarkyReader, opened at the block the cursor was in" width="1600" height="1344" loading="lazy">
+        <figcaption><kbd>Ctrl+P</kbd> shows the document as the reader renders it, at the block you were writing in.</figcaption>
+      </figure>
+    </div>
+    <p style="margin-top:28px">Misspelt words get a quiet line once you have moved past them, never while you are typing them; right-click one for suggestions. With no file you get a new untitled document, saved as a draft while you type. Named files save themselves a moment after you stop typing. A file changed by another program is reloaded in place when you have nothing unsaved, and offered as a choice when you do.</p>
+    <figure>
+      <img src="img/writer-light.webp" alt="OmarkyWriter in the catppuccin-latte theme" width="1600" height="1344" loading="lazy">
+    </figure>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="eyebrow">How it works</div>
+    <h2>Native windows, one library, a little Ruby.</h2>
+    <div class="how">
+      <p><strong>QML on Quickshell.</strong> Both apps are built with the toolkit Omarchy's own shell uses, so they are native Wayland windows with no web view and no Electron. The parser is markdown-it; the blocks are rendered as a flat list, one delegate per block, which is what keeps a 5,000-line document scrolling smoothly.</p>
+      <p><strong>One library, two thin apps.</strong> The renderer, the diff engine, the editor and the chrome live in one library at the root of the repository. Each app is a shell, a window and a command line on top of it. That is how the reader can borrow the writer's editor for one block.</p>
+      <p><strong>One native module.</strong> The writer's live Markdown is painted by a small C++ syntax highlighter on the text document, which also sets line height and the hanging marks. It is built on first run when cmake and the Qt headers are there, and the editor runs plain without it.</p>
+      <p><strong>Git behind the launcher.</strong> The window never runs git. The Ruby command line resolves "danny fri" to a version, reads the two texts, and hands the window two texts and two labels. The diff engine aligns the documents by section and paragraph, then by word, and marks the newer document's runs.</p>
+    </div>
+    <p style="margin-top:28px" class="note">Every design choice is written down in <a href="https://github.com/keithrowell/omarky/tree/main/docs/decisions">docs/decisions</a>, one numbered record each, from why blocks are a flat list to why layout stays outside the undo history.</p>
+  </div>
+</section>
+
+<section id="install" class="install">
+  <div class="wrap">
+    <div class="eyebrow">Install</div>
+    <h2>Two lines on Omarchy.</h2>
+    <p>With <code>quickshell</code>, <code>ruby</code>, <code>ttf-ia-writer</code>, <code>sonnet</code> and <code>hunspell-en_au</code> installed, and <code>cmake</code> with the Qt 6 headers if you want the writer's native module:</p>
+    <pre><code>git clone https://github.com/keithrowell/omarky.git ~/.local/src/omarky
+~/.local/src/omarky/ops/install</code></pre>
+    <p>The script links <code>omarky</code> into <code>~/.local/bin</code>, adds a desktop entry and an icon for each app, and builds the native module when it can. It leaves your default Markdown app alone; to make the reader the default:</p>
+    <pre><code>xdg-mime default omarky-reader.desktop text/markdown</code></pre>
+    <p class="note">To update, pull and run the install script again. Press <kbd>?</kbd> in the reader or <kbd>Ctrl+/</kbd> in the writer for every key.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Omarky is MIT licensed.</span>
+    <a href="https://github.com/keithrowell/omarky">github.com/keithrowell/omarky</a>
+    <a href="https://github.com/keithrowell">Keith Rowell</a>
+    <a href="https://omarchy.org">Omarchy</a>
+  </div>
+</footer>
+
+</body>
+</html>
