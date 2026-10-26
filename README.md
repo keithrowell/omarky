@@ -15,7 +15,7 @@ A beautiful printed page is the work of centuries of craft. Its measure, its mar
 - **The colours:** the current Omarchy theme, read as you switch, light or dark. Code colours are generated from the theme's own `colors.toml`, so a code block matches the page around it. 
 - **The chrome:** a header with the file's name, an outline that follows you through the document, and the page. In the writer the header and the word count step aside while you type and come back when you move the mouse. Keys do the rest. ?` to show available shortcut keys.
 - **The file:** the Markdown file on disk is the document and the format. The reader reloads in place when another program changes the file, keeping your position. The writer saves exactly what you type. It shows bold as bold and a heading as a heading, and leaves the asterisks and hashes in the file as you wrote them.
-- **Versions:** when a document lives in git, its history is "Danny, Friday 23 October" and "me, yesterday", and the reader shows what changed between two of them on the page you read.
+- **Versions:** When a document has a git history, you can pick any earlier version and see what changed since, marked on the page as you read.
 
 ## OmarkyReader
 
