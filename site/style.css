@@ -129,7 +129,7 @@ section > .wrap > h2 { margin-bottom: 18px; }
 
 .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px 40px; margin-top: 34px; }
 .principles p { margin: 0; max-width: none; }
-.principles strong { display: block; margin-bottom: 6px; }
+.principles h3 { font-size: 17px; margin: 0 0 6px; }
 @media (max-width: 900px) { .principles { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .principles { grid-template-columns: 1fr; } }
 
@@ -143,7 +143,7 @@ section > .wrap > h2 { margin-bottom: 18px; }
 
 .how { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px 40px; margin-top: 28px; }
 .how p { margin: 0; max-width: none; }
-.how strong { display: block; margin-bottom: 6px; }
+.how h3 { font-size: 17px; margin: 0 0 6px; }
 @media (max-width: 700px) { .how { grid-template-columns: 1fr; } }
 
 .install pre { max-width: 720px; }

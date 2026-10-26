@@ -1,6 +1,6 @@
 # Omarky
 
-Markdown tools for [Omarchy](https://omarchy.org): a reader that makes a plain text file a pleasure to read, a writer in the spirit of Byword, and the changes between two versions of a document shown in the reading column. Built by [Keith Rowell](https://github.com/keithrowell) in QML on Quickshell, with Ruby for the command line.
+Markdown tools for [Omarchy](https://omarchy.org): a reader that sets a plain text file like a book, a writer for getting the words down, and the changes between two versions of a document shown on the page you read. Built by [Keith Rowell](https://github.com/keithrowell) in QML on Quickshell, with Ruby for the command line.
 
 The site: [keithrowell.github.io/omarky](https://keithrowell.github.io/omarky/).
 
@@ -8,12 +8,14 @@ The site: [keithrowell.github.io/omarky](https://keithrowell.github.io/omarky/).
 
 ## Principles
 
-- **The file is the document.** Both apps open the Markdown file as it is on disk and never keep a copy of their own. The writer saves the text exactly as you typed it, and the reader reloads in place when another program changes the file. The Markdown file is the only format, with no database behind it and no export step.
-- **Reading deserves its own app.** A preview pane in an editor is a second-class view. OmarkyReader has one job, and everything in it is chosen for reading a document from start to finish: the measure, the type, the outline and the keys.
-- **The desktop decides how it looks.** Colours come from the current Omarchy theme and follow it as you switch, light or dark. There is no theme picker in either app.
-- **Nothing to configure.** One background process per app, one window per file, keys you can read in a sheet with `?`. Preferences are the few things that change as you read: the zoom and the recent files.
-- **Versions are people and times.** When a document lives in git, its history is "Danny, Friday 23 October" and "me, yesterday", never a commit hash. The reader shows what changed between two of them in the same column you read in.
-- **Editing from the reader stays small.** A block or a section at a time, in the writer's editor, over the page. For a document, use the writer.
+Most of what we read on a screen was poured into whatever container was to hand: a line as wide as the window, a blank line between paragraphs because the markup produced one, headings big because big meant important. A printed page had centuries of tuning before it reached that shape. Omarky applies the old fixes to a Markdown file, one decision at a time, and then leaves them alone.
+
+- **The page:** one centred column, about 68 characters wide, the measure of a well-set book. Line height and paragraph spacing give the text room. Bullets, numbers, heading marks and quote marks hang in the left margin, in both apps, so the text keeps one straight edge. Headings sit on a scale from the body size, with space above and little below, so each binds to the text it introduces.
+- **The type:** iA Writer Quattro S for prose and its Mono S for code. The mono is lighter than a programmer's font, so a code block sits beside a paragraph without shouting, and it has no ligatures, because the reader's job is to show exactly what the file says. Headings are the same family in bold.
+- **The colours:** the current Omarchy theme, read as you switch, light or dark. Code colours are generated from the theme's own `colors.toml`, so a code block matches the page around it. Neither app has a theme picker.
+- **The chrome:** a header with the file's name, an outline that follows you through the document, and the page. In the writer the header and the word count step aside while you type and come back when you move the mouse. Keys do the rest, and `?` lists them.
+- **The file:** the Markdown file on disk is the document. The reader reloads in place when another program changes the file, keeping your paragraph. The writer saves the text exactly as you typed it, and its marks are painted, not rewritten. The file is the only format.
+- **Versions:** when a document lives in git, its history is "Danny, Friday 23 October" and "me, yesterday", and the reader shows what changed between two of them on the page you read.
 
 ## OmarkyReader
 
@@ -24,13 +26,13 @@ omarky read docs/spec.md#window-and-behaviour
 
 ![Reading prose in gruvbox](docs/screenshots/reader/reading.png)
 
-A reading column at a measure of about 68 characters, in the prose font Omarchy's theme suggests, with headings, lists, quotes, tables, code, images, footnotes, task lists and alerts set the way a typesetter would. The outline on the left follows you through the document and jumps on a click. Links to other Markdown files open in a new window at their heading; web links open in your browser. Code blocks take their colours from the theme's own `colors.toml`.
+Open a file and it is a page: one column, the outline at the left, and the first paragraph where your eye lands. Headings, lists, quotes, tables, code, images, footnotes, task lists and alerts are each given their own setting. The outline marks the section you are in and jumps on a click. Links to other Markdown files open in a new window at their heading, and web links open in your browser.
 
 ![Code in rose-pine](docs/screenshots/reader/code.png)
 
 ![The same page in six Omarchy themes](docs/screenshots/reader/themes.png)
 
-Find (`Ctrl+F` or `/`) steps through matches across the whole document. `W` widens the measure for tables and code. Right-click any block to copy its Markdown source; a hover on a heading shows a `#` that copies `file.md#heading`. The file is watched, so an edit in another program shows up in place, with the page kept on the same paragraph.
+Find (`Ctrl+F` or `/`) steps through matches across the whole document. `W` widens the measure for tables and code. Right-click any block to copy its Markdown source. A hover on a heading shows a `#` that copies `file.md#heading`. The file is watched, so an edit in another program shows up in place, with the page kept on the same paragraph.
 
 ### Changes
 
@@ -42,7 +44,7 @@ omarky changes proposal.md
 
 ![Changes: the file now against Danny's version](docs/screenshots/reader/changes.png)
 
-When the file has check-ins in git, a branching chip joins the header. Click it (or press `V`) and pick a version, and the window compares the file as it is now with that version in the same column: added words on a wash in the theme's green, removed words faded under a strike in its red, and a tag in the margin for each paragraph that changed. The pill in the header names the two ends and counts the changes; the outline counts them per section.
+When the file has check-ins in git, a branching chip joins the header. Click it (or press `V`) and pick a version, and the window compares the file as it is now with that version in the same column: added words on a wash in the theme's green, removed words faded under a strike in its red, and a tag in the margin for each paragraph that changed. The pill in the header names the two ends and counts the changes, and the outline counts them per section.
 
 ![The fold: only what changed](docs/screenshots/reader/changes-fold.png)
 
@@ -56,7 +58,9 @@ A version is a person and a time: `danny`, `me`, `yesterday`, `a week ago`, `fri
 
 ![The edit sheet over a reworded paragraph](docs/screenshots/reader/edit.png)
 
-Reading and finding a sentence to fix, press `E`. The block under the mouse opens in a sheet over the page, in OmarkyWriter's editor, with the blocks before and after it faint around it. `Shift+E` opens the whole section. Type, then `Ctrl+Enter`: the file is written and the page reloads under the sheet. `Esc` closes without writing. The sheet never writes over a change that landed while it was open. In changes mode a reworded block shows its older wording with a "Use this" chip, so putting a sentence back is two keys.
+Reading, you find a sentence to fix. Press `E` and the block under the mouse opens in a sheet over the page, in OmarkyWriter's editor, with the blocks before and after it faint around it. `Shift+E` opens the whole section. Type, then `Ctrl+Enter`: the file is written and the page reloads under the sheet. `Esc` closes without writing. The sheet refuses to write over a change that landed while it was open. In changes mode a reworded block shows its older wording with a "Use this" chip, so putting a sentence back is two keys.
+
+The sheet is for the sentence you noticed while reading, or the section that needs another pass. When the morning is for writing, open the file in OmarkyWriter.
 
 ## OmarkyWriter
 
@@ -68,7 +72,7 @@ omarky write --end journal.md
 
 ![OmarkyWriter in tokyo-night](docs/screenshots/writer/editor.png)
 
-You type plain Markdown and it looks finished as you write: emphasis leans, code sits in a chip, links read as links, and the marks that make it happen fade back. Heading marks, list markers and quote marks hang in the left margin, so the text keeps one clean edge. The text in the window is always exactly the file's Markdown; the keys below are the only things that change it.
+The window holds the text and little else. You type plain Markdown and it looks finished as you write: emphasis leans, code sits in a chip, links read as links, and the marks that make it happen fade back once they have done their work. Heading marks, list markers and quote marks hang in the left margin, so the text keeps the same straight edge as the reader's page. The text in the window is always exactly the file's Markdown, and the keys below are the only things that change it.
 
 | Keys | Does |
 |---|---|
@@ -80,11 +84,13 @@ You type plain Markdown and it looks finished as you write: emphasis leans, code
 
 ![Focus mode in rose-pine](docs/screenshots/writer/focus.png)
 
-Focus (`Ctrl+Shift+F`) fades everything but the paragraph you are in. Typewriter scrolling (`Ctrl+Shift+T`) keeps the line you are writing in the middle of the window. The header and the word count step aside while you type and come back when you move the mouse. Misspelt words get a quiet line once you have moved past them, never while you are typing them; right-click one for suggestions. Spelling is Australian English through Sonnet and Hunspell.
+Focus (`Ctrl+Shift+F`) fades every paragraph but the one you are in. Typewriter scrolling (`Ctrl+Shift+T`) keeps the line you are writing in the middle of the window. The header and the word count step aside while you type. Misspelt words get a quiet line once you have moved past them, so nothing flickers under the word you are still typing, and a right-click offers suggestions. Spelling is Australian English through Sonnet and Hunspell.
 
 ![Preview in tokyo-night](docs/screenshots/writer/preview.png)
 
-`Ctrl+P` shows the document rendered by the reader, opened at the block you were writing in, and `Esc` brings you back to the same place in the source. With no file you get a new untitled document, saved as a draft while you type; `Ctrl+R` lists recent files and drafts, and `Ctrl+Shift+S` gives a draft a name. Named files save themselves a moment after you stop typing. A file changed by another program is reloaded in place when you have nothing unsaved, and offered as a choice when you do.
+When you want to read what you have written, `Ctrl+P` shows the document as the reader sets it, opened at the paragraph you were in, and `Esc` puts you back at the same place in the source. The two apps share one renderer, so the page you read back is the page the reader will show.
+
+With no file you get a new untitled document, saved as a draft while you type. `Ctrl+R` lists recent files and drafts, and `Ctrl+Shift+S` gives a draft a name. Named files save themselves a moment after you stop typing. A file changed by another program is reloaded in place when you have nothing unsaved, and offered as a choice when you do.
 
 ![Light theme, catppuccin-latte](docs/screenshots/writer/light.png)
 
@@ -133,7 +139,7 @@ The writer's `Ctrl+/` shows its own sheet: the editing keys above plus `Ctrl+Shi
 
 ## Architecture
 
-Both apps are QML on [Quickshell](https://quickshell.org), the toolkit Omarchy's own shell is built with, so they are native Wayland windows with no web view and no Electron. They share one library, the root of this repository, and each app is a thin shell on it:
+Both apps are QML on [Quickshell](https://quickshell.org), the toolkit Omarchy's own shell is built with, so they are native Wayland windows without a web view. They share one library, the root of this repository, and each app is a thin shell on it:
 
 | Path | Holds |
 |---|---|
@@ -144,7 +150,7 @@ Both apps are QML on [Quickshell](https://quickshell.org), the toolkit Omarchy's
 | `bin/omarky` | The command: `read`, `changes`, `write`, `build` |
 | `docs/decisions/` | Why things are the way they are, one numbered record per decision |
 
-The parser is markdown-it with the blocks rendered as a flat list, one delegate per block (decision 0001), which is what keeps a 5,000-line document scrolling smoothly. The reader's window never runs git: the launcher resolves "danny fri" to a version and hands the window two texts and two labels (decision 0013). The diff engine aligns the two documents by section and paragraph, then by word, and marks the newer document's runs (decision 0012). The highlighter sets line layout outside the undo history so `Ctrl+Z` only ever moves text (decision 0015). The editor lives in the library so the reader can borrow it for one block (decisions 0016 and 0018).
+The parser is markdown-it with the blocks rendered as a flat list, one delegate per block (decision 0001), which is what keeps a long document scrolling smoothly. The reader's window leaves git to the launcher, which resolves "danny fri" to a version and hands the window two texts and two labels (decision 0013). The diff engine aligns the two documents by section and paragraph, then by word, and marks the newer document's runs (decision 0012). The highlighter sets line layout outside the undo history so `Ctrl+Z` only ever moves text (decision 0015). The editor lives in the library so the reader can borrow it for one block (decisions 0016 and 0018).
 
 ## Development
 
