@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Render OmarkyWriter's README screenshots into docs/screenshots/writer/,
+# each scene offscreen at 2x under its theme, framed like the reader's.
+#   writer/tools/readme-shots
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SUITE="$(cd "$ROOT/.." && pwd)"
+RAW="$SUITE/shots/writer"
+OUT="$SUITE/docs/screenshots/writer"
+THEMES="$HOME/.local/share/omarchy/themes"
+mkdir -p "$RAW" "$OUT"
+. "$SUITE/tools/frame"
+export QT_SCALE_FACTOR=2
+
+# name|theme|sample (under writer/samples/)|WxH|--do actions, ; separated
+SCENES=(
+  "editor|tokyo-night|sample|1240x800|"
+  "focus|rose-pine|prose|1240x800|command focus;cursor 420"
+  "preview|tokyo-night|sample|1240x800|command preview"
+  "light|catppuccin-latte|prose|1240x800|cursor 200"
+)
+for s in "${SCENES[@]}"; do
+  IFS='|' read -r name theme sample size actions <<<"$s"
+  args=()
+  if [ -n "$actions" ]; then IFS=';' read -ra acts <<<"$actions"; for a in "${acts[@]}"; do args+=(--do "$a"); done; fi
+  "$ROOT/tools/shot" "$ROOT/samples/$sample.md" "$RAW/$name-raw.png" --theme "$theme" --size "$size" "${args[@]+"${args[@]}"}" >/dev/null
+  single "$RAW/$name-raw.png" "$OUT/$name.png" "$theme"
+  echo "$name.png"
+done

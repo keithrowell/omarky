@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Framing for the README and site screenshots, shared by the apps'
+# readme-shots tools: source this file. Needs ImageMagick (magick) and
+# THEMES (the Omarchy themes directory) set by the caller.
+#
+#   frame IN OUT RADIUS          rounded corners, a hairline edge, a soft shadow
+#   backdrop THEME W H OUT       a gradient from the theme's background and accent
+#   single RAW OUT THEME         one framed window on its backdrop, 1600 px wide
+color() {   # theme key -> #rrggbb
+  sed -nE "s/^$2[[:space:]]*=[[:space:]]*[\"']?(#[0-9A-Fa-f]{6}).*/\1/p" "$THEMES/$1/colors.toml" | head -1
+}
+
+# Rounded corners, a hairline edge and a soft shadow; transparent around.
+frame() {   # in out radius
+  local in="$1" out="$2" r="$3" w h
+  w=$(magick identify -format %w "$in"); h=$(magick identify -format %h "$in")
+  magick -size "${w}x${h}" xc:black -fill white -draw "roundrectangle 0,0 $((w - 1)),$((h - 1)) $r,$r" "$out.mask.png"
+  magick "$in" "$out.mask.png" -alpha off -compose CopyOpacity -composite \
+    \( -size "${w}x${h}" xc:none -fill none -stroke 'rgba(255,255,255,0.14)' -strokewidth 2 \
+       -draw "roundrectangle 1,1 $((w - 2)),$((h - 2)) $r,$r" \) -compose Over -composite \
+    \( +clone -background 'rgba(0,0,0,0.6)' -shadow 100x36+0+28 \) +swap -background none -layers merge +repage \
+    "$out"
+  rm -f "$out.mask.png"
+}
+
+backdrop() {   # theme w h out
+  local bg accent mode glow shade
+  bg="$(color "$1" background)"; accent="$(color "$1" accent)"
+  mode="$(sed -nE 's/^mode[[:space:]]*=[[:space:]]*"(light|dark)".*/\1/p' "$THEMES/$1/colors.toml")"
+  if [ "$mode" = light ]; then glow=0.18; shade=0.06; else glow=0.38; shade=0.28; fi
+  magick -size "$2x$3" "xc:$bg" \
+    \( -size "$2x$3" "radial-gradient:${accent}-none" -channel A -evaluate multiply "$glow" +channel \) -compose Over -composite \
+    \( -size "$2x$3" "gradient:none-rgba(0,0,0,$shade)" \) -compose Over -composite "$4"
+}
+
+single() {   # raw out theme
+  local f="$2.frame.png" bg="$2.bg.png"
+  frame "$1" "$f" 28
+  local w h; w=$(magick identify -format %w "$f"); h=$(magick identify -format %h "$f")
+  backdrop "$3" $((w + 200)) $((h + 200)) "$bg"
+  magick "$bg" "$f" -gravity center -geometry +0-10 -compose Over -composite \
+    -resize 1600x -strip -define png:compression-level=9 "$2"
+  rm -f "$f" "$bg"
+}
+
