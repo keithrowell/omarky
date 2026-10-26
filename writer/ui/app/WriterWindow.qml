@@ -146,9 +146,12 @@ FloatingWindow {
     case "findNext": if (findInput.text) { if (!matches.length) runFind(findInput.text); else stepFind(1) } break
     case "findPrev": stepFind(-1); break
     case "help": helpShown = !helpShown; break
+    case "rewrite": rewriter.open("block"); break
+    case "rewriteSection": rewriter.open("section"); break
     case "recent": listDrafts.running = true; break
     case "escape":
       if (menu.shown) menu.close()
+      else if (rewriter.shown) rewriter.dismiss()
       else if (helpShown) helpShown = false
       else if (findShown) { findShown = false; editor.forceFocus() }
       else if (previewShown) showPreview(false)
@@ -551,8 +554,20 @@ FloatingWindow {
       visible: width > 1
     }
 
+    Rewriter {
+      id: rewriter
+      editor: editor
+      ctx: preview.ctx
+      bin: Quickshell.env("OMARKY_WRITER_BIN") || (Quickshell.shellDir.replace(/\/writer\/ui$/, "") + "/bin/omarky")
+      path: buffer.path
+      stateDir: Settings.dir
+      visible: shown && !win.previewShown
+      onNotice: text => toast.show(text)
+    }
+
     HelpSheet {
       anchors.fill: parent
+      rewrite: rewriter.available
       visible: win.helpShown
       onCloseRequested: { win.helpShown = false; editor.forceFocus() }
     }
@@ -589,4 +604,10 @@ FloatingWindow {
     if (!ev.accepted && key === Qt.Key_Return) debugType("\n")
   }
   function debugText() { return editor.text }
+  function debugRewrite(kind) { rewriter.open(kind || "block"); return rewriter.debugState() }
+  function debugRewriteState() { return rewriter.debugState() }
+  function debugRewriteSay(s) { rewriter.debugInstruction(s); return rewriter.debugKey("Return") }
+  function debugRewriteKey(spec) { return rewriter.debugKey(spec) }
+  function debugUndo() { editor.textEdit.undo(); return editor.text }
+  function debugSelect(a, b) { editor.textEdit.select(a, b) }
 }

@@ -12,6 +12,14 @@ work="$(mktemp -d)"
 trap 'kill "${pid:-0}" 2>/dev/null || true; rm -rf "$work"' EXIT
 export OMARKY_READER_INSTANCE="sheet-$$" OMARKY_READER_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
 export OMARKY_NOW="2026-10-26T10:00:00+10:00" TZ="Australia/Brisbane"
+# Ctrl+J goes to a fake claude, with no style guide or checker of the user's.
+export OMARKY_CLAUDE="$work/claude" XDG_CONFIG_HOME="$work/config"
+cat >"$work/claude" <<'FAKE'
+#!/usr/bin/ruby
+require "json"
+puts JSON.generate({ type: "result", is_error: false, result: "A plainer paragraph.", total_cost_usd: 0 })
+FAKE
+chmod +x "$work/claude"
 file="$("$SUITE/samples/changes/make-repo" "$work/repo")"
 plain=0
 if [ "${1:-}" = "--plain" ]; then
@@ -68,6 +76,22 @@ expect "the first Esc keeps a dirty sheet" "true" "$(sheet '["shown"]')"
 ipc key -1 escape; nap 0.2
 expect "the second Esc discards" "false" "$(sheet '["shown"]')"
 expect "nothing was written" "$before" "$(cat "$file")"
+
+# Ctrl+J in the sheet: Claude's rewrite goes into the sheet, not the file.
+before="$(cat "$file")"
+ipc hover -1 2; ipc key -1 e; nap 0.3
+rw() { ipc sheetRewriteState -1 | field "[\"$1\"]"; }
+ipc sheetRewrite -1 block >/dev/null
+expect "Ctrl+J opens the line in the sheet" "true" "$(rw shown)"
+expect "Claude is there" "true" "$(rw available)"
+ipc sheetRewriteSay -1 plainer
+for i in $(seq 40); do [ "$(rw busy)" = false ] && break; nap 0.1; done
+expect "the rewrite comes back" "A plainer paragraph." "$(rw proposal)"
+ipc sheetRewriteKey -1 Return; nap 0.2
+expect "Enter puts it in the sheet" "A plainer paragraph." "$(sheet '["text"]')"
+expect "the file is untouched until Ctrl+Enter" "$before" "$(cat "$file")"
+ipc key -1 escape; ipc key -1 escape; nap 0.2
+expect "Esc twice still discards" "false" "$(sheet '["shown"]')"
 
 # A file that changed under the sheet is not written over.
 ipc hover -1 2; ipc key -1 e; nap 0.3

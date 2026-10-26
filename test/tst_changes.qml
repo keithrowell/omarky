@@ -256,4 +256,17 @@ TestCase {
     verify(ms < 1000, "compare of 20k words took " + ms + " ms")
     compare(r.total, 4)
   }
+
+  function test_rewrite_pairs_a_lone_block_word_by_word() {
+    var out = Changes.rewrite("The first paragraph is long-winded.", "A plainer paragraph.")
+    compare(out.length, 1)
+    compare(out[0].change, "reworded")
+    verify(out[0].runs.some(function(r) { return r.del }))
+    verify(out[0].runs.some(function(r) { return r.ins }))
+  }
+
+  function test_rewrite_of_several_blocks_compares_them() {
+    var out = Changes.rewrite("One.\n\nTwo.", "One.\n\nTwo and more.\n\nThree.")
+    compare(out.map(function(b) { return b.change }).join(","), "same,reworded,added")
+  }
 }

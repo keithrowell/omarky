@@ -125,6 +125,10 @@ FloatingWindow {
   function sheetType(s) { if (sheet.shown) sheet.type(s) }
   function sheetSet(s) { if (sheet.shown) sheet.setText(s) }
   function sheetUse() { if (sheet.shown && sheet.older !== "") sheet.useOlder() }
+  function sheetRewrite(kind) { return sheet.shown ? sheet.rewriteOpen(kind) : {} }
+  function sheetRewriteState() { return sheet.rewriteState() }
+  function sheetRewriteSay(s) { if (sheet.shown) sheet.rewriteSay(s) }
+  function sheetRewriteKey(spec) { if (sheet.shown) sheet.rewriteKey(spec) }
 
   // Scroll the whole document in 120 px steps, building delegates
   // synchronously; reports the slowest step (the delegate-creation cost a
@@ -649,6 +653,9 @@ FloatingWindow {
       fileName: win.fileName
       zoom: Prefs.zoom
       column: view.column
+      bin: win.launcher
+      stateDir: Prefs.ephemeral ? "" : Prefs.dir
+      onNotice: text => toast.show(text)
       onSaved: toast.show("Saved")
       onClosed: keySink.forceActiveFocus()
     }

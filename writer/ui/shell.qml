@@ -131,6 +131,12 @@ ShellRoot {
     function text(n: int): string { var w = shell.win(n); return w ? w.debugText() : "" }
     function shot(n: int, path: string): void { var w = shell.win(n); if (w) w.grabRoot.grabToImage(function(r) { r.saveToFile(path) }) }
     function close(n: int): void { var w = shell.win(n); if (w) w.closeRequested() }
+    function rewrite(n: int, kind: string): string { var w = shell.win(n); return w ? JSON.stringify(w.debugRewrite(kind)) : "{}" }
+    function rewriteState(n: int): string { var w = shell.win(n); return w ? JSON.stringify(w.debugRewriteState()) : "{}" }
+    function rewriteSay(n: int, s: string): void { var w = shell.win(n); if (w) w.debugRewriteSay(s) }
+    function rewriteKey(n: int, spec: string): void { var w = shell.win(n); if (w) w.debugRewriteKey(spec) }
+    function undo(n: int): string { var w = shell.win(n); return w ? w.debugUndo() : "" }
+    function select(n: int, a: int, b: int): void { var w = shell.win(n); if (w) w.debugSelect(a, b) }
   }
 
   function win(n) {

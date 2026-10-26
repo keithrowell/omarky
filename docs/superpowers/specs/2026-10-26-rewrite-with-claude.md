@@ -1,6 +1,6 @@
 # Rewrite with Claude
 
-Status: design, for Keith's review. 26 October 2026.
+Status: built, 26 October 2026 (Omarky 0.7.0, decision 0019).
 
 ## Recommendation
 
@@ -60,13 +60,13 @@ The launcher gets one JSON job on standard input from a new subcommand, `omarky 
 | Tools | None (`--tools ""`), so Claude can only write text back |
 | Model | Opus 5.5 at low effort; `--model` is one constant in the launcher |
 | Context | The whole document, with the range marked, the file's name, the instruction and the earlier turns on this range |
-| Writing guide | The file at `~/.config/omarky/writing.md` if it exists, appended to the system prompt |
+| Writing guide | `~/.config/omarky/writing.md`, or every Markdown file in `~/.config/omarky/writing/`, added to the system prompt |
 | Checker | The executable at `~/.config/omarky/check` if it exists, run on the rewrite; any line it reports goes back to Claude once for a corrected rewrite before the card settles |
 | Session | `--no-session-persistence`; each turn sends the conversation again, so nothing piles up in your Claude history |
 
 The system prompt tells Claude to return only the replacement Markdown for the range, to keep the document's voice and spelling, and to change nothing the instruction does not ask for. Anything else Claude says is dropped, and an empty or unchanged reply shows as "No change" in the card.
 
-On your machine, `ops/install` links the writing guide to your writing skill and the checker to its `check.rb`, so a rewrite in the writer meets the same rules as anything I write for you. For anyone else the two files are optional, and the feature works without them.
+On your machine, `~/.config/omarky/writing/` links your writing digest and vocabulary, and `~/.config/omarky/check` runs your `check.rb`, so a rewrite in the writer meets the same rules as anything I write for you. For anyone else the two files are optional, and the feature works without them.
 
 The line only appears when `claude` is on the path. Without it, `Ctrl+J` does nothing and the help sheet does not list it.
 

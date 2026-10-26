@@ -7,8 +7,19 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SUITE="$(cd "$ROOT/.." && pwd)"
 work="$(mktemp -d)"
-trap 'kill "${pid:-0}" 2>/dev/null || true; rm -rf "$work"' EXIT
+trap 'kill "${pid:-0}" 2>/dev/null || true; [ -n "${KEEP:-}" ] && cp "$work/qs.log" /tmp/claude-1001/-home-keith-agenta/2d6fe1d7-7004-40f5-82fa-a5322e2c1358/scratchpad/writer-check.log; rm -rf "$work"' EXIT
 export OMARKY_WRITER_INSTANCE="check-$$" OMARKY_WRITER_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
+# Rewrites go to a fake claude, with no style guide or checker of the user's.
+export OMARKY_CLAUDE="$work/claude" XDG_CONFIG_HOME="$work/config"
+cat >"$work/claude" <<'FAKE'
+#!/usr/bin/ruby
+require "json"
+prompt = ARGV.last
+text = prompt.include?("<instruction>warmer</instruction>") ? "A warmer paragraph." : "A plainer paragraph."
+text.scan(/.{1,5}/m).each { |c| puts JSON.generate({ type: "stream_event", event: { type: "content_block_delta", delta: { type: "text_delta", text: c } } }); $stdout.flush; sleep 0.02 }
+puts JSON.generate({ type: "result", is_error: false, result: text, total_cost_usd: 0 })
+FAKE
+chmod +x "$work/claude"
 plain=0
 if [ "${1:-}" = "--plain" ]; then
   plain=1; unset QML_IMPORT_PATH
@@ -45,6 +56,41 @@ expect "autosave writes the file" "$(ipc text -1)" "$(cat "$file" 2>/dev/null)"
 printf 'Rewritten by someone else.\n' >"$file"
 nap 0.8
 expect "a clean buffer takes a change on disk" "Rewritten by someone else." "$(ipc text -1)"
+
+# ---- Ctrl+J: rewrite a block with Claude (a fake one here)
+field() { python3 -c "import json,sys; v=json.loads(sys.argv[1]).get(sys.argv[2]); print(json.dumps(v) if not isinstance(v,str) else v)" "$1" "$2"; }
+settle() { for i in $(seq 60); do st="$(ipc rewriteState -1)"; [ "$(field "$st" busy)" = "false" ] && break; nap 0.1; done; printf '%s' "$st"; }
+printf '# Title\n\nThe first paragraph is long-winded.\n\nSecond para.\n' >"$file"
+nap 0.8
+ipc cursor -1 14
+st="$(ipc rewrite -1 block)"
+expect "Ctrl+J takes the block under the cursor" "The first paragraph is long-winded." "$(field "$st" original)"
+expect "Claude is there" "true" "$(field "$(ipc rewriteState -1)" available)"
+ipc rewriteSay -1 plainer
+st="$(settle)"
+expect "the rewrite streams into the card" "A plainer paragraph." "$(field "$st" proposal)"
+expect "the card marks it against the original" '["reworded"]' "$(field "$st" marked)"
+ipc rewriteSay -1 warmer
+st="$(settle)"
+expect "another instruction refines it" "A warmer paragraph.|2" "$(field "$st" proposal)|$(field "$st" rewrites)"
+ipc rewriteKey -1 alt+Up
+expect "Alt+Up steps back to the earlier rewrite" "A plainer paragraph." "$(field "$(ipc rewriteState -1)" proposal)"
+ipc rewriteKey -1 alt+Down
+ipc rewriteKey -1 Return
+expect "Enter takes the rewrite" $'# Title\n\nA warmer paragraph.\n\nSecond para.\n' "$(ipc text -1)"$'\n'
+expect "the line closes" "false" "$(field "$(ipc rewriteState -1)" shown)"
+if [ $plain = 0 ]; then
+  expect "one Ctrl+Z puts the original back" $'# Title\n\nThe first paragraph is long-winded.\n\nSecond para.\n' "$(ipc undo -1)"$'\n'
+fi
+ipc cursor -1 14
+ipc rewrite -1 block >/dev/null
+ipc rewriteKey -1 ctrl+j
+expect "Ctrl+J again widens to the section" "section" "$(field "$(ipc rewriteState -1)" kind)"
+ipc rewriteKey -1 ctrl+j
+expect "and then to the whole document" "document" "$(field "$(ipc rewriteState -1)" kind)"
+ipc rewriteKey -1 Escape
+expect "Esc closes the line" "false" "$(field "$(ipc rewriteState -1)" shown)"
+
 state="$(ipc state -1)"
 echo "state $state"
 if [ $plain = 1 ]; then

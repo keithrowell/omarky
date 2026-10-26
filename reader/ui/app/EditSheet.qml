@@ -24,6 +24,9 @@ Item {
   property string fileName: ""
   property real zoom: 1
   property real column: Style.space(600)
+  // For Ctrl+J: the omarky command and where remembered instructions live.
+  property string bin: ""
+  property string stateDir: ""
   // What is being edited: source lines [start, end).
   property int start: -1
   property int end: -1
@@ -41,6 +44,7 @@ Item {
   readonly property bool highlighted: editor.highlighted
   signal saved()
   signal closed()
+  signal notice(string text)
 
   function open(s, e, beforeBlock, afterBlock, olderText) {
     start = s
@@ -60,6 +64,7 @@ Item {
   }
 
   function cancel() {
+    if (rewriter.shown) rewriter.close()
     shown = false
     closed()
   }
@@ -80,8 +85,11 @@ Item {
 
   function onCommand(name) {
     if (name === "submit" || name === "save") save()
+    else if (name === "rewrite") rewriter.open("block")
+    else if (name === "rewriteSection") rewriter.open("section")
     else if (name === "escape") {
       if (menu.shown) menu.close()
+      else if (rewriter.shown) rewriter.dismiss()
       else if (!dirty || armed) cancel()
       else { armed = true; armTimer.restart() }
     }
@@ -101,6 +109,10 @@ Item {
   function type(s) { editor.textEdit.insert(editor.textEdit.cursorPosition, s) }
   function setText(s) { editor.text = s }
   function editorText() { return editor.text }
+  function rewriteOpen(kind) { rewriter.open(kind); return rewriter.debugState() }
+  function rewriteState() { return rewriter.debugState() }
+  function rewriteSay(s) { rewriter.debugInstruction(s); rewriter.debugKey("Return") }
+  function rewriteKey(spec) { return rewriter.debugKey(spec) }
 
   Timer { id: armTimer; interval: 2000; onTriggered: root.armed = false }
 
@@ -298,6 +310,19 @@ Item {
         }
       }
     }
+  }
+
+  // Ctrl+J: Claude rewrites a block, a section or a selection of the text
+  // in the sheet; taking it changes the sheet's text, and Ctrl+Enter still
+  // writes the file.
+  Rewriter {
+    id: rewriter
+    editor: editor
+    ctx: root.ctx
+    bin: root.bin
+    path: root.path
+    stateDir: root.stateDir
+    onNotice: text => root.notice(text)
   }
 
   PopupMenu { id: menu; onClosed: editor.forceFocus() }

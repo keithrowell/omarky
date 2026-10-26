@@ -62,6 +62,9 @@ public:
     Q_INVOKABLE bool isCorrect(const QString &word) const;
     Q_INVOKABLE QStringList suggestions(const QString &word) const;
     Q_INVOKABLE void addToDictionary(const QString &word);
+    // Replace [start, end) with `text` as one undo step (a TextEdit's
+    // remove and insert are two). False when the range is out of bounds.
+    Q_INVOKABLE bool replace(int start, int end, const QString &text);
 
 signals:
     void documentChanged();

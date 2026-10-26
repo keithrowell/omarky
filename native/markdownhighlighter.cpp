@@ -793,3 +793,17 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
         }
     }
 }
+
+bool MarkdownHighlighter::replace(int start, int end, const QString &text)
+{
+    QTextDocument *doc = document();
+    if (!doc || start < 0 || end < start || end > doc->characterCount() - 1)
+        return false;
+    QTextCursor c(doc);
+    c.beginEditBlock();
+    c.setPosition(start);
+    c.setPosition(end, QTextCursor::KeepAnchor);
+    c.insertText(text);
+    c.endEditBlock();
+    return true;
+}

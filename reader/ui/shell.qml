@@ -141,6 +141,11 @@ ShellRoot {
     function sheetType(n: int, s: string): void { var w = shell.win(n); if (w) w.sheetType(s) }
     function sheetSet(n: int, s: string): void { var w = shell.win(n); if (w) w.sheetSet(s) }
     function sheetUse(n: int): void { var w = shell.win(n); if (w) w.sheetUse() }
+    // Ctrl+J in the sheet: open the line, read it, say an instruction, press a key.
+    function sheetRewrite(n: int, kind: string): string { var w = shell.win(n); return w ? JSON.stringify(w.sheetRewrite(kind)) : "{}" }
+    function sheetRewriteState(n: int): string { var w = shell.win(n); return w ? JSON.stringify(w.sheetRewriteState()) : "{}" }
+    function sheetRewriteSay(n: int, s: string): void { var w = shell.win(n); if (w) w.sheetRewriteSay(s) }
+    function sheetRewriteKey(n: int, spec: string): void { var w = shell.win(n); if (w) w.sheetRewriteKey(spec) }
   }
 
   function win(n) {

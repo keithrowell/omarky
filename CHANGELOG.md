@@ -4,6 +4,22 @@ One version for the suite since 0.6.0. Before that: 0.1.0 to 0.2.1 are the libra
 earlier are OmaRead's, and OmaRead 0.5.0 and OmaWriter 0.1.0 are in `docs/reader/CHANGELOG.md` and
 `docs/writer/CHANGELOG.md`.
 
+## 0.7.0 (2026-10-26)
+
+- Rewrite with Claude: `Ctrl+J` in the editor opens an instruction line under the block, the
+  selection, or with `Ctrl+Shift+J` the section; `Ctrl+J` again takes in more. Claude's rewrite
+  streams into a card with the changed words marked; `Enter` takes it as one undo step, `Esc`
+  drops it, another instruction refines it, `Alt+Up` and `Alt+Down` step through the rewrites, and
+  `Up` recalls earlier instructions. In OmarkyWriter and in the reader's edit sheet.
+- `omarky rewrite --job FILE` runs Claude Code headless with no tools and streams JSON lines;
+  `--available` says whether `claude` is installed. A style guide (`~/.config/omarky/writing.md`
+  or `writing/*.md`) and a checker (`~/.config/omarky/check`) apply when present (decision 0019).
+- `lib/ranges.js`: blocks, sections, word-widened selections and widening, for any editor.
+  `Changes.rewrite()` pairs a lone rewritten block word by word.
+- The native highlighter has `replace(start, end, text)`, one undo step.
+- Qt 6.12 adds a `Color` object to QtQuick that hid the theme singleton, so windows came up
+  transparent; the singleton is now `ShellColor`.
+
 ## 0.6.0 (2026-10-26)
 
 - Omarky is the suite: OmaRead is OmarkyReader, OmaWriter is OmarkyWriter, and both live in this

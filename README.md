@@ -90,6 +90,14 @@ Focus (`Ctrl+Shift+F`) fades every paragraph but the one you are in. Typewriter 
 
 When you want to read what you have written, `Ctrl+P` shows the document as the reader sets it, opened at the paragraph you were in, and `Esc` puts you back at the same place in the source. The two apps share one renderer, so the page you read back is the page the reader will show.
 
+### Rewriting with Claude
+
+Put the cursor in a paragraph, or select some words, and press `Ctrl+J`. A line opens under the text for an instruction, such as "plainer", "cut this in half" or "less formal". Claude rewrites that text with the whole document as context. The rewrite appears in a card under it, with removed words struck through and new words on green, the way the reader shows changes. `Enter` puts it in place, and `Ctrl+Z` takes it back out. `Esc` drops it. Type another instruction to change the rewrite again, and `Alt+Up` brings back an earlier one.
+
+`Ctrl+Shift+J` rewrites the whole section. `Ctrl+J` on the line takes in more: the block, then the section, then the whole document. The same line works in the reader's edit sheet.
+
+This needs Claude Code (`claude` on your path) and uses your Claude subscription. The whole document goes to Anthropic with each instruction. Two optional files shape every rewrite: a style guide at `~/.config/omarky/writing.md`, and an executable `~/.config/omarky/check` that reads the rewrite and exits non-zero with a list of problems, which Claude gets one chance to fix.
+
 With no file you get a new untitled document, saved as a draft while you type. `Ctrl+R` lists recent files and drafts, and `Ctrl+Shift+S` gives a draft a name. Named files save themselves a moment after you stop typing. A file changed by another program is reloaded in place when you have nothing unsaved, and offered as a choice when you do.
 
 ![Light theme, catppuccin-latte](docs/screenshots/writer/light.png)
@@ -123,6 +131,7 @@ To update, pull and run the install script again. The reader's state (zoom, rece
 | `N` `P` | Next and previous change |
 | `F` | Only what changed, or everything |
 | `E` `Shift+E` | Edit the block under the mouse, or its section, in a sheet; `Ctrl+Enter` saves, `Esc` cancels |
+| `Ctrl+J` | In the edit sheet, rewrite the block, section or selection with Claude |
 | `W` | Switch between the reading measure (68 characters) and a wide one (100) |
 | `Ctrl++` `Ctrl+-` `Ctrl+0` | Zoom the text (remembered) |
 | `Ctrl+F` or `/` | Find; `Enter` and `Shift+Enter` (or `n` and `N`) step through matches, `Esc` closes |

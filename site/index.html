@@ -153,6 +153,10 @@ omarky write --end journal.md</code></pre>
     <figure class="tight">
       <img src="img/writer-preview.webp" alt="The preview: the document rendered by OmarkyReader, opened at the block the cursor was in" width="1600" height="1344" loading="lazy">
     </figure>
+    <h3>Rewriting with Claude</h3>
+    <p>Put the cursor in a paragraph, or select some words, and press <kbd>Ctrl+J</kbd>. A line opens under the text for an instruction, such as "plainer", "cut this in half" or "less formal". Claude rewrites that text with the whole document as context. The rewrite appears in a card under it, with removed words struck through and new words on green, the way the reader shows changes. <kbd>Enter</kbd> puts it in place, and <kbd>Ctrl+Z</kbd> takes it back out. <kbd>Esc</kbd> drops it. Type another instruction to change the rewrite again, and <kbd>Alt+Up</kbd> brings back an earlier one.</p>
+    <p><kbd>Ctrl+Shift+J</kbd> rewrites the whole section. <kbd>Ctrl+J</kbd> on the line takes in more: the block, then the section, then the whole document. The same line works in the reader's edit sheet.</p>
+    <p class="note">This needs Claude Code (<code>claude</code> on your path) and uses your Claude subscription. The whole document goes to Anthropic with each instruction. A style guide at <code>~/.config/omarky/writing.md</code> and a checker at <code>~/.config/omarky/check</code> shape every rewrite if they are there.</p>
     <p style="margin-top:28px">With no file you get a new untitled document, saved as a draft while you type. <kbd>Ctrl+R</kbd> lists recent files and drafts, and <kbd>Ctrl+Shift+S</kbd> gives a draft a name. Named files save themselves a moment after you stop typing. A file changed by another program is reloaded in place when you have nothing unsaved, and offered as a choice when you do.</p>
   </div>
 </section>

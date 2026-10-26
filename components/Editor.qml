@@ -52,6 +52,36 @@ Item {
     return true
   }
 
+  // Replace [start, end) as one undo step when the native module is there
+  // (a TextEdit's remove and insert are two), then place the cursor.
+  function replace(start, end, text, cursor) {
+    var done = root.highlighter ? root.highlighter.replace(start, end, text) : false
+    if (!done) { edit.remove(start, end); edit.insert(start, text) }
+    edit.cursorPosition = cursor === undefined ? start + text.length : cursor
+    follow(true)
+  }
+
+  // The scroll offset, for hosts placing things beside the text.
+  readonly property real scrollY: flick.contentY
+  // Bumped whenever the text's layout may have moved, so bindings on
+  // rangeBox() follow typing, resizing and scrolling.
+  property int layoutTick: 0
+  // Where [start, end) sits, in this item's coordinates: { x, y, width,
+  // height } spanning the column, from the top of the first line to the
+  // bottom of the last.
+  function rangeBox(start, end) {
+    void layoutTick
+    var a = edit.positionToRectangle(Math.max(0, start))
+    var b = edit.positionToRectangle(Math.max(0, Math.min(end, edit.length)))
+    // The text runs from the gutter (the highlighter's hanging margin) to the
+    // TextEdit's right edge; a plain editor starts at its left edge.
+    var left = root.highlighted ? root.gutter : 0
+    return { x: edit.x + left, y: edit.y + a.y - flick.contentY, width: edit.width - left, height: b.y + b.height - a.y }
+  }
+  // A soft shade behind a range (the rewrite's), or none when start < 0.
+  property int shadeStart: -1
+  property int shadeEnd: -1
+
   function selectRange(start, end) {
     edit.select(start, end)
     follow(true)
@@ -112,6 +142,17 @@ Item {
       }
     }
 
+    Rectangle {
+      readonly property var box: root.shadeStart >= 0 ? root.rangeBox(root.shadeStart, root.shadeEnd) : null
+      visible: box !== null
+      x: box ? box.x - Style.space(10) : 0
+      y: box ? box.y + flick.contentY - Style.space(6) : 0
+      width: box ? box.width + Style.space(20) : 0
+      height: box ? box.height + Style.space(12) : 0
+      radius: Math.max(6, Style.cornerRadius)
+      color: Theme.hover
+    }
+
     TextEdit {
       id: edit
       x: Math.round((flick.width - root.measure) / 2 - root.gutter)
@@ -147,7 +188,9 @@ Item {
         Connections { target: root; function onTypingChanged() { if (root.typing) caret.opacity = 1 } }
       }
 
-      onTextChanged: typingTimer.restart()
+      onTextChanged: { typingTimer.restart(); root.layoutTick++ }
+      onWidthChanged: root.layoutTick++
+      onContentHeightChanged: root.layoutTick++
       onCursorRectangleChanged: if (activeFocus) root.follow(false)
 
       Keys.onPressed: event => root.handleKey(event)
@@ -309,6 +352,7 @@ Item {
       if (!shift && wrapKey[k]) { root.apply(E.wrap(t, a, b, wrapKey[k])); event.accepted = true; return }
       if (shift && k === Qt.Key_X) { root.apply(E.wrap(t, a, b, "~~")); event.accepted = true; return }
       if (!shift && k === Qt.Key_K) { root.apply(E.link(t, a, b)); event.accepted = true; return }
+      if (k === Qt.Key_J) { root.command(shift ? "rewriteSection" : "rewrite"); event.accepted = true; return }
       if (!shift && k >= Qt.Key_0 && k <= Qt.Key_6) { root.apply(E.heading(t, edit.cursorPosition, k - Qt.Key_0)); event.accepted = true; return }
       var commands = shift
         ? { [Qt.Key_F]: "focus", [Qt.Key_T]: "typewriter", [Qt.Key_L]: "spell", [Qt.Key_S]: "saveAs", [Qt.Key_M]: "font", [Qt.Key_P]: "preview" }
