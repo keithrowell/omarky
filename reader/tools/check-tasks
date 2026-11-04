@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# End-to-end check of ticking task boxes in a real (offscreen) OmarkyReader:
+# a tick and a clear write one character to the file and the page reloads
+# with the new state; a stale line is refused and the file left alone; a
+# clean log.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SUITE="$(cd "$ROOT/.." && pwd)"
+work="$(mktemp -d)"
+trap 'kill "${pid:-0}" 2>/dev/null || true; rm -rf "$work"' EXIT
+export OMARKY_READER_INSTANCE="tasks-$$" OMARKY_READER_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
+file="$work/tasks.md"
+printf -- '---\ntitle: Tasks\n---\n\n# Today\n\n- [ ] write the report\n- [x] call Danny\n  - [ ] nested step\n\n> 1. [ ] quoted task\n' >"$file"
+"$SUITE/bin/omarky" read --foreground "$file" >"$work/qs.log" 2>&1 &
+pid=$!
+nap() { python3 -c "import time; time.sleep($1)"; }
+ipc() { qs ipc --pid "$pid" call omarky-reader "$@"; }
+field() { python3 -c "import json,sys; v=json.load(sys.stdin)$1; print(v if not isinstance(v, bool) else str(v).lower())"; }
+for i in $(seq 60); do ipc count 2>/dev/null | grep -q '^[1-9]' && break; nap 0.2; done
+for i in $(seq 40); do ipc state -1 2>/dev/null | field '["loaded"]' | grep -q true && break; nap 0.2; done
+nap 0.5
+fail=0
+expect() { if [ "$2" == "$3" ]; then echo "ok    $1"; else echo "FAIL  $1"; printf '  expected: %q\n  actual:   %q\n' "$2" "$3"; fail=1; fi; }
+line() { sed -n "$(($1 + 1))p" "$file"; }
+reloads() { ipc state -1 | field '["reloads"]'; }
+
+before="$(cat "$file")"; r0="$(reloads)"
+ipc task -1 6 true; nap 0.8
+expect "a tick writes [x]" "- [x] write the report" "$(line 6)"
+expect "the page reloads" "$((r0 + 1))" "$(reloads)"
+ipc task -1 7 false; nap 0.8
+expect "a clear writes [ ]" "- [ ] call Danny" "$(line 7)"
+ipc task -1 8 true; nap 0.8
+expect "a nested task ticks" "  - [x] nested step" "$(line 8)"
+ipc task -1 10 true; nap 0.8
+expect "a task in a quote ticks" "> 1. [x] quoted task" "$(line 10)"
+after="$(cat "$file")"
+expect "only the boxes changed" "$(echo "$before" | wc -c)" "$(echo "$after" | wc -c)"
+ipc task -1 4 true; nap 0.8
+expect "a line that is not a task is left alone" "$after" "$(cat "$file")"
+expect "the front matter is untouched" "title: Tasks" "$(line 1)"
+
+if grep -E 'WARN|ERROR|CRIT|TypeError|ReferenceError' "$work/qs.log" | grep -vE 'WAYLAND_DISPLAY|running wayland|--- WARNING ---|window masks|by-path'; then
+  echo "FAIL  the qs log is not clean"; fail=1
+else
+  echo "ok    clean log"
+fi
+exit $fail

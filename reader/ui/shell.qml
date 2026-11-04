@@ -140,6 +140,7 @@ ShellRoot {
     // The edit sheet: type at the cursor, or replace its text.
     function sheetType(n: int, s: string): void { var w = shell.win(n); if (w) w.sheetType(s) }
     function sheetSet(n: int, s: string): void { var w = shell.win(n); if (w) w.sheetSet(s) }
+    function task(n: int, line: int, done: bool): void { var w = shell.win(n); if (w) w.debugToggleTask(line, done) }
     function sheetUse(n: int): void { var w = shell.win(n); if (w) w.sheetUse() }
     // Ctrl+J in the sheet: open the line, read it, say an instruction, press a key.
     function sheetRewrite(n: int, kind: string): string { var w = shell.win(n); return w ? JSON.stringify(w.sheetRewrite(kind)) : "{}" }

@@ -5,6 +5,7 @@ import Quickshell.Io
 import qs.Commons
 import qs.services
 import qs.components
+import "../lib/blocks.js" as Blocks
 
 // One window per open file: the header, the outline, the reading column,
 // find, and every key in §5 of the spec. When the file has earlier versions
@@ -124,6 +125,7 @@ FloatingWindow {
   function debugLink(href) { ctx.openLink(href) }
   function sheetType(s) { if (sheet.shown) sheet.type(s) }
   function sheetSet(s) { if (sheet.shown) sheet.setText(s) }
+  function debugToggleTask(line, done) { toggleTask(line, done) }
   function sheetUse() { if (sheet.shown && sheet.older !== "") sheet.useOlder() }
   function sheetRewrite(kind) { return sheet.shown ? sheet.rewriteOpen(kind) : {} }
   function sheetRewriteState() { return sheet.rewriteState() }
@@ -359,6 +361,31 @@ FloatingWindow {
     sheet.open(b.srcStart, b.srcEnd, neighbour(i, -1), neighbour(i, 1), older)
   }
 
+  // ---- ticking a task box: one character on one line, the whole file
+  // written atomically, like the sheet (ADR 0020). The page then reloads
+  // from disk, so it never shows a tick the file does not have.
+  readonly property bool canWriteTasks: !!path && doc.loaded && !doc.missing && !sheet.shown
+                                        && (!comparing || (!!changes.to && changes.to.label === "Now"))
+  function toggleTask(line, done) {
+    if (!canWriteTasks || taskWriter.busy) return
+    var src = comparing ? changes.nowText : doc.source
+    var next = Blocks.toggleTask(src, line, done)
+    if (next === null) { toast.show("That task is not where it was. Try again"); return }
+    if (next === src) return
+    taskWriter.busy = true
+    taskWriter.setText(next)
+  }
+
+  FileView {
+    id: taskWriter
+    property bool busy: false
+    path: win.path
+    printErrors: false
+    atomicWrites: true
+    onSaved: busy = false
+    onSaveFailed: err => { busy = false; toast.show("Could not save: " + err) }
+  }
+
   // ---- keys
   function handleKey(event) {
     var ctrl = event.modifiers & Qt.ControlModifier
@@ -555,6 +582,10 @@ FloatingWindow {
         onNotice: t => toast.show(t)
         onOpenFile: (p, a) => win.openFile(p, a)
         onUnfoldRequested: i => changes.unfold(doc.blocks, i)
+        // A click on a task box ticks or clears it in the file, when the page
+        // is the file on disk (not two past versions).
+        tasksEditable: win.canWriteTasks
+        onTaskToggled: (line, done) => win.toggleTask(line, done)
       }
 
       // A brief tint over the change n/p landed on.

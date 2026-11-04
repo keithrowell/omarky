@@ -32,7 +32,7 @@ Open a file and it is a page: one column, the outline at the left, and the first
 
 ![The same page in six Omarchy themes](docs/screenshots/reader/themes.png)
 
-Find (`Ctrl+F` or `/`) steps through matches across the whole document. `W` widens the measure for tables and code. Right-click any block to copy its Markdown source. A hover on a heading shows a `#` that copies `file.md#heading`. The file is watched, so an edit in another program shows up in place, with the page kept on the same paragraph.
+Find (`Ctrl+F` or `/`) steps through matches across the whole document. `W` widens the measure for tables and code. Click a task's checkbox to tick or clear it in the file. Right-click any block to copy its Markdown source. A hover on a heading shows a `#` that copies `file.md#heading`. The file is watched, so an edit in another program shows up in place, with the page kept on the same paragraph.
 
 ### Changes
 

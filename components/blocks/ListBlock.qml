@@ -6,7 +6,7 @@ import qs.components
 
 // Bullets and numbers hang in the margin so item text aligns with the
 // paragraph; nested levels step in with a lighter bullet. Task items get a
-// drawn, read-only checkbox and dimmed text once done.
+// drawn checkbox (clickable where the host allows) and dimmed text once done.
 Column {
   id: root
   required property var block
@@ -105,8 +105,14 @@ Column {
           font.features: { "tnum": 1 }
         }
 
-        // Task checkbox.
+        // Task checkbox. Where the host allows it (ctx.tasksEditable), a click
+        // asks it to flip the box in the file; the page shows the change when
+        // the file reloads, so what is drawn is always what is on disk.
         Rectangle {
+          id: check
+          readonly property bool clickable: item.modelData.task !== "" && !!root.ctx && !!root.ctx.tasksEditable
+                                            && typeof item.modelData.line === "number" && item.modelData.line >= 0
+                                            && item.modelData.change !== "removed" && root.block.change !== "removed"
           visible: item.modelData.task !== ""
           width: root.box; height: root.box
           anchors.right: parent.right
@@ -114,7 +120,19 @@ Column {
           radius: Math.max(2, Math.round(root.box * 0.24))
           color: item.done ? Theme.accent : "transparent"
           border.width: item.done ? 0 : Math.max(1, Math.round(root.textSize / 12))
-          border.color: Theme.faint
+          border.color: hit.containsMouse ? Theme.accent : Theme.faint
+
+          MouseArea {
+            id: hit
+            enabled: check.clickable
+            // A little larger than the box, so it is easy to hit.
+            anchors.centerIn: parent
+            width: parent.width + Math.round(root.textSize * 0.5)
+            height: parent.height + Math.round(root.textSize * 0.5)
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.ctx.toggleTask(item.modelData.line, !item.done)
+          }
 
           Shape {
             visible: item.done

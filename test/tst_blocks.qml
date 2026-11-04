@@ -206,6 +206,31 @@ TestCase {
     verify(doc.blocks[0].tasks)
   }
 
+  function test_task_lines() {
+    var src = "---\ntitle: T\n---\n\n- [ ] one\n- [x] two\n  - [ ] nested\n\n> 1. [ ] quoted\n"
+    var doc = Blocks.build(src)
+    var lists = doc.blocks.filter(function(b) { return b.type === "list" })
+    compare(lists[0].items.map(function(i) { return i.line }), [4, 5])
+    compare(lists[0].items[1].blocks[1].items[0].line, 6)
+    var q = doc.blocks.filter(function(b) { return b.type === "quote" })[0]
+    compare(q.blocks[0].items[0].line, 8)
+  }
+
+  function test_toggle_task() {
+    var src = "- [ ] one\n  * [X] nested\n> 2) [ ] quoted\n- [ ]\n- plain [ ] not\n10. [x] ten\r\n"
+    compare(Blocks.toggleTask(src, 0, true).split("\n")[0], "- [x] one")
+    compare(Blocks.toggleTask(src, 1, false).split("\n")[1], "  * [ ] nested")
+    compare(Blocks.toggleTask(src, 2, true).split("\n")[2], "> 2) [x] quoted")
+    compare(Blocks.toggleTask(src, 3, true).split("\n")[3], "- [x]")
+    compare(Blocks.toggleTask(src, 4, true), null)
+    compare(Blocks.toggleTask(src, 5, false).split("\n")[5], "10. [ ] ten\r")
+    compare(Blocks.toggleTask(src, 99, true), null)
+    // Only the box changes: everything else is byte for byte.
+    var t = Blocks.toggleTask(src, 0, true)
+    compare(t.length, src.length)
+    compare(t.slice(6), src.slice(6))
+  }
+
   function test_blockquote_nesting() {
     var doc = Blocks.build("> outer\n>\n> > inner\n")
     compare(types(doc), ["quote"])

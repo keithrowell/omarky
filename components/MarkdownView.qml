@@ -61,6 +61,10 @@ Item {
   signal openFile(string path, string anchor)
   // A fold row (blocks/Fold.qml) was clicked; `index` is its block index.
   signal unfoldRequested(int index)
+  // Task checkboxes take clicks when set; a click asks the host to tick
+  // (done) or clear the box on source `line`. The view never writes.
+  property bool tasksEditable: false
+  signal taskToggled(int line, bool done)
 
   // Fade the column in, as on open.
   function appear() { mdView.appear() }
@@ -84,6 +88,9 @@ Item {
     readonly property QtObject finder: mdFinder
     // The margin left of the column, for tags that must fit in it.
     readonly property real gutter: mdView.gutter
+    readonly property bool tasksEditable: root.tasksEditable
+
+    function toggleTask(line, done) { if (root.tasksEditable && line >= 0) root.taskToggled(line, done) }
 
     function resolveUrl(src) {
       var s = String(src || "")
