@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- An outline (`Ctrl+\` or the header button), the reader's, now shared from `components/Outline.qml`. It is off until asked for and remembered in `settings.json`. It shades the section the cursor is in, jumps the cursor to a heading on a click, steps aside while you type, and reparses 400 ms after typing stops (`R.outline` in `lib/ranges.js`, on the reader's parse). It needs two headings and a window at least 960 wide.
 - The editor is Omarky's now: `Editor`, `Buffer`, `PopupMenu`, `editing.js` and the native
   highlighter (the `Omarky.Native` module) moved into the library on 26 October so OmaRead can use
   them too. OmaWriter binds its settings to the editor's properties and builds the module through

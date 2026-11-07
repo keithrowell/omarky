@@ -86,6 +86,8 @@ The window holds the text and little else. You type plain Markdown and it looks 
 
 Focus (`Ctrl+Shift+F`) fades every paragraph but the one you are in. Typewriter scrolling (`Ctrl+Shift+T`) keeps the line you are writing in the middle of the window. The header and the word count step aside while you type. Misspelt words get a quiet line once you have moved past them, so nothing flickers under the word you are still typing, and a right-click offers suggestions. Spelling is Australian English through Sonnet and Hunspell.
 
+The outline (`Ctrl+\`) lists the headings at the left, as in the reader, and is off until you ask for it. It shades the section the cursor is in, and a click on a heading moves the cursor there. It steps aside with the header while you type, and new headings join it a moment after you stop.
+
 ![Preview in tokyo-night](docs/screenshots/writer/preview.png)
 
 When you want to read what you have written, `Ctrl+P` shows the document as the reader sets it, opened at the paragraph you were in, and `Esc` puts you back at the same place in the source. The two apps share one renderer, so the page you read back is the page the reader will show.

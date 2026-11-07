@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Io
 
 // What OmarkyWriter remembers across launches, under ~/.local/state/omarky-writer:
-//   settings.json  { zoom, font, focus, typewriter, spell }
+//   settings.json  { zoom, font, focus, typewriter, spell, outline }
 //   recent.json    [ "/abs/path.md", … ]  newest first, at most 20
 //   drafts/        untitled documents, saved as you type
 // OMARKY_WRITER_STATE_DIR moves all of it (screenshots and checks use one).
@@ -22,6 +22,8 @@ Singleton {
   property bool focus: false
   property bool typewriter: false
   property bool spell: true
+  // The heading list at the left; off until asked for.
+  property bool outline: false
   property var recent: []
   readonly property int maxRecent: 20
   property bool loaded: false
@@ -60,7 +62,7 @@ Singleton {
   function save() {
     if (!loaded) return
     mkdir.running = true
-    settingsFile.setText(JSON.stringify({ zoom: zoom, font: font, focus: focus, typewriter: typewriter, spell: spell }, null, 2) + "\n")
+    settingsFile.setText(JSON.stringify({ zoom: zoom, font: font, focus: focus, typewriter: typewriter, spell: spell, outline: outline }, null, 2) + "\n")
   }
 
   Process { id: mkdir; command: ["mkdir", "-p", root.dir, root.draftsDir] }
@@ -78,6 +80,7 @@ Singleton {
         if (typeof s.focus === "boolean") root.focus = s.focus
         if (typeof s.typewriter === "boolean") root.typewriter = s.typewriter
         if (typeof s.spell === "boolean") root.spell = s.spell
+        if (typeof s.outline === "boolean") root.outline = s.outline
       } catch (e) {
         console.warn("OmarkyWriter: ignoring unreadable settings.json")
       }

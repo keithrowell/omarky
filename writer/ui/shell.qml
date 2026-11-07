@@ -129,6 +129,7 @@ ShellRoot {
     function cursor(n: int, p: int): void { var w = shell.win(n); if (w) w.debugCursor(p) }
     function key(n: int, spec: string): void { var w = shell.win(n); if (w) w.debugKey(spec) }
     function text(n: int): string { var w = shell.win(n); return w ? w.debugText() : "" }
+    function jump(n: int, i: int): void { var w = shell.win(n); if (w) w.debugJump(i) }
     function shot(n: int, path: string): void { var w = shell.win(n); if (w) w.grabRoot.grabToImage(function(r) { r.saveToFile(path) }) }
     function close(n: int): void { var w = shell.win(n); if (w) w.closeRequested() }
     function rewrite(n: int, kind: string): string { var w = shell.win(n); return w ? JSON.stringify(w.debugRewrite(kind)) : "{}" }

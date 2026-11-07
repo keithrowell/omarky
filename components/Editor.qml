@@ -100,6 +100,15 @@ Item {
     else if (cy + r.height + margin > flick.contentY + flick.height) glide(cy + r.height + margin - flick.height, force ? 220 : 0)
   }
 
+  // Put the cursor at `pos` and glide its line to the top third of the
+  // window (the middle in typewriter mode): an outline jump.
+  function reveal(pos) {
+    edit.cursorPosition = Math.max(0, Math.min(pos, edit.length))
+    if (root.typewriter) { follow(true); return }
+    var r = edit.cursorRectangle
+    glide(edit.y + r.y - Math.min(root.topPad, flick.height / 3), 220)
+  }
+
   function clampY(y) { return Math.max(0, Math.min(y, flick.contentHeight - flick.height)) }
 
   function glide(y, ms) {
@@ -358,7 +367,7 @@ Item {
         ? { [Qt.Key_F]: "focus", [Qt.Key_T]: "typewriter", [Qt.Key_L]: "spell", [Qt.Key_S]: "saveAs", [Qt.Key_M]: "font", [Qt.Key_P]: "preview" }
         : { [Qt.Key_S]: "save", [Qt.Key_N]: "new", [Qt.Key_O]: "open", [Qt.Key_W]: "close", [Qt.Key_P]: "preview",
             [Qt.Key_F]: "find", [Qt.Key_R]: "recent", [Qt.Key_Equal]: "zoomIn", [Qt.Key_Plus]: "zoomIn", [Qt.Key_Minus]: "zoomOut",
-            [Qt.Key_Slash]: "help", [Qt.Key_Question]: "help", [Qt.Key_G]: "findNext" }
+            [Qt.Key_Slash]: "help", [Qt.Key_Question]: "help", [Qt.Key_G]: "findNext", [Qt.Key_Backslash]: "outline" }
       if (commands[k]) { root.command(commands[k]); event.accepted = true; return }
     }
     if (k === Qt.Key_Escape) { root.command("escape"); event.accepted = true; return }

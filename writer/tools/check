@@ -91,6 +91,24 @@ expect "and then to the whole document" "document" "$(field "$(ipc rewriteState 
 ipc rewriteKey -1 Escape
 expect "Esc closes the line" "false" "$(field "$(ipc rewriteState -1)" shown)"
 
+# ---- the outline: off until asked for, follows the cursor, jumps
+printf '# Title\n\nIntro.\n\n## One\n\nFirst.\n\n```\n# not a heading\n```\n\n## Two\n\nLast.\n' >"$file"
+nap 0.8
+st="$(ipc state -1)"
+expect "the outline starts hidden" "false|3" "$(field "$st" outline)|$(field "$st" headings)"
+ipc command -1 outline
+expect "Ctrl+\\ shows it" "true" "$(field "$(ipc state -1)" outline)"
+ipc cursor -1 30
+expect "the cursor's section is the current one" "One" "$(field "$(ipc state -1)" section)"
+ipc jump -1 2
+st="$(ipc state -1)"
+expect "a click on a heading moves the cursor there" "Two|$(python3 -c 'import sys; print(open(sys.argv[1]).read().index("## Two"))' "$file")" "$(field "$st" section)|$(field "$st" cursor)"
+ipc cursor -1 "$(wc -c <"$file")"; ipc type -1 $'\n## Three\n'
+nap 0.6
+expect "a new heading joins the outline after a pause" "4" "$(field "$(ipc state -1)" headings)"
+ipc command -1 outline
+expect "and Ctrl+\\ hides it again" "false" "$(field "$(ipc state -1)" outline)"
+
 state="$(ipc state -1)"
 echo "state $state"
 if [ $plain = 1 ]; then

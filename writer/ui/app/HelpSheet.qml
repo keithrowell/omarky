@@ -21,7 +21,7 @@ Rectangle {
     { title: "Rewrite with Claude", keys: [["Ctrl+J", "Rewrite the block or selection"], ["Ctrl+Shift+J", "Rewrite the section"],
                                            ["Ctrl+J again", "Take in more"], ["Enter  Esc", "Use the rewrite, drop it"],
                                            ["Alt+↑  Alt+↓", "Earlier and later rewrites"]] },
-    { title: "View", keys: [["Ctrl+P", "Preview"], ["Ctrl+Shift+F", "Focus on the paragraph"], ["Ctrl+Shift+T", "Typewriter scrolling"],
+    { title: "View", keys: [["Ctrl+P", "Preview"], ["Ctrl+\\", "Outline"], ["Ctrl+Shift+F", "Focus on the paragraph"], ["Ctrl+Shift+T", "Typewriter scrolling"],
                             ["Ctrl+Shift+M", "Next font"], ["Ctrl+Shift+L", "Spelling"], ["Ctrl+=  Ctrl+−", "Text size"]] },
     { title: "File", keys: [["Ctrl+S", "Save (saving is automatic)"], ["Ctrl+Shift+S", "Save as"], ["Ctrl+N", "New window"],
                             ["Ctrl+O", "Open"], ["Ctrl+R", "Recent files and drafts"], ["Ctrl+F  F3", "Find, next match"], ["Ctrl+W", "Close"]] }

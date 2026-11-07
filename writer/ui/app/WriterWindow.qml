@@ -6,10 +6,12 @@ import qs.Commons
 import qs.services
 import qs.components
 import "../lib/editing.js" as E
+import "../lib/ranges.js" as R
 
 // One window per document: the editor, a header that steps aside while
-// you type, the word count, find, the preview (OmarkyReader's renderer), and
-// saving as you go. The editor itself is Omarky's.
+// you type, the outline (OmarkyReader's, off until asked for), the word
+// count, find, the preview (OmarkyReader's renderer), and saving as you go.
+// The editor itself is Omarky's.
 FloatingWindow {
   id: win
 
@@ -35,6 +37,23 @@ FloatingWindow {
   property string diskText: ""
   property bool conflict: false
   property var counts: ({ words: 0, chars: 0, minutes: 0 })
+
+  // ---- the outline: the headings, reparsed a moment after typing stops,
+  // with the section the cursor is in shaded. Shown when asked for, the
+  // document has two headings or more and the window has room beside the
+  // column.
+  property var headings: []
+  readonly property bool outlineRoom: width >= Style.space(960)
+  readonly property bool outlineShown: Settings.outline && outlineRoom && headings.length > 1 && !previewShown
+  readonly property int outlineCurrent: {
+    var pos = editor.textEdit.cursorPosition, best = -1
+    for (var i = 0; i < headings.length; i++) {
+      if (headings[i].index <= pos) best = i
+      else break
+    }
+    return best
+  }
+  function reparse() { headings = R.outline(editor.text) }
 
   signal openFile(string path)
   signal newWindow()
@@ -131,6 +150,12 @@ FloatingWindow {
     case "open": openDialog.open(); break
     case "close": win.closeRequested(); break
     case "preview": showPreview(!previewShown); break
+    case "outline":
+      Settings.set("outline", !Settings.outline)
+      reparse()
+      if (Settings.outline && headings.length < 2) toast.show("No outline: fewer than two headings")
+      else if (Settings.outline && !outlineRoom) toast.show("Widen the window for the outline")
+      break
     case "focus": Settings.set("focus", !Settings.focus); toast.show(Settings.focus ? "Focus on" : "Focus off"); break
     case "typewriter": Settings.set("typewriter", !Settings.typewriter); toast.show(Settings.typewriter ? "Typewriter on" : "Typewriter off"); Qt.callLater(function() { editor.follow(true) }); break
     case "spell": Settings.set("spell", !Settings.spell); toast.show(Settings.spell ? "Spelling on" : "Spelling off"); break
@@ -167,6 +192,7 @@ FloatingWindow {
       editor.textEdit.cursorPosition = win.startAtEnd ? text.length : 0
       if (win.startAtEnd) Qt.callLater(function() { editor.follow(true) })
       win.counts = E.stats(text)
+      win.reparse()
       if (!win.draft) Settings.addRecent(path)
       editor.forceFocus()
     }
@@ -198,6 +224,9 @@ FloatingWindow {
   }
 
   Timer { id: countTimer; interval: 250; onTriggered: win.counts = E.stats(editor.text) }
+  // Kept current while the outline is off too: the header's outline button
+  // shows only for a document with headings.
+  Timer { id: outlineTimer; interval: 400; onTriggered: win.reparse() }
   Timer {
     id: previewText
     interval: 200
@@ -296,9 +325,28 @@ FloatingWindow {
 
     Rectangle { anchors.fill: parent; color: Theme.bg }
 
+    Outline {
+      id: outline
+      y: header.height
+      width: Style.space(264)
+      height: parent.height - y
+      x: win.outlineShown ? 0 : -width
+      visible: x > -width
+      headings: win.headings
+      current: win.outlineCurrent
+      // Steps aside with the header while you type, so the page is only text.
+      opacity: page.chrome || outlineHover.hovered ? 1 : 0
+      Behavior on opacity { NumberAnimation { duration: Reading.motion(page.chrome ? 160 : 600) } }
+      Behavior on x { NumberAnimation { duration: Reading.motion(160); easing.type: Easing.OutCubic } }
+      HoverHandler { id: outlineHover }
+      onJump: index => { editor.reveal(index); editor.forceFocus() }
+    }
+
     Editor {
       id: editor
-      anchors.fill: parent
+      x: outline.x + outline.width
+      width: parent.width - x
+      height: parent.height
       visible: !win.previewShown
       focusMode: Settings.focus
       typewriter: Settings.typewriter
@@ -311,6 +359,7 @@ FloatingWindow {
         autosave.restart()
         countTimer.restart()
         if (win.previewShown) previewText.restart()
+        outlineTimer.restart()
         if (win.findShown && findInput.text) win.matches = E.findAll(editor.text, findInput.text)
       }
     }
@@ -338,8 +387,9 @@ FloatingWindow {
     // Text fades into the page at both edges rather than being cut off.
     Rectangle {
       visible: !win.previewShown
+      x: editor.x
       y: header.opacity > 0.5 ? header.height : 0
-      width: parent.width
+      width: editor.width
       height: Style.space(28)
       gradient: Gradient {
         GradientStop { position: 0; color: Theme.bg }
@@ -348,8 +398,9 @@ FloatingWindow {
     }
     Rectangle {
       visible: !win.previewShown
+      x: editor.x
       anchors.bottom: parent.bottom
-      width: parent.width
+      width: editor.width
       height: Style.space(64)
       gradient: Gradient {
         GradientStop { position: 0; color: Util.alpha(Theme.bg, 0) }
@@ -360,7 +411,7 @@ FloatingWindow {
     // ---- the header: steps aside while you type, back on a mouse move
     HoverHandler { id: pageHover }
     property real lastMove: 0
-    readonly property bool chrome: !editor.typing || headerHover.hovered || win.previewShown || win.findShown || win.conflict
+    readonly property bool chrome: !editor.typing || headerHover.hovered || outlineHover.hovered || win.previewShown || win.findShown || win.conflict
 
     Rectangle {
       id: header
@@ -422,6 +473,7 @@ FloatingWindow {
         anchors.rightMargin: Style.space(10)
         anchors.verticalCenter: parent.verticalCenter
         spacing: Style.space(2)
+        ChipButton { visible: win.headings.length > 1; icon: ""; size: Style.font.body; active: win.outlineShown; onClicked: win.command("outline"); tip: "Outline  Ctrl+\\" }
         ChipButton { icon: ""; size: Style.font.body; active: win.findShown; onClicked: win.command("find"); tip: "Find  Ctrl+F" }
         ChipButton { icon: ""; size: Style.font.body; onClicked: win.command("font"); tip: "Font  Ctrl+Shift+M" }
         ChipButton { icon: ""; size: Style.font.body; active: Settings.focus; onClicked: win.command("focus"); tip: "Focus  Ctrl+Shift+F" }
@@ -527,7 +579,7 @@ FloatingWindow {
       id: counter
       anchors.bottom: parent.bottom
       anchors.bottomMargin: Style.space(14)
-      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.horizontalCenter: editor.horizontalCenter
       visible: !win.previewShown
       readonly property var sel: editor.textEdit.selectedText ? E.stats(editor.textEdit.selectedText) : null
       text: {
@@ -586,7 +638,8 @@ FloatingWindow {
       path: buffer.path, draft: draft, dirty: dirty, words: counts.words, preview: previewShown,
       focus: Settings.focus, typewriter: Settings.typewriter, font: Settings.font,
       cursor: editor.textEdit.cursorPosition, length: editor.text.length, highlighted: editor.highlighted,
-      spell: editor.highlighter ? editor.highlighter.spellAvailable : false
+      spell: editor.highlighter ? editor.highlighter.spellAvailable : false,
+      outline: outlineShown, headings: headings.length, section: outlineCurrent >= 0 ? headings[outlineCurrent].text : ""
     }
   }
   function debugType(s) { editor.textEdit.insert(editor.textEdit.cursorPosition, s) }
@@ -604,6 +657,7 @@ FloatingWindow {
     if (!ev.accepted && key === Qt.Key_Return) debugType("\n")
   }
   function debugText() { return editor.text }
+  function debugJump(i) { if (headings[i]) outline.jump(headings[i].index) }
   function debugRewrite(kind) { rewriter.open(kind || "block"); return rewriter.debugState() }
   function debugRewriteState() { return rewriter.debugState() }
   function debugRewriteSay(s) { rewriter.debugInstruction(s); return rewriter.debugKey("Return") }

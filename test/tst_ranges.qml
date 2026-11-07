@@ -58,4 +58,22 @@ TestCase {
     var r = R.blockAt("", 0)
     compare(r.start, 0); compare(r.end, 0)
   }
+
+  function test_outline_lists_headings_at_their_line_offsets() {
+    var hs = R.outline(doc)
+    compare(hs.map(function(h) { return h.level + " " + h.text }), ["1 Title", "2 One", "3 Deep", "2 Two"])
+    compare(doc.slice(hs[1].index, hs[1].index + 6), "## One")
+    compare(doc.slice(hs[3].index, hs[3].index + 6), "## Two")
+  }
+
+  function test_outline_skips_code_and_front_matter() {
+    var t = "---\ntitle: x\n---\n\n# Real\n\n```\n# not a heading\n```\n\nSetext\n------\n"
+    var hs = R.outline(t)
+    compare(hs.map(function(h) { return h.level + " " + h.text }), ["1 Real", "2 Setext"])
+    compare(t.slice(hs[1].index, hs[1].index + 6), "Setext")
+  }
+
+  function test_outline_of_an_empty_document() {
+    compare(R.outline("").length, 0)
+  }
 }
