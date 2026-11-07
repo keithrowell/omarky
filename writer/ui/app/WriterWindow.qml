@@ -347,6 +347,7 @@ FloatingWindow {
       x: outline.x + outline.width
       width: parent.width - x
       height: parent.height
+      lean: x
       visible: !win.previewShown
       focusMode: Settings.focus
       typewriter: Settings.typewriter

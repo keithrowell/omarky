@@ -26,6 +26,15 @@ Item {
   readonly property real measure: Math.min(width - gutter * 2, Math.round(metrics.averageCharacterWidth * 66))
   // Heading marks, list markers and quote marks hang in this gutter.
   readonly property real gutter: Math.round(size * 3.2)
+  // How far the window extends left of this view (the outline, when shown).
+  // The column leans back toward the window's centre by up to half of it,
+  // stopping at a golden split of the free space, as DocView does.
+  property real lean: 0
+  readonly property real margin: {
+    var free = flick.width - measure
+    var shift = Math.min(Math.max(0, lean) / 2, free / 2 - free / 2.618)
+    return Math.round(Math.max(gutter, free / 2 - shift))
+  }
   // A page's padding by default (half a window below, for typewriter
   // scrolling); a host showing one block in a card sets smaller ones.
   property real topPad: typewriter ? height / 2 : Math.max(Style.space(56), height * 0.12)
@@ -164,7 +173,7 @@ Item {
 
     TextEdit {
       id: edit
-      x: Math.round((flick.width - root.measure) / 2 - root.gutter)
+      x: root.margin - root.gutter
       y: root.topPad
       width: root.measure + root.gutter * 2
       textFormat: TextEdit.PlainText
