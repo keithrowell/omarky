@@ -579,6 +579,7 @@ FloatingWindow {
         changes: changes.shown
         documentName: win.fileName
         wide: win.wide
+        lean: md.x
         onNotice: t => toast.show(t)
         onOpenFile: (p, a) => win.openFile(p, a)
         onUnfoldRequested: i => changes.unfold(doc.blocks, i)

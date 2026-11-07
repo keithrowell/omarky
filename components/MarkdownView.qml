@@ -30,6 +30,8 @@ Item {
   // Shown in copied heading links: "name#slug".
   property string documentName: ""
   property bool wide: false
+  // Room left of this view that belongs to the window (DocView.lean).
+  property real lean: 0
   // Web and mail links go to linkActivated instead of xdg-open.
   property bool externalLinks: false
   // A prepared document: { blocks, headings, anchors, pieces, lineCount,
@@ -224,6 +226,7 @@ Item {
     anchorMap: mdDoc.anchorMap
     lineCount: mdDoc.lineCount
     wide: root.wide
+    lean: root.lean
     ctx: mdCtx
     signature: b => b.type + "\n" + mdDoc.sourceLines(b.srcStart, b.srcEnd)
   }

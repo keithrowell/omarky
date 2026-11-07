@@ -19,7 +19,16 @@ ListView {
   readonly property real measure: Math.round(bodyMetrics.averageCharacterWidth * (wide ? 100 : 68))
   readonly property real sideRoom: Math.max(Style.space(24), Math.min(Style.space(56), width * 0.06))
   readonly property real column: Math.max(Style.space(200), Math.min(measure, width - sideRoom * 2))
-  readonly property real gutter: Math.round((width - column) / 2)
+  // How far the window extends left of this view (the outline, when shown).
+  // The column leans back toward the window's centre by up to half of it,
+  // but stops at a golden split of the free space (1 left : 1.618 right), so
+  // it never crowds the outline.
+  property real lean: 0
+  readonly property real gutter: {
+    var free = width - column
+    var shift = Math.min(Math.max(0, lean) / 2, free / 2 - free / 2.618)
+    return Math.round(Math.max(sideRoom, free / 2 - shift))
+  }
   readonly property real topRoom: Style.space(44)
 
   // First block at the top of the view, and how far we are through the file
