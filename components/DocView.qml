@@ -31,6 +31,18 @@ ListView {
   }
   readonly property real topRoom: Style.space(44)
 
+  // Auto zoom (Prefs.autoZoom): the zoom at which the measure fills the
+  // width. Never below 1, and never so large that fewer than fitLines lines
+  // of prose fit the height. Measured at zoom 1, so it does not depend on
+  // the zoom it produces.
+  readonly property int fitLines: 12
+  readonly property real baseBody: Math.round(Style.font.body * 1.2)
+  readonly property real fitZoom: {
+    var byWidth = (width - sideRoom * 2) / Math.max(1, baseMetrics.averageCharacterWidth * (wide ? 100 : 68))
+    var byHeight = height / (fitLines * Reading.lineHeight * baseBody)
+    return Math.round(Math.max(1, Math.min(byWidth, byHeight, Prefs.maxZoom)) * 100) / 100
+  }
+
   // First block at the top of the view, and how far we are through the file
   // (by source line, so it is smooth and exact even though the ListView
   // only estimates its content height).
@@ -59,6 +71,7 @@ ListView {
   }
 
   FontMetrics { id: bodyMetrics; font.family: Reading.prose; font.styleName: "Regular"; font.pixelSize: Reading.body }
+  FontMetrics { id: baseMetrics; font.family: Reading.prose; font.styleName: "Regular"; font.pixelSize: root.baseBody }
 
   model: blocks
   clip: true
@@ -251,6 +264,18 @@ ListView {
     var b = blocks[i]
     anchorLine = { index: i, line: b ? b.srcStart : 0, sig: b && signature ? signature(b) : "",
                    offset: item ? contentY - item.y : 0 }
+  }
+
+  // A change that re-flows every block (the zoom): stay on the same block,
+  // at the same place in it. The blocks take their new heights before the
+  // view is put back.
+  function keepingPlace(change) {
+    captureAnchor()
+    var was = Reading.body
+    change()
+    if (anchorLine && anchorLine.offset) anchorLine.offset *= Reading.body / was
+    forceLayout()
+    restoreAnchor()
   }
 
   function restoreAnchor() {

@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# End-to-end check of auto zoom in a real (offscreen) OmarkyReader: off by
+# default; Z grows the text until the column fills the window and keeps the
+# place; the wide measure fits too; a zoom set by hand switches it off; the
+# mode is saved and comes back on the next launch; a clean log.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SUITE="$(cd "$ROOT/.." && pwd)"
+work="$(mktemp -d)"
+trap 'kill "${pid:-0}" 2>/dev/null || true; rm -rf "$work"' EXIT
+export OMARKY_READER_INSTANCE="zoom-$$" OMARKY_READER_STATE_DIR="$work/state" QT_QPA_PLATFORM=offscreen
+file="$work/zoom.md"
+{ echo "# Zoom"; for i in $(seq 60); do printf '\nParagraph %s. The measure stays the same number of characters wide however large the type is set, so a line breaks where it did before.\n' "$i"; done; } >"$file"
+nap() { python3 -c "import time; time.sleep($1)"; }
+ipc() { qs ipc --pid "$pid" call omarky-reader "$@"; }
+field() { python3 -c "import json,sys; v=json.load(sys.stdin)$1; print(v if not isinstance(v, bool) else str(v).lower())"; }
+get() { ipc state -1 | field "[\"$1\"]"; }
+start() {
+  "$SUITE/bin/omarky" read --foreground "$file" >>"$work/qs.log" 2>&1 &
+  pid=$!
+  for i in $(seq 60); do ipc count 2>/dev/null | grep -q '^[1-9]' && break; nap 0.2; done
+  for i in $(seq 40); do ipc state -1 2>/dev/null | field '["loaded"]' | grep -q true && break; nap 0.2; done
+  nap 0.6
+}
+fail=0
+expect() { if [ "$2" == "$3" ]; then echo "ok    $1"; else echo "FAIL  $1"; printf '  expected: %q\n  actual:   %q\n' "$2" "$3"; fail=1; fi; }
+more() { python3 -c "import sys; sys.exit(0 if float(sys.argv[1]) > float(sys.argv[2]) else 1)" "$1" "$2" && echo true || echo false; }
+
+start
+expect "auto zoom is off by default" "false" "$(get autoZoom)"
+expect "the zoom starts at 1" "1" "$(get zoom)"
+col1="$(get column)"; body1="$(get body)"; fit="$(get fitZoom)"
+expect "the window has room to grow into" "true" "$(more "$fit" 1)"
+
+ipc key -1 G; nap 0.6; ipc key -1 k; nap 0.4
+line="$(get topLine)"
+ipc key -1 z; nap 0.6
+expect "Z switches auto zoom on" "true" "$(get autoZoom)"
+expect "the zoom is the fit" "$fit" "$(get zoom)"
+expect "the text is larger" "true" "$(more "$(get body)" "$body1")"
+expect "the column is wider" "true" "$(more "$(get column)" "$col1")"
+expect "the place is kept" "$line" "$(get topLine)"
+expect "the mode is saved" "true" "$(field '["autoZoom"]' <"$work/state/settings.json")"
+
+narrow="$(get zoom)"
+ipc key -1 w; nap 0.6
+expect "the wide measure fits at a smaller zoom" "true" "$(more "$narrow" "$(get zoom)")"
+ipc key -1 w; nap 0.6
+expect "and the reading measure comes back" "$narrow" "$(get zoom)"
+
+kill "$pid"; wait "$pid" 2>/dev/null || true
+start
+expect "auto zoom comes back on the next launch" "true" "$(get autoZoom)"
+expect "at the fit" "$narrow" "$(get zoom)"
+
+ipc key -1 ctrl+minus; nap 0.6
+expect "a zoom by hand switches auto zoom off" "false" "$(get autoZoom)"
+expect "and steps from the size on the page" "true" "$(more "$narrow" "$(get zoom)")"
+ipc key -1 ctrl+0; nap 0.6
+expect "Ctrl+0 is the plain size" "$body1" "$(get body)"
+expect "at the plain measure" "$col1" "$(get column)"
+ipc key -1 z; nap 0.6; ipc key -1 z; nap 0.6
+expect "Z again switches it off, back to the zoom set by hand" "1" "$(get zoom)"
+
+if grep -E 'WARN|ERROR|CRIT|TypeError|ReferenceError' "$work/qs.log" | grep -vE 'WAYLAND_DISPLAY|running wayland|--- WARNING ---|window masks|by-path'; then
+  echo "FAIL  the qs log is not clean"; fail=1
+else
+  echo "ok    clean log"
+fi
+exit $fail

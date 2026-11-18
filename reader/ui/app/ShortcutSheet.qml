@@ -17,7 +17,7 @@ Rectangle {
                                ["Esc", "Back to reading"]] }
   ] : []).concat([
     { title: "Read", keys: [["j  k  ↓  ↑", "Scroll"], ["Space  Shift+Space", "Page down / up"], ["g g  G", "Top / bottom"],
-                            ["O  Ctrl+\\", "Outline"], ["W", "Reading / wide measure"], ["Ctrl+  Ctrl−  Ctrl+0", "Zoom text"]] },
+                            ["O  Ctrl+\\", "Outline"], ["W", "Reading / wide measure"], ["Ctrl+  Ctrl−  Ctrl+0", "Zoom text"], ["Z", "Auto zoom: fill the window"]] },
     { title: "Find & copy", keys: [["Ctrl+F", "Find"], ["Enter  Shift+Enter", "Next / previous match"],
                                    ["Right-click", "Copy a block's Markdown"], ["Ctrl+Shift+C", "Copy the block under the mouse"],
                                    ["Ctrl+Shift+A", "Copy the whole file"]] },

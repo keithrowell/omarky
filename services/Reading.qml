@@ -10,7 +10,7 @@ import "../lib/fonts.js" as Fonts
 Singleton {
   id: root
 
-  readonly property real zoom: Prefs.zoom
+  readonly property real zoom: Prefs.effective
 
   // The reading families. Each can be asked for by the environment or by
   // an app embedding MarkdownView (Reading.proseFamily = "IBM Plex Sans");
