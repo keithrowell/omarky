@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Io
 
 // What OmarkyReader remembers across launches, under ~/.local/state/omarky-reader:
-//   settings.json  { zoom }
+//   settings.json  { zoom, autoZoom }
 //   recent.json    [ "/abs/path.md", … ]  newest first, at most 20
 // Screenshot runs (OMARKY_SHOT) neither read nor write it.
 Singleton {
@@ -16,11 +16,25 @@ Singleton {
   readonly property string dir: (Quickshell.env("OMARKY_READER_STATE_DIR")
     || (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/omarky-reader")
   property real zoom: 1.0
+  // Auto zoom: the reading text grows until the column fills the window
+  // (DocView.fitZoom), so the measure stays 68 characters at any width.
+  // fitZoom is what the window in use last measured; it is never saved.
+  // Setting a zoom by hand (setZoom) switches auto zoom off.
+  property bool autoZoom: false
+  property real fitZoom: 1.0
+  readonly property real effective: autoZoom ? fitZoom : zoom
+  readonly property real maxZoom: 6.0
   property var recent: []
   readonly property int maxRecent: 20
 
   function setZoom(z) {
-    zoom = Math.round(Math.max(0.6, Math.min(2.2, z)) * 100) / 100
+    zoom = Math.round(Math.max(0.6, Math.min(maxZoom, z)) * 100) / 100
+    autoZoom = false
+    save()
+  }
+
+  function setAutoZoom(on) {
+    autoZoom = !!on
     save()
   }
 
@@ -40,7 +54,7 @@ Singleton {
   function save() {
     if (ephemeral) return
     mkdir.running = true
-    settingsFile.setText(JSON.stringify({ zoom: zoom }, null, 2) + "\n")
+    settingsFile.setText(JSON.stringify({ zoom: zoom, autoZoom: autoZoom }, null, 2) + "\n")
   }
 
   function saveRecent() {
@@ -59,7 +73,8 @@ Singleton {
     onLoaded: {
       try {
         var s = JSON.parse(text())
-        if (typeof s.zoom === "number" && isFinite(s.zoom)) root.zoom = Math.max(0.6, Math.min(2.2, s.zoom))
+        if (typeof s.zoom === "number" && isFinite(s.zoom)) root.zoom = Math.max(0.6, Math.min(root.maxZoom, s.zoom))
+        if (typeof s.autoZoom === "boolean") root.autoZoom = s.autoZoom
       } catch (e) {
         console.warn("OmarkyReader: ignoring unreadable settings.json")
       }

@@ -110,7 +110,7 @@ FloatingWindow {
       title: title, width: width, height: height, implicitW: implicitWidth, path: path, loaded: doc.loaded, missing: doc.missing, blocks: doc.blocks.length,
       parseMs: doc.parseMs, reloads: doc.reloads, topLine: doc.blocks[view.topIndex] ? doc.blocks[view.topIndex].srcStart : -1, contentY: Math.round(view.contentY), topIndex: view.topIndex,
       progress: Math.round(view.progress * 1000) / 1000, outline: outlineShown, wide: wide,
-      theme: Theme.name, bg: Theme.hex(Theme.bg), kshTheme: Highlight.themeName, column: Math.round(view.column), zoom: Prefs.zoom, body: Reading.body, help: helpShown,
+      theme: Theme.name, bg: Theme.hex(Theme.bg), kshTheme: Highlight.themeName, column: Math.round(view.column), zoom: Reading.zoom, autoZoom: Prefs.autoZoom, fitZoom: view.fitZoom, body: Reading.body, help: helpShown,
       find: { shown: findShown, query: finder.query, count: finder.matches.length, current: finder.current },
       clipboard: Quickshell.clipboardText.slice(0, 200), selection: ctx.selectionOwner ? ctx.selectionOwner.selectedText : "",
       hasHistory: hasHistory, dirty: versions.dirty, versions: versions.history.length, list: listShown, picking: picking,
@@ -217,7 +217,7 @@ FloatingWindow {
     versionsProc.command = [launcher, "read", path, "--versions"]
     versionsProc.running = true
   }
-  onPathChanged: { changes.clear(); refreshVersions() }
+  onPathChanged: { changes.clear(); refreshVersions(); fitTimer.restart() }
   Timer { id: versionsDebounce; interval: 400; onTriggered: win.refreshVersions() }
 
   Process {
@@ -266,6 +266,7 @@ FloatingWindow {
     else resolveSpec(fromSpec, "from")
   }
   Component.onCompleted: {
+    fitTimer.restart()
     if (path) Prefs.addRecent(path)
     refreshVersions()
     Qt.callLater(applyShotOptions)
@@ -416,11 +417,11 @@ FloatingWindow {
       } else if (k === Qt.Key_Backslash) {
         outlineWanted = !outlineWanted
       } else if (k === Qt.Key_Plus || k === Qt.Key_Equal) {
-        Prefs.setZoom(Prefs.zoom + 0.1)
+        view.keepingPlace(function() { Prefs.setZoom(Reading.zoom + 0.1) })
       } else if (k === Qt.Key_Minus) {
-        Prefs.setZoom(Prefs.zoom - 0.1)
+        view.keepingPlace(function() { Prefs.setZoom(Reading.zoom - 0.1) })
       } else if (k === Qt.Key_0) {
-        Prefs.setZoom(1)
+        view.keepingPlace(function() { Prefs.setZoom(1) })
       } else return
       event.accepted = true
       return
@@ -443,6 +444,7 @@ FloatingWindow {
     else if (t === "?") helpShown = true
     else if (t === "q") win.closeRequested()
     else if (t === "w" || t === "W") wide = !wide
+    else if (t === "z" || t === "Z") toggleAutoZoom()
     else if (t === "o" || t === "O") outlineWanted = !outlineWanted
     else if (t === "e") editBlock(false)
     else if (t === "E") editBlock(true)
@@ -471,6 +473,29 @@ FloatingWindow {
 
   Timer { id: chordTimer; interval: 900; onTriggered: win.pendingG = false }
 
+  // ---- auto zoom: the text grows until the reading column fills the window.
+  // The zoom is shared by every window (Reading is one scale), so the window
+  // in use sets it: on a resize, and when the pointer comes back to it.
+  function applyFit() {
+    if (!Prefs.autoZoom || !path || width <= 0) return
+    var z = view.fitZoom
+    if (Math.abs(z - Prefs.fitZoom) < 0.005) return
+    view.keepingPlace(function() { Prefs.fitZoom = z })
+  }
+
+  function toggleAutoZoom() {
+    view.keepingPlace(function() {
+      Prefs.setAutoZoom(!Prefs.autoZoom)
+      if (Prefs.autoZoom) Prefs.fitZoom = view.fitZoom
+    })
+    toast.show(Prefs.autoZoom ? "Auto zoom on" : "Auto zoom off")
+  }
+
+  // A resize arrives as many small steps; settle before re-laying the text.
+  Timer { id: fitTimer; interval: 120; onTriggered: win.applyFit() }
+  Connections { target: win.view; function onFitZoomChanged() { fitTimer.restart() } }
+  Connections { target: Prefs; function onAutoZoomChanged() { fitTimer.restart() } }
+
   FileDialog {
     id: fileDialog
     title: "Open a Markdown file"
@@ -490,6 +515,7 @@ FloatingWindow {
     Keys.onPressed: event => win.handleKey(event)
 
     Item { id: keySink; focus: true }
+    HoverHandler { onHoveredChanged: if (hovered) win.applyFit() }
 
     // Opaque base so grabs render exactly as on screen.
     Rectangle { anchors.fill: parent; color: Theme.bg }
@@ -502,6 +528,7 @@ FloatingWindow {
       outlineShown: win.outlineShown
       outlineAvailable: doc.headings.length > 1
       wide: win.wide
+      autoZoom: Prefs.autoZoom
       findShown: win.findShown
       hasDocument: !!win.path && doc.loaded
       hasHistory: win.hasHistory
@@ -514,6 +541,7 @@ FloatingWindow {
       foldOn: changes.foldOn
       onToggleOutline: win.outlineWanted = !win.outlineWanted
       onToggleWide: win.wide = !win.wide
+      onToggleAutoZoom: win.toggleAutoZoom()
       onToggleFind: { if (win.findShown) win.closeFind(); else { win.findShown = true; findBar.focusField() } }
       onCopyAll: ctx.copyText(doc.source, "Copied the whole file")
       onShowHelp: win.helpShown = true
@@ -683,7 +711,7 @@ FloatingWindow {
       ctx: win.ctx
       path: win.path
       fileName: win.fileName
-      zoom: Prefs.zoom
+      zoom: Reading.zoom
       column: view.column
       bin: win.launcher
       stateDir: Prefs.ephemeral ? "" : Prefs.dir

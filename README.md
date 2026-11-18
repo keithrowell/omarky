@@ -136,6 +136,7 @@ To update, pull and run the install script again. The reader's state (zoom, rece
 | `Ctrl+J` | In the edit sheet, rewrite the block, section or selection with Claude |
 | `W` | Switch between the reading measure (68 characters) and a wide one (100) |
 | `Ctrl++` `Ctrl+-` `Ctrl+0` | Zoom the text (remembered) |
+| `Z` | Auto zoom: the text grows until the column fills the window, still 68 characters wide (remembered) |
 | `Ctrl+F` or `/` | Find; `Enter` and `Shift+Enter` (or `n` and `N`) step through matches, `Esc` closes |
 | Right-click a block | Copy its Markdown source |
 | `Ctrl+Shift+C` | Copy the Markdown of the block under the mouse |

@@ -17,6 +17,7 @@ Rectangle {
   property bool outlineShown: false
   property bool outlineAvailable: true
   property bool wide: false
+  property bool autoZoom: false
   property bool findShown: false
   property bool hasDocument: true
   // Changes: the file has versions; the disk differs from the newest one;
@@ -31,6 +32,7 @@ Rectangle {
   property bool foldOn: false
   signal toggleOutline()
   signal toggleWide()
+  signal toggleAutoZoom()
   signal toggleFind()
   signal copyAll()
   signal showHelp()
@@ -181,6 +183,7 @@ Rectangle {
     ChipButton { icon: ""; size: Style.font.body; onClicked: root.copyAll(); tip: "Copy all  Ctrl+Shift+A" }
     ChipButton { visible: root.comparing && root.total > 0; icon: ""; size: Style.font.body; active: root.foldOn; onClicked: root.toggleFold(); tip: root.foldOn ? "Show everything  F" : "Only what changed  F" }
     ChipButton { visible: root.hasDocument; icon: root.wide ? "" : ""; size: Style.font.body; active: root.wide; onClicked: root.toggleWide(); tip: root.wide ? "Reading width  W" : "Wide width  W" }
+    ChipButton { visible: root.hasDocument; icon: "\uf034"; size: Style.font.body; active: root.autoZoom; onClicked: root.toggleAutoZoom(); tip: root.autoZoom ? "Auto zoom is on  Z" : "Auto zoom: fill the window  Z" }
     ChipButton { visible: root.hasDocument && root.outlineAvailable; icon: ""; size: Style.font.body; active: root.outlineShown; onClicked: root.toggleOutline(); tip: "Outline  O" }
     Item {
       id: versionsChip
